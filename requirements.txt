@@ -1,0 +1,49 @@
+# Core Dependencies
+pydantic>=2.0
+python-dotenv>=1.0
+
+# Database & Storage
+sqlalchemy>=2.0
+psycopg2-binary>=2.9
+alembic>=1.10
+
+# Graph & Knowledge
+networkx>=3.0
+fasttree>=0.2
+
+# Async & Concurrency
+aiofiles>=23.0
+aioredis>=2.0
+
+# API & Web
+fastapi>=0.100
+uvicorn>=0.23
+pydantic-settings>=2.0
+
+# Cryptography & Security
+pycryptodome>=3.17
+pyjwt>=2.8
+bcrypt>=4.0
+
+# Serialization
+msgpack>=1.0
+orjson>=3.9
+
+# Testing
+pytest>=7.4
+pytest-asyncio>=0.21
+pytest-cov>=4.1
+
+# Observability
+prometheus-client>=0.17
+python-json-logger>=2.0
+
+# Development
+black>=23.7
+flake8>=6.0
+mypy>=1.4
+isort>=5.12
+
+# Documentation
+sphinx>=7.0
+mkdocs>=1.4
