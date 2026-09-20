@@ -55,6 +55,7 @@ class ExecutionResult:
     execution_id: str
     status: ExecutionStatus
     outcome: Dict[str, Any] = field(default_factory=dict)
+    inputs: Dict[str, Any] = field(default_factory=dict)
     output: Any = None
     events_created: list = field(default_factory=list)
     state_changes: Dict[str, Any] = field(default_factory=dict)
@@ -70,6 +71,7 @@ class ExecutionResult:
             "execution_id": self.execution_id,
             "status": self.status.value,
             "outcome": self.outcome,
+            "inputs": self.inputs,
             "output": self.output,
             "events_created": len(self.events_created),
             "state_changes": self.state_changes,
@@ -127,6 +129,7 @@ class VXRuntime:
         result = ExecutionResult(
             execution_id=envelope.execution_id,
             status=ExecutionStatus.RUNNING,
+            inputs=dict(envelope.inputs),
         )
         
         try:
@@ -147,6 +150,8 @@ class VXRuntime:
                     event_type="EXECUTION_COMPLETED",
                     actor_id=envelope.actor.id if envelope.actor else "SYSTEM",
                     capability_used=envelope.capability,
+                    input_hash=self._hash(envelope.inputs),
+                    output_hash=self._hash(output),
                     payload={
                         "execution_id": envelope.execution_id,
                         "input_hash": self._hash(envelope.inputs),
@@ -207,23 +212,31 @@ class VXRuntime:
                 errors=["Execution not found"],
             )
         
-        # Re-execute with same inputs
+        # Re-execute with the exact captured inputs. Never replay with an
+        # empty payload: that would test a different execution and could
+        # falsely report determinism.
         replayed = ExecutionResult(
             execution_id=execution_id,
             status=ExecutionStatus.RUNNING,
+            inputs=dict(original.inputs),
         )
-        
+
         try:
-            # This should produce identical output
-            # (verifies determinism)
-            output = worker_fn({})  # Simplified
-            replayed.status = ExecutionStatus.SUCCESS
+            output = worker_fn(dict(original.inputs))
             replayed.output = output
+            replayed.outcome = {"success": True, "output": output}
+
+            if self._hash(output) != self._hash(original.output):
+                replayed.status = ExecutionStatus.FAILED
+                replayed.errors.append("NON_DETERMINISTIC_OUTPUT")
+                return replayed
+
+            replayed.status = ExecutionStatus.SUCCESS
+            return replayed
         except Exception as e:
             replayed.status = ExecutionStatus.FAILED
             replayed.errors.append(str(e))
-        
-        return replayed
+            return replayed
     
     def get_execution(self, execution_id: str) -> Optional[ExecutionResult]:
         """Get execution result"""
