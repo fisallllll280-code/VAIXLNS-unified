@@ -9,7 +9,6 @@ alembic>=1.10
 
 # Graph & Knowledge
 networkx>=3.0
-fasttree>=0.2
 
 # Async & Concurrency
 aiofiles>=23.0
