@@ -22,4 +22,4 @@ jobs:
       - name: Test
         run: python -m pytest -q
       - name: Full smoke cycle
-        run: python scripts/vaixlns_smoke.py
+        run: python -m scripts.vaixlns_smoke
