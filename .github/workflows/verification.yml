@@ -21,3 +21,5 @@ jobs:
           python -m pip install pytest
       - name: Test
         run: python -m pytest -q
+      - name: Full smoke cycle
+        run: python -m scripts.vaixlns_smoke
