@@ -1,0 +1,21 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "required":["version","owner","repositories"],
+  "properties":{
+    "version":{"type":"string"},
+    "owner":{"type":"string"},
+    "repositories":{
+      "type":"array",
+      "items":{
+        "type":"object",
+        "required":["full_name","role","actions"],
+        "properties":{
+          "full_name":{"type":"string"},
+          "role":{"type":"string"},
+          "actions":{"type":"array","items":{"type":"string"}}
+        }
+      }
+    }
+  }
+}
