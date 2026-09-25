@@ -102,6 +102,7 @@ def run_smoke() -> BootReport:
     state.transition(StateEvent.BOOT, "genesis")
     state.transition(StateEvent.INITIALIZE, "federation registry loaded")
     state.transition(StateEvent.CHECK, "local executable surface discovered")
+    state.transition(StateEvent.CHECK, "readiness gate")
     state.transition(StateEvent.ACTIVATE, "constitutional checks passed")
 
     identity_service = IdentityService()
