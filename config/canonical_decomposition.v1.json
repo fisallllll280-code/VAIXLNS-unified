@@ -1,0 +1,237 @@
+{
+  "version": "1.0",
+  "canonical_system": "VAIXLNS",
+  "decomposition_rule": "decompose before synthesis; preserve provenance; no silent merge",
+  "planes": [
+    {
+      "id": "omega",
+      "name": "Constitution and meta-control",
+      "status": "specified",
+      "owners": [
+        "VAIXLNS"
+      ],
+      "responsibility": [
+        "constitutional rules",
+        "meta-control",
+        "evolution boundaries"
+      ]
+    },
+    {
+      "id": "nexus",
+      "name": "Canonical knowledge and relation fabric",
+      "status": "partial",
+      "owners": [
+        "VAIXLNS"
+      ],
+      "responsibility": [
+        "identity",
+        "meaning",
+        "dependencies",
+        "capabilities",
+        "causality",
+        "lineage",
+        "proof"
+      ]
+    },
+    {
+      "id": "intent",
+      "name": "Intent / reality boundary",
+      "status": "partial",
+      "owners": [
+        "VAIXLNS-Intent-to-Reality"
+      ],
+      "responsibility": [
+        "normalize intent",
+        "map intent to executable representation",
+        "external-world boundary"
+      ]
+    },
+    {
+      "id": "intelligence",
+      "name": "Multi-mind intelligence fabric",
+      "status": "partial",
+      "owners": [
+        "VAIXLNS-unified"
+      ],
+      "responsibility": [
+        "routing",
+        "specialist reasoning",
+        "research",
+        "innovation",
+        "review"
+      ]
+    },
+    {
+      "id": "invention",
+      "name": "Invention and capability genome",
+      "status": "partial",
+      "owners": [
+        "VAIXLNS-unified",
+        "NEXENT"
+      ],
+      "responsibility": [
+        "gap discovery",
+        "candidate generation",
+        "recombination",
+        "promotion",
+        "reuse"
+      ]
+    },
+    {
+      "id": "simulation",
+      "name": "Mathematics / physics / engineering simulation",
+      "status": "partial",
+      "owners": [
+        "VAIXLNS-unified"
+      ],
+      "responsibility": [
+        "formal computation",
+        "physical models",
+        "engineering models",
+        "counterfactual experiments"
+      ]
+    },
+    {
+      "id": "execution",
+      "name": "VX deterministic execution fabric",
+      "status": "partial",
+      "owners": [
+        "VAIXLNS-unified",
+        "VX-runtime",
+        "vaixlns-core"
+      ],
+      "responsibility": [
+        "prepare",
+        "authorize",
+        "execute",
+        "verify",
+        "replay",
+        "recovery"
+      ]
+    },
+    {
+      "id": "governance",
+      "name": "Policy / authority / capability firewall",
+      "status": "partial",
+      "owners": [
+        "vaixlns-core",
+        "VAIXLNS-unified"
+      ],
+      "responsibility": [
+        "authorization",
+        "policy",
+        "capability binding",
+        "least privilege"
+      ]
+    },
+    {
+      "id": "memory",
+      "name": "Versioned evidence-aware memory",
+      "status": "partial",
+      "owners": [
+        "VAIXLNS-unified"
+      ],
+      "responsibility": [
+        "branch",
+        "invalidate",
+        "provenance",
+        "knowledge decay",
+        "failure memory"
+      ]
+    },
+    {
+      "id": "operations",
+      "name": "Operational integrity and observability",
+      "status": "partial",
+      "owners": [
+        "VAIXLNS-unified"
+      ],
+      "responsibility": [
+        "boot",
+        "readiness",
+        "telemetry",
+        "drift",
+        "recovery",
+        "safe mode"
+      ]
+    },
+    {
+      "id": "federation",
+      "name": "Repository and tool federation",
+      "status": "partial",
+      "owners": [
+        "VAIXLNS"
+      ],
+      "responsibility": [
+        "GitHub lineage",
+        "source discovery",
+        "tool registry",
+        "dependency provenance"
+      ]
+    },
+    {
+      "id": "interfaces",
+      "name": "Mission-composed interface fabric",
+      "status": "partial",
+      "owners": [
+        "VAIXLNS-unified"
+      ],
+      "responsibility": [
+        "dynamic workspaces",
+        "domain rooms",
+        "operations console",
+        "proof views"
+      ]
+    },
+    {
+      "id": "evolution",
+      "name": "Architecture search and governed evolution",
+      "status": "partial",
+      "owners": [
+        "NEXENT",
+        "VAIXLNS-unified"
+      ],
+      "responsibility": [
+        "architecture search",
+        "mutation",
+        "counterfactuals",
+        "blast radius",
+        "evolution gate"
+      ]
+    }
+  ],
+  "four_domain_room": {
+    "domains": [
+      "mathematics",
+      "physics",
+      "engineering",
+      "computing"
+    ],
+    "shared_planes": [
+      "intelligence",
+      "invention",
+      "simulation",
+      "execution",
+      "verification",
+      "memory",
+      "interfaces"
+    ],
+    "selection_rule": "customer mission selects one or more domains; router composes only the necessary specialists"
+  },
+  "implementation_delta": [
+    "invention-engine",
+    "reversible-runtime",
+    "canonical-gap-audit",
+    "four-domain-router",
+    "typed-nexus",
+    "deterministic-reference-simulation",
+    "durable-memory",
+    "openai-responses-bridge",
+    "github-federation-adapter",
+    "authority-contract",
+    "model-tool-registry",
+    "mission-interface-manifest",
+    "desired-state-reconciliation",
+    "architecture-search-self-critique-lab"
+  ]
+}

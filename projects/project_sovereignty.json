@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "principle": "AI has leased capabilities; the customer remains the project owner.",
+  "projects": {
+    "GOLDEN_WALLET": {
+      "display_name": "المحفظة الذهبية",
+      "owner": "customer",
+      "ai_ownership": "none",
+      "transfer_policy": "customer-only",
+      "merge_policy": "explicit-customer-approval"
+    },
+    "BEAST": {
+      "display_name": "الوحش",
+      "owner": "customer",
+      "ai_ownership": "none",
+      "transfer_policy": "customer-only",
+      "merge_policy": "explicit-customer-approval"
+    }
+  },
+  "agent_rule": "agents may propose, execute within leased permissions, and improve artifacts; they do not acquire ownership of customer projects."
+}

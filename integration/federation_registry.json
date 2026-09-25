@@ -1,9 +1,9 @@
 {
   "schema": "VAIXLNS.FederationRegistry.v1",
-  "snapshot": "2026-09-25",
+  "snapshot": "2026-09-25T14:00:00Z",
   "canonical_namespace": "VAIXLNS",
-  "integration_mode": "federated",
-  "rule": "runtime implementations remain source-owned; canonical meaning remains in VAIXLNS",
+  "integration_mode": "federated-canonical",
+  "rule": "decompose before integration; source-owned implementations remain separately attributable; canonical contracts live in VAIXLNS",
   "repositories": [
     {
       "repository": "fisallllll280-code/VAIXLNS",
@@ -19,9 +19,9 @@
     },
     {
       "repository": "fisallllll280-code/vaixlns-core",
-      "role": "core-reference",
+      "role": "constitutional-core",
       "system": "V",
-      "status": "SPECIFIED"
+      "status": "SOURCE_IMPLEMENTATION"
     },
     {
       "repository": "fisallllll280-code/vaixlns-csd-kernel",
@@ -33,7 +33,7 @@
       "repository": "fisallllll280-code/VX-runtime",
       "role": "runtime-specialization",
       "system": "VX",
-      "status": "SPECIFIED"
+      "status": "SOURCE_SPEC"
     },
     {
       "repository": "fisallllll280-code/VX50_COMPLETE_BUILD",
@@ -44,8 +44,8 @@
     {
       "repository": "fisallllll280-code/VAIXLNS-Intent-to-Reality",
       "role": "intent-boundary",
-      "system": "Intent",
-      "status": "INCOMPLETE"
+      "system": "Intent/V-IR",
+      "status": "SOURCE_CONTRACT"
     },
     {
       "repository": "fisallllll280-code/VAIXLNS-Naming-Constitution-v1.0",
@@ -67,9 +67,9 @@
     },
     {
       "repository": "fisallllll280-code/NEXENT",
-      "role": "discovery-research",
-      "system": "Discovery/XV-adjacent",
-      "status": "DISCOVERY"
+      "role": "discovery-and-architecture-search",
+      "system": "NEXENT/XV-adjacent",
+      "status": "DISCOVERY_ENGINE"
     },
     {
       "repository": "fisallllll280-code/tools-vaixlns-meta-core-v0.3.ts",
@@ -81,7 +81,25 @@
       "repository": "fisallllll280-code/VX_EXECUTION_BUILD_CONTRACT_V0_1.yaml",
       "role": "execution-contract",
       "system": "VX",
-      "status": "CONTRACT"
+      "status": "CONTRACT_SOURCE"
+    },
+    {
+      "repository": "VAIXLNS/VAIXLNS",
+      "role": "external-canonical-mirror",
+      "system": "VAIXLNS Architecture",
+      "status": "DISCOVERED"
+    },
+    {
+      "repository": "VAIXLNS/docs",
+      "role": "external-documentation-surface",
+      "system": "Documentation",
+      "status": "DISCOVERED"
+    },
+    {
+      "repository": "VAIXLNS/improved-barnacle",
+      "role": "unclassified-adjacent",
+      "system": "Unknown",
+      "status": "UNCLASSIFIED"
     }
   ],
   "unclassified_policy": "Adjacent repositories remain untouched until content establishes a defensible VAIXLNS relationship.",

@@ -1,0 +1,81 @@
+name: VX Invention Engine
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test-vx-invention-engine:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run invention/runtime tests
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Emit lifecycle manifest
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          manifest = {
+              "system": "VAIXLNS/VX",
+              "lifecycle": [
+                  "mission", "route", "compose", "simulate", "test",
+                  "verify", "promote", "execute", "record", "reuse", "evolve"
+              ],
+              "branch": os.environ.get("GITHUB_REF_NAME"),
+              "sha": os.environ.get("GITHUB_SHA")
+          }
+          Path("vx_lifecycle_manifest.json").write_text(
+              json.dumps(manifest, ensure_ascii=False, indent=2) + "\\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Emit internal provenance manifest
+        env:
+          VX_REPOSITORY: ${{ github.repository }}
+          VX_COMMIT: ${{ github.sha }}
+          VX_WORKFLOW: ${{ github.workflow }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from provenance.manifest import build_manifest
+          payload = Path("vx_lifecycle_manifest.json").read_bytes()
+          manifest = build_manifest(
+              repository=os.environ["VX_REPOSITORY"],
+              commit=os.environ["VX_COMMIT"],
+              workflow=os.environ["VX_WORKFLOW"],
+              materials=[os.environ["VX_REPOSITORY"] + "@" + os.environ["VX_COMMIT"]],
+              artifact_payload=payload,
+          )
+          Path("vx_provenance.json").write_text(
+              json.dumps(manifest.to_dict(), ensure_ascii=False, indent=2) + "\\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload lifecycle manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: vx-lifecycle-manifest
+          path: vx_lifecycle_manifest.json
+
+      - name: Upload provenance manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: vx-provenance-manifest
+          path: vx_provenance.json

@@ -1,0 +1,61 @@
+{
+  "version": "2.0",
+  "purpose": "Mission-driven invention primitives for VAIXLNS/VX",
+  "principle": "Intelligence proposes; verification promotes; explicit authority executes",
+  "primitives": [
+    {
+      "id": "cross_domain_synthesis",
+      "type": "capability",
+      "domains": ["mathematics", "physics", "engineering", "computing"],
+      "description": "Compose capabilities across domains into one candidate instead of treating domains as isolated assistants."
+    },
+    {
+      "id": "proof_carrying_invention",
+      "type": "capability",
+      "domains": ["formal", "verification"],
+      "description": "Every candidate carries explicit proof obligations, evidence and verification state."
+    },
+    {
+      "id": "counterfactual_design_tree",
+      "type": "workflow",
+      "domains": ["research", "engineering", "optimization"],
+      "description": "Generate alternate architectures and compare them by executable evidence rather than chat preference."
+    },
+    {
+      "id": "memory_branching",
+      "type": "memory",
+      "domains": ["all"],
+      "description": "Branch hypotheses and invalidate failed knowledge without silently rewriting history."
+    },
+    {
+      "id": "capability_genome",
+      "type": "architecture",
+      "domains": ["all"],
+      "description": "Verified inventions become reusable capabilities that can participate in later synthesis."
+    },
+    {
+      "id": "reversible_operations",
+      "type": "runtime",
+      "domains": ["computing", "operations"],
+      "description": "Operations have explicit phases, event history, replay and recovery hooks."
+    },
+    {
+      "id": "mission_composed_interface",
+      "type": "interface",
+      "domains": ["all"],
+      "description": "The workspace is generated from the customer's objective, domain mix, constraints and output type."
+    },
+    {
+      "id": "repository_as_engineering_memory",
+      "type": "integration",
+      "domains": ["software", "research"],
+      "description": "GitHub repositories are treated as versioned engineering evidence and lineage sources."
+    },
+    {
+      "id": "self_evaluating_capability",
+      "type": "capability",
+      "domains": ["all"],
+      "description": "A capability records evidence and invariants required to re-use it, rather than exposing only a text answer."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "version": "1.0",
+  "principles": [
+    "trust servers explicitly",
+    "least privilege",
+    "credentials never appear in URLs",
+    "sensitive operations require approval",
+    "tool provenance is recorded"
+  ],
+  "servers": {
+    "github": {
+      "enabled": true,
+      "approval_required_for": ["write", "merge", "delete", "workflow-rerun"],
+      "allowed_scopes": ["repository-read", "repository-write", "actions-read"],
+      "provenance_required": true
+    }
+  }
+}

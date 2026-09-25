@@ -1,0 +1,36 @@
+# VXSL is a declarative system description, not a programming-language implementation file.
+system AeroGenesis {
+  project GOLDEN_WALLET
+  domain mathematics
+  domain physics
+  domain engineering
+  domain computing
+
+  quantity mass: kg
+  quantity acceleration: m/s^2
+  state position: m
+  state velocity: m/s
+
+  law F = mass * acceleration
+  law d(position)/dt = velocity
+
+  constraint energy_conserved
+  constraint deterministic_replay
+  capability coupled_solver
+  capability architecture_search
+
+  mind mathematician
+  mind physicist
+  mind engineer
+  mind systems_architect
+  mind security_reviewer
+  mind innovator
+
+  simulate dynamics
+  simulate counterfactual_designs
+
+  prove equations_consistent
+  prove execution_reproducible
+
+  interface four_domain_command_room
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VXSL Canonical IR",
+  "type": "object",
+  "required": ["name", "domains", "semantics_version", "source_of_truth", "implementation_target_policy"],
+  "properties": {
+    "identity": {"type": "string"},
+    "name": {"type": "string"},
+    "semantics_version": {"const": "1.0"},
+    "source_of_truth": {"const": "VXSL"},
+    "implementation_target_policy": {"const": "polyglot"},
+    "domains": {"type": "array", "items": {"type": "string"}},
+    "quantities": {"type": "array"},
+    "states": {"type": "array", "items": {"type": "string"}},
+    "laws": {"type": "array"},
+    "constraints": {"type": "array", "items": {"type": "string"}},
+    "capabilities": {"type": "array", "items": {"type": "string"}},
+    "minds": {"type": "array", "items": {"type": "string"}},
+    "simulations": {"type": "array", "items": {"type": "string"}},
+    "proofs": {"type": "array", "items": {"type": "string"}},
+    "interfaces": {"type": "array", "items": {"type": "string"}},
+    "project_id": {"type": ["string", "null"]},
+    "compiler": {"type": "object"}
+  }
+}
