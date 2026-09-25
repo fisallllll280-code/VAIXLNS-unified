@@ -1,0 +1,51 @@
+name: VX Invention Engine
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test-vx-invention-engine:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run invention/runtime tests
+        run: python -m unittest discover -s tests -p 'test_vx_impossible_operations.py' -v
+
+      - name: Emit lifecycle manifest
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          manifest = {
+              "system": "VAIXLNS/VX",
+              "lifecycle": [
+                  "mission", "route", "compose", "simulate", "test",
+                  "verify", "promote", "execute", "record", "reuse", "evolve"
+              ],
+              "branch": os.environ.get("GITHUB_REF_NAME"),
+              "sha": os.environ.get("GITHUB_SHA")
+          }
+          Path("vx_lifecycle_manifest.json").write_text(
+              json.dumps(manifest, ensure_ascii=False, indent=2) + "\\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload lifecycle manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: vx-lifecycle-manifest
+          path: vx_lifecycle_manifest.json
