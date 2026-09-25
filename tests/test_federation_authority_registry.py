@@ -6,6 +6,7 @@ from governance.authority_contract import ConstitutionAuthorizer
 from intelligence.model_registry import CapabilityRegistry, ModelSpec, ToolSpec
 from interface.manifest import InterfaceFactory
 from operations.reconciliation import Reconciler
+from adapters.github_federation import GitHubFederationAdapter
 
 
 class FederationAuthorityRegistryTests(unittest.TestCase):
@@ -29,6 +30,12 @@ class FederationAuthorityRegistryTests(unittest.TestCase):
         self.assertIn("topology",ui.panels)
         self.assertIn("code",ui.panels)
         self.assertIn("execute",ui.controls)
+
+    def test_github_adapter_requires_runtime_token(self):
+        adapter=GitHubFederationAdapter(token=None)
+        self.assertFalse(adapter.configured)
+        with self.assertRaisesRegex(RuntimeError, "GITHUB_TOKEN_NOT_CONFIGURED"):
+            adapter.repository_metadata("fisallllll280-code/VAIXLNS")
 
     def test_reconciliation(self):
         state={"ready":False}
