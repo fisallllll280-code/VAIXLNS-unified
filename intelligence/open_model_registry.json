@@ -1,0 +1,10 @@
+{
+  "version":"1.0",
+  "selection_mode":"trait and mission driven; no fixed universal winner",
+  "models":[
+    {"id":"gpt-oss-120b","provider":"OpenAI","mode":"open-weight","capabilities":["reasoning","coding","tool_use","general"],"license":"Apache-2.0"},
+    {"id":"gpt-oss-20b","provider":"OpenAI","mode":"open-weight","capabilities":["reasoning","coding","tool_use","general","low_latency"],"license":"Apache-2.0"},
+    {"id":"Qwen3","provider":"Qwen","mode":"open-weight","capabilities":["reasoning","math","science","coding","tool_use","multilingual","long_context"],"license":"model-specific"},
+    {"id":"Kimi-K3","provider":"Moonshot AI","mode":"open-weight","capabilities":["reasoning","coding","vision","long_context","multilingual","agentic"],"license":"verify-model-terms"}
+  ]
+}
