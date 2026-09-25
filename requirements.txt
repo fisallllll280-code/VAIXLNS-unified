@@ -46,3 +46,7 @@ isort>=5.12
 # Documentation
 sphinx>=7.0
 mkdocs>=1.4
+
+# Optional model and observability bridges
+openai>=1.0
+opentelemetry-api>=1.0
