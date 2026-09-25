@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "selection_mode": "evidence-driven; no fixed winner",
+  "backends": [
+    {"id":"ltx-2","repository":"Lightricks/LTX-2","capabilities":["text-to-video","image-to-video","video-to-video","audio-to-video","keyframe-interpolation","synchronized-audio-video","hdr","lora"]},
+    {"id":"wan-2.2","repository":"Wan-Video/Wan2.2","capabilities":["text-to-video","image-to-video","open-weight"]},
+    {"id":"hunyuanvideo-1.5","repository":"Tencent-Hunyuan/HunyuanVideo-1.5","capabilities":["text-to-video","image-to-video","open-weight","consumer-gpu-oriented"]},
+    {"id":"cogvideox","repository":"zai-org/CogVideo","capabilities":["text-to-video","image-to-video","video-continuation","video-to-video","fine-tuning","captioning"]}
+  ],
+  "selection_features":["visual_fidelity","motion_coherence","audio_sync","control","duration","resolution","latency","gpu_budget","license","self_hostability"]
+}
