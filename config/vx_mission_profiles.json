@@ -1,0 +1,120 @@
+{
+  "version": "1.0",
+  "profiles": {
+    "solve": {
+      "domains": [
+        "math",
+        "computing",
+        "engineering",
+        "physics"
+      ],
+      "priority": [
+        "decomposition",
+        "verification",
+        "simulation"
+      ]
+    },
+    "build": {
+      "domains": [
+        "computing",
+        "engineering"
+      ],
+      "priority": [
+        "architecture",
+        "code",
+        "tests"
+      ]
+    },
+    "simulate": {
+      "domains": [
+        "physics",
+        "math",
+        "engineering"
+      ],
+      "priority": [
+        "modeling",
+        "simulation",
+        "validation"
+      ]
+    },
+    "engineer": {
+      "domains": [
+        "engineering",
+        "systems",
+        "computing"
+      ],
+      "priority": [
+        "constraints",
+        "architecture",
+        "optimization"
+      ]
+    },
+    "discover": {
+      "domains": [
+        "research",
+        "github",
+        "knowledge"
+      ],
+      "priority": [
+        "search",
+        "provenance",
+        "reuse"
+      ]
+    },
+    "invent": {
+      "domains": [
+        "all"
+      ],
+      "priority": [
+        "novel_composition",
+        "simulation",
+        "verification",
+        "evolution"
+      ]
+    },
+    "operate": {
+      "domains": [
+        "operations",
+        "security",
+        "recovery"
+      ],
+      "priority": [
+        "execution",
+        "observability",
+        "recovery"
+      ]
+    },
+    "research": {
+      "domains": [
+        "research",
+        "math",
+        "physics",
+        "computing"
+      ],
+      "priority": [
+        "evidence",
+        "hypotheses",
+        "experiments"
+      ]
+    }
+  },
+  "selection": {
+    "customer_controls": [
+      "mission",
+      "domains",
+      "constraints",
+      "autonomy",
+      "latency",
+      "resource_budget",
+      "risk_tolerance",
+      "output_type"
+    ],
+    "system_controls": [
+      "policy",
+      "authority",
+      "verification",
+      "provenance",
+      "security"
+    ]
+  }
+}
