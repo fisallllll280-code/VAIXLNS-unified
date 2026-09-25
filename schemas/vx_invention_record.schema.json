@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VX Invention Record",
+  "type": "object",
+  "required": [
+    "id",
+    "kind",
+    "mission",
+    "status",
+    "lineage",
+    "capabilities",
+    "evidence"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "agent",
+        "interface",
+        "model",
+        "memory",
+        "workflow",
+        "capability",
+        "architecture",
+        "simulation",
+        "tool-composition"
+      ]
+    },
+    "mission": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "candidate",
+        "simulated",
+        "tested",
+        "verified",
+        "operational",
+        "retired"
+      ]
+    },
+    "lineage": {
+      "type": "object"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "inputs": {
+      "type": "array"
+    },
+    "outputs": {
+      "type": "array"
+    },
+    "dependencies": {
+      "type": "array"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "proof": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "memory_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "repository_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "agents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evolution": {
+      "type": "object"
+    }
+  }
+}
