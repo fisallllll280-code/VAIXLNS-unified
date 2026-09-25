@@ -78,3 +78,37 @@ A candidate is not promoted merely because an agent generated it. Promotion requ
 - verification result
 - evidence references
 - reusable capability registration
+
+
+## VXSL semantic layer
+
+The canonical source language for system invention is now VXSL. It represents domains, quantities,
+laws, states, constraints, capabilities, minds, simulations, proofs, interfaces, ownership and
+lineage before any implementation language is chosen.
+
+Implementation targets remain polyglot. The system description is not owned by Python, Rust,
+Modelica, Lean, TypeScript or any other backend.
+
+## Multimodal projection
+
+One verified system can produce:
+- engineering diagrams
+- technical storyboards
+- narrated engineering video plans
+- interactive exploration views
+- digital-twin views
+
+All projections inherit the same system identity and provenance.
+
+## Open model strategy
+
+The intelligence layer is not tied to a single model. Open-weight candidates are registered by
+portable traits and mission fit. Current registry candidates include gpt-oss-120b, gpt-oss-20b,
+Qwen3 and Kimi-K3. Model-specific licensing and redistribution terms must be checked before
+shipping weights or derivatives.
+
+## Open video strategy
+
+The media layer is not tied to a single generator. Current registered families include LTX-2,
+Wan2.2, HunyuanVideo-1.5 and CogVideoX. Selection is requirement-driven across fidelity,
+motion, audio, control, duration, resolution, latency, GPU budget, license and self-hostability.
