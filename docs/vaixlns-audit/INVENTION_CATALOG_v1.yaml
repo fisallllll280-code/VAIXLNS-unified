@@ -1,0 +1,72 @@
+schema_version: "VAIXLNS-INVENTION-CATALOG-v1"
+inventions:
+  - id: INV-001
+    name: CSE
+    title: Canonical Semantic Engine
+    input: raw_logs|spec
+    output: sir.json|semantic_fingerprint
+    integration: semantics|sir
+    status: PROPOSAL
+  - id: INV-002
+    name: DCEG
+    title: Deterministic Causal Execution Graph Engine
+    input: sir.json|raw_logs
+    output: dceg.trace|replay.trace
+    integration: replay|causality
+    status: PROPOSAL
+  - id: INV-003
+    name: eDNA
+    title: Evidence DNA
+    input: evidence artifacts
+    output: evidence.bundle|evidence.dna
+    integration: evidence|fingerprint
+    status: PROPOSAL
+  - id: INV-004
+    name: AMF
+    title: Adversarial Mutation Framework
+    input: conformance vectors
+    output: adversarial.report|mutations.log
+    integration: adversarial
+    status: PROPOSAL
+  - id: INV-005
+    name: CREM
+    title: Cross-Runtime Equivalence Matrix
+    input: verdict.json from runtimes
+    output: cross-runtime.matrix|diff.report
+    integration: cross-runtime|conformance
+    status: PROPOSAL
+  - id: INV-006
+    name: FPO
+    title: Formal Proof Orchestrator
+    input: SIR|fingerprint
+    output: formal.proof|model_check.report
+    integration: formal|vv
+    status: PROPOSAL
+  - id: INV-007
+    name: OIF
+    title: Operational Integrity Fabric
+    input: evidence|verification gates
+    output: oif.status|oif.evidence
+    integration: constitution|certification
+    status: PROPOSAL
+  - id: INV-008
+    name: MCI
+    title: Master Capability Indexer
+    input: Recovery Canon|capability registry
+    output: master-index|capability.graph
+    integration: nexus
+    status: PROPOSAL
+  - id: INV-009
+    name: SFC
+    title: Semantic Fingerprint Canonicalizer
+    input: canonical SIR
+    output: fingerprint.txt|fingerprint.schema
+    integration: fingerprint|schemas
+    status: PROPOSAL
+  - id: INV-010
+    name: RDV
+    title: Replay Determinism Verifier
+    input: execution traces
+    output: determinism.report|replay.diff
+    integration: replay|conformance
+    status: PROPOSAL
