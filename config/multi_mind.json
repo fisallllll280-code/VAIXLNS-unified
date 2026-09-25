@@ -1,0 +1,105 @@
+{
+  "version": "1.0",
+  "mode": "local-first",
+  "principles": [
+    "Any configured AI/tool can participate through an adapter",
+    "No mind receives constitutional authority",
+    "Proposals require policy/authority before execution",
+    "Execution occurs through VX",
+    "Verification and operational proof occur through VV/OIF"
+  ],
+  "minds": [
+    {
+      "id": "architect",
+      "role": "system architecture",
+      "capabilities": [
+        "architecture",
+        "general"
+      ]
+    },
+    {
+      "id": "developer",
+      "role": "software development",
+      "capabilities": [
+        "development",
+        "code",
+        "general"
+      ]
+    },
+    {
+      "id": "researcher",
+      "role": "research and discovery",
+      "capabilities": [
+        "research",
+        "discovery",
+        "general"
+      ]
+    },
+    {
+      "id": "math",
+      "role": "mathematics and formal reasoning",
+      "capabilities": [
+        "math",
+        "verification"
+      ]
+    },
+    {
+      "id": "physics",
+      "role": "physics and simulation",
+      "capabilities": [
+        "physics",
+        "simulation"
+      ]
+    },
+    {
+      "id": "security",
+      "role": "security review",
+      "capabilities": [
+        "security",
+        "verification"
+      ]
+    },
+    {
+      "id": "tester",
+      "role": "testing and validation",
+      "capabilities": [
+        "testing",
+        "verification"
+      ]
+    },
+    {
+      "id": "optimizer",
+      "role": "performance and optimization",
+      "capabilities": [
+        "optimization",
+        "general"
+      ]
+    },
+    {
+      "id": "innovator",
+      "role": "innovation and candidate generation",
+      "capabilities": [
+        "innovation",
+        "discovery",
+        "general"
+      ]
+    },
+    {
+      "id": "operator",
+      "role": "operations and recovery planning",
+      "capabilities": [
+        "operations",
+        "recovery",
+        "general"
+      ]
+    },
+    {
+      "id": "reviewer",
+      "role": "independent review and contradiction detection",
+      "capabilities": [
+        "review",
+        "verification"
+      ]
+    }
+  ]
+}
