@@ -91,6 +91,15 @@ def check_local_modules() -> dict[str, bool]:
         "execution.state_machine": "execution.state_machine",
         "execution.determinism": "execution.determinism",
         "execution.vx_runtime": "execution.vx_runtime",
+        "vx.invention_engine": "vx.invention_engine",
+        "vx.runtime_supervisor": "vx.runtime_supervisor",
+        "vx.mission_router": "vx.mission_router",
+        "nexus.typed_graph": "nexus.typed_graph",
+        "simulation.runtime": "simulation.runtime",
+        "memory.durable_fabric": "memory.durable_fabric",
+        "evolution.architecture_lab": "evolution.architecture_lab",
+        "interface.manifest": "interface.manifest",
+        "operations.reconciliation": "operations.reconciliation",
     }
     return {name: importlib.util.find_spec(module) is not None for name, module in required.items()}
 
