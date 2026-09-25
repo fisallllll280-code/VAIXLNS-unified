@@ -1,0 +1,89 @@
+{
+  "schema": "VAIXLNS.FederationRegistry.v1",
+  "snapshot": "2026-09-25",
+  "canonical_namespace": "VAIXLNS",
+  "integration_mode": "federated",
+  "rule": "runtime implementations remain source-owned; canonical meaning remains in VAIXLNS",
+  "repositories": [
+    {
+      "repository": "fisallllll280-code/VAIXLNS",
+      "role": "canonical",
+      "system": "V",
+      "status": "CANONICAL"
+    },
+    {
+      "repository": "fisallllll280-code/VAIXLNS-unified",
+      "role": "integrated-runtime",
+      "system": "VAIXLNS",
+      "status": "RUNTIME"
+    },
+    {
+      "repository": "fisallllll280-code/vaixlns-core",
+      "role": "core-reference",
+      "system": "V",
+      "status": "SPECIFIED"
+    },
+    {
+      "repository": "fisallllll280-code/vaixlns-csd-kernel",
+      "role": "specialized-kernel",
+      "system": "CSD",
+      "status": "SPECIFIED"
+    },
+    {
+      "repository": "fisallllll280-code/VX-runtime",
+      "role": "runtime-specialization",
+      "system": "VX",
+      "status": "SPECIFIED"
+    },
+    {
+      "repository": "fisallllll280-code/VX50_COMPLETE_BUILD",
+      "role": "build-surface",
+      "system": "VX50",
+      "status": "INCOMPLETE"
+    },
+    {
+      "repository": "fisallllll280-code/VAIXLNS-Intent-to-Reality",
+      "role": "intent-boundary",
+      "system": "Intent",
+      "status": "INCOMPLETE"
+    },
+    {
+      "repository": "fisallllll280-code/VAIXLNS-Naming-Constitution-v1.0",
+      "role": "constitutional-support",
+      "system": "Identity/Naming",
+      "status": "SPECIFIED"
+    },
+    {
+      "repository": "fisallllll280-code/VAIXLNS_OPERATIONAL_ASSURANCE.md",
+      "role": "assurance-artifact",
+      "system": "Assurance",
+      "status": "SPECIFIED"
+    },
+    {
+      "repository": "fisallllll280-code/VAIXLNS-",
+      "role": "historical-variant",
+      "system": "Legacy",
+      "status": "QUARANTINED"
+    },
+    {
+      "repository": "fisallllll280-code/NEXENT",
+      "role": "discovery-research",
+      "system": "Discovery/XV-adjacent",
+      "status": "DISCOVERY"
+    },
+    {
+      "repository": "fisallllll280-code/tools-vaixlns-meta-core-v0.3.ts",
+      "role": "meta-tooling",
+      "system": "Meta",
+      "status": "TOOLING"
+    },
+    {
+      "repository": "fisallllll280-code/VX_EXECUTION_BUILD_CONTRACT_V0_1.yaml",
+      "role": "execution-contract",
+      "system": "VX",
+      "status": "CONTRACT"
+    }
+  ],
+  "unclassified_policy": "Adjacent repositories remain untouched until content establishes a defensible VAIXLNS relationship.",
+  "operational_state": "PARTIAL"
+}
