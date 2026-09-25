@@ -6,6 +6,8 @@ renderer. It makes an interface a first-class, reproducible artifact.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from hashlib import sha256
+import json
 from typing import Any, Dict, Iterable, List, Mapping, Tuple
 
 
@@ -33,8 +35,10 @@ class InterfaceFactory:
             panels += ["topology","constraints","resources"]
         if "computing" in selected:
             panels += ["code","build","runtime"]
+        identity_payload=json.dumps({"mission":mission,"domains":selected},sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+        stable_id=sha256(identity_payload).hexdigest()[:16]
         return InterfaceInvention(
-            id=f"ui:{abs(hash((mission, selected))) & 0xffffffffffffffff:x}",
+            id=f"ui:{stable_id}",
             mission=mission,
             domains=selected,
             panels=tuple(dict.fromkeys(panels)),
