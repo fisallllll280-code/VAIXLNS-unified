@@ -1,0 +1,35 @@
+{
+  "canonical_language": "VXSL",
+  "principle": "semantic source of truth above implementation languages",
+  "backends": {
+    "mathematics": [
+      {"language":"Julia","role":"numerical/scientific computing"},
+      {"language":"Lean","role":"formal proof"},
+      {"language":"Python","role":"symbolic/AI orchestration"}
+    ],
+    "physics": [
+      {"language":"Modelica","role":"acausal multi-domain system modeling"},
+      {"language":"FMI","role":"model exchange/co-simulation interface"},
+      {"language":"C++","role":"high-performance solver kernels"}
+    ],
+    "engineering": [
+      {"language":"Modelica","role":"physical system models"},
+      {"language":"FMI","role":"co-simulation packaging"},
+      {"language":"OpenUSD","role":"scene/digital-twin representation"}
+    ],
+    "computing": [
+      {"language":"Rust","role":"safe deterministic runtime components"},
+      {"language":"C++/CUDA","role":"accelerated kernels"},
+      {"language":"Python","role":"ML/tool orchestration"},
+      {"language":"WebAssembly","role":"portable sandboxed artifacts"}
+    ],
+    "data": [
+      {"language":"SQL","role":"persistent querying"},
+      {"language":"Arrow","role":"columnar data interchange"}
+    ],
+    "interface": [
+      {"language":"TypeScript","role":"mission UI"},
+      {"language":"WebAssembly","role":"portable compute modules"}
+    ]
+  }
+}
