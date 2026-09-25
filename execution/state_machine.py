@@ -110,6 +110,7 @@ class StateMachine:
             Event.BOOT: State.BOOTING,
             Event.INITIALIZE: State.INITIALIZING,
             Event.CHECK: State.CHECKING,
+            Event.READY: State.READY,
             Event.ACTIVATE: State.ACTIVE,
             Event.DEGRADE: State.DEGRADED,
             Event.RECOVER: State.RECOVERING,
