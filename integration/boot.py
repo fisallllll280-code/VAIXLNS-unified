@@ -12,6 +12,10 @@ import json
 from pathlib import Path
 from typing import Any, Callable
 
+from integration.canonical_gap_audit import report as gap_report
+from vx.mission_router import MissionRouter
+from intelligence.openai_responses_adapter import OpenAIResponsesAdapter
+
 from core.identity import Identity, IdentityService, Permission
 from core.ledger import Event, SovereignEventLedger
 from core.sovereign_constitution import SovereignConstitution
@@ -34,6 +38,9 @@ class BootReport:
     ledger_integrity: bool
     smoke_passed: bool
     operational_state: str
+    gap_audit: dict[str, Any]
+    four_domain_room: dict[str, Any]
+    openai_bridge_configured: bool
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -143,6 +150,13 @@ def run_smoke() -> BootReport:
     smoke_passed = smoke_passed and result.status == ExecutionStatus.SUCCESS
     smoke_passed = smoke_passed and replay.status == ExecutionStatus.SUCCESS
     smoke_passed = smoke_passed and ledger.verify_integrity()
+    gap_audit = gap_report(ROOT / "config" / "canonical_decomposition.v1.json")
+    room = MissionRouter(ROOT / "config" / "vx_mission_profiles.json").compose(
+        "VAIXLNS four-domain smoke mission",
+        ("mathematics", "physics", "engineering", "computing"),
+        mode="solve",
+    )
+    openai_bridge = OpenAIResponsesAdapter()
 
     return BootReport(
         federation_entries=len(registry["repositories"]),
@@ -154,4 +168,12 @@ def run_smoke() -> BootReport:
         ledger_integrity=ledger.verify_integrity(),
         smoke_passed=smoke_passed,
         operational_state="PARTIAL" if smoke_passed else "FAILED",
+        gap_audit=gap_audit,
+        four_domain_room={
+            "domains": list(room.domains),
+            "minds": list(room.minds),
+            "workspaces": list(room.workspaces),
+            "gates": list(room.gates),
+        },
+        openai_bridge_configured=openai_bridge.configured,
     )
