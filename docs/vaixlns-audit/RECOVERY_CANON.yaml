@@ -1,0 +1,92 @@
+schema_version: "VAIXLNS-RECOVERY-CANON-v1"
+audit_date: "2026-09-25"
+canonical_target: "VAIXLNS-unified"
+target_missing_repo: "vlns-vx-conformance"
+status_vocabulary:
+  - VERIFIED
+  - SPECIFIED
+  - PARTIAL
+  - MISSING
+  - CONFLICT
+  - PROPOSAL
+
+repositories:
+  - id: REP-001
+    name: "VAIXLNS-unified"
+    status: "PARTIAL"
+    role: "current integration target"
+    evidence: ["core/ledger.py","core/sovereign_constitution.py","execution/vx_runtime.py","execution/determinism.py","execution/state_machine.py","tests/test_vx_runtime_replay.py",".github/workflows/verification.yml"]
+  - id: REP-002
+    name: "vaixlns-core"
+    status: "CONFLICT"
+    role: "vertical-slice specification/claim source"
+    evidence: ["README.md","ARCHITECTURE.md"]
+  - id: REP-003
+    name: "VX-runtime"
+    status: "SPECIFIED"
+    role: "VX contract source"
+    evidence: ["README.md","docs/manuals"]
+  - id: REP-004
+    name: "VAIXLNS-Intent-to-Reality"
+    status: "PARTIAL"
+    role: "intent pipeline"
+  - id: REP-005
+    name: "VX50_COMPLETE_BUILD"
+    status: "PARTIAL"
+    role: "VX50 build track"
+  - id: REP-006
+    name: "vaixlns-csd-kernel"
+    status: "SPECIFIED"
+    role: "genesis/CSD root"
+    evidence: ["VAIXLNS_ROOT.lns"]
+  - id: REP-007
+    name: "VAIXLNS_OPERATIONAL_ASSURANCE.md"
+    status: "SPECIFIED"
+    role: "operational assurance record"
+  - id: REP-008
+    name: "VAIXLNS-Naming-Constitution-v1.0"
+    status: "SPECIFIED"
+    role: "naming/constitution source"
+  - id: REP-009
+    name: "public VAIXLNS/VAIXLNS"
+    status: "RECOVERY-SOURCE"
+    role: "canonical event/state/replay/intelligence artifacts"
+  - id: REP-010
+    name: "public 7two77/VAIXLNS-Builder-v0.1"
+    status: "RECOVERY-SOURCE"
+    role: "parser/IR/generator/evidence/Lean pipeline"
+
+inventions:
+  INV-001: {name: "Canonical Semantic Engine", status: "PROPOSAL"}
+  INV-002: {name: "Deterministic Causal Execution Graph Engine", status: "PROPOSAL"}
+  INV-003: {name: "Evidence DNA", status: "PROPOSAL"}
+  INV-004: {name: "Adversarial Mutation Framework", status: "PROPOSAL"}
+  INV-005: {name: "Cross-Runtime Equivalence Matrix", status: "PROPOSAL"}
+  INV-006: {name: "Formal Proof Orchestrator", status: "PROPOSAL"}
+  INV-007: {name: "Operational Integrity Fabric", status: "PROPOSAL"}
+  INV-008: {name: "Master Capability Indexer", status: "PROPOSAL"}
+  INV-009: {name: "Semantic Fingerprint Canonicalizer", status: "PROPOSAL"}
+  INV-010: {name: "Replay Determinism Verifier", status: "PROPOSAL"}
+
+recovery_candidates:
+  - "Ω Master Index / Ω.000–Ω.140"
+  - "0001–2750 Recovery Canon"
+  - "VSG / System Genome"
+  - "VV Knowledge & Discovery Fabric"
+  - "XV Intelligence / Planning / Evolution"
+  - "SUF"
+  - "Intelligence Gateway"
+  - "Collective Intelligence"
+  - "Pattern Forest"
+  - "Causal Knowledge Graph"
+  - "V-DIFF"
+  - "OIF"
+  - "FPO"
+  - "CREM"
+  - "CSE"
+  - "DCEG"
+  - "eDNA"
+  - "AMF"
+  - "SFC"
+  - "RDV"
+  - "MCI"
