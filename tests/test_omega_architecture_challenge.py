@@ -65,21 +65,31 @@ def test_omega_golden_chain_failure_recovery_and_replay():
 
 
 def test_omega_governance_boundary_rejects_undeclared_capability():
-    """The benchmark must fail closed when capability evidence is absent."""
-    ledger = SovereignEventLedger()
-    runtime = VXRuntime(ledger)
-    actor = Identity(id="omega-actor", name="OMEGA", actor_type="system")
+    """The constitutional adapter must fail closed without capability evidence."""
+    from core.sovereign_constitution import SovereignConstitution
+    from governance.authority_contract import ConstitutionAuthorizer
+    from core.identity import Permission
 
-    envelope = ExecutionEnvelope(
+    actor = Identity(
+        id="omega-actor",
+        name="OMEGA",
+        actor_type="system",
+        permissions={Permission.EXECUTE},
+    )
+    authorizer = ConstitutionAuthorizer(SovereignConstitution())
+
+    denied = authorizer.decide(
         actor=actor,
         capability="undeclared.capability",
-        inputs={"value": 1},
+        operation={"action": "run"},
     )
+    assert denied.allowed is False
+    assert denied.reason == "CAPABILITY_REQUIRED"
 
-    # The low-level runtime is intentionally capability-agnostic; the
-    # benchmark records this as a governance integration obligation rather
-    # than pretending VX itself performed authorization.
-    result = runtime.execute(envelope, lambda p: p["value"])
-
-    assert result.status == ExecutionStatus.SUCCESS
-    assert result.output == 1
+    actor.grant_capability("omega.reference")
+    allowed = authorizer.decide(
+        actor=actor,
+        capability="omega.reference",
+        operation={"action": "run"},
+    )
+    assert allowed.allowed is True
