@@ -50,7 +50,7 @@ class OpenAICompatibleAdapter:
         if not mind.endpoint:
             return {"status": "not_configured", "mind": mind.id}
         body = json.dumps({"model": mind.id, "messages": [{"role": "user", "content": f"Objective: {task.objective}\nKind: {task.kind}\nContext: {json.dumps(task.context, ensure_ascii=False)}\nConstraints: {json.dumps(task.constraints, ensure_ascii=False)}"}]}).encode()
-        req = urllib.request.Request(mind.endpoint.rstrip("/") + "/chat/completions", data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {os.environ.get("VX_AI_API_KEY", "")}"}, method="POST")
+        req = urllib.request.Request(mind.endpoint.rstrip("/") + "/chat/completions", data=body, headers={"Content-Type": "application/json", "Authorization": "Bearer " + os.environ.get("VX_AI_API_KEY", "")}, method="POST")
         with urllib.request.urlopen(req, timeout=300) as response:
             return json.loads(response.read().decode())
 
