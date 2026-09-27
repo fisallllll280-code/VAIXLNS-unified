@@ -1,0 +1,18 @@
+{
+  "challenge_id": "VAIXLNS-OMEGA-ARCH-001",
+  "scenario_id": "OMEGA-GOLDEN-001",
+  "steps": [
+    "execute",
+    "controlled_failure",
+    "recover",
+    "verify_ledger",
+    "replay"
+  ],
+  "expected": {
+    "golden_output": 42,
+    "recovery_output": 42,
+    "replay_output": 42,
+    "requires_failure_history": true,
+    "requires_ledger_integrity": true
+  }
+}
