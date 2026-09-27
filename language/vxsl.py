@@ -12,7 +12,7 @@ from dataclasses import asdict, dataclass, field
 from hashlib import sha256
 import json
 import re
-from typing import Any, Dict, Iterable, List, Mapping, Tuple
+from typing import Any, Dict, Mapping, Tuple
 
 
 @dataclass(frozen=True)
@@ -123,10 +123,18 @@ class VXSLCompiler:
         "ui": ("TypeScript", "WebAssembly"),
     }
 
+    # VXSL keeps human-facing domain names while normalizing semantic aliases
+    # before target selection. This prevents equivalent domain vocabulary from
+    # silently producing different implementation targets.
+    DOMAIN_ALIASES = {
+        "mathematics": "math",
+    }
+
     def compile_targets(self, spec: SystemSpec) -> Dict[str, Tuple[str, ...]]:
         roles=[]
-        for d in spec.domains:
-            roles.extend(self.TARGET_ROLES.get(d, ()))
+        for domain in spec.domains:
+            normalized=self.DOMAIN_ALIASES.get(domain, domain)
+            roles.extend(self.TARGET_ROLES.get(normalized, ()))
         return {"targets": tuple(dict.fromkeys(roles))}
 
     def compile(self, text: str) -> Dict[str, Any]:
