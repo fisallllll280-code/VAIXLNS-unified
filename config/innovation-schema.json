@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VAIXLNS Innovation Execution Record",
+  "type": "object",
+  "required": ["innovation_id", "lifecycle_state", "capability", "architecture", "implementation_plan", "verification_plan"],
+  "properties": {
+    "innovation_id": {"type": "string"},
+    "legacy_ids": {"type": "array", "items": {"type": "string"}},
+    "family": {"type": "string"},
+    "source": {"type": "string"},
+    "problem": {"type": "string"},
+    "capability": {"type": "string"},
+    "architecture": {"type": "string"},
+    "required_agents": {"type": "array", "items": {"type": "string"}},
+    "required_tools": {"type": "array", "items": {"type": "string"}},
+    "interfaces": {"type": "array", "items": {"type": "string"}},
+    "data_dependencies": {"type": "array", "items": {"type": "string"}},
+    "infrastructure_dependencies": {"type": "array", "items": {"type": "string"}},
+    "security_policy": {"type": "string"},
+    "implementation_plan": {"type": "string"},
+    "test_plan": {"type": "string"},
+    "verification_plan": {"type": "string"},
+    "deployment_target": {"type": "string"},
+    "operational_owner": {"type": "string"},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "lineage": {"type": "array", "items": {"type": "string"}},
+    "lifecycle_state": {
+      "type": "string",
+      "enum": ["RECOVERED", "CLASSIFIED", "CANONICAL", "DESIGNED", "IMPLEMENTED", "TESTED", "VERIFIED", "DEPLOYED", "RUNNING", "EVOLVING"]
+    }
+  }
+}
