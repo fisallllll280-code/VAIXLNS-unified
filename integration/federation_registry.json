@@ -1,107 +1,26 @@
 {
   "schema": "VAIXLNS.FederationRegistry.v1",
-  "snapshot": "2026-09-25T14:00:00Z",
+  "snapshot": "2026-10-05T05:00:00+03:00",
   "canonical_namespace": "VAIXLNS",
   "integration_mode": "federated-canonical",
   "rule": "decompose before integration; source-owned implementations remain separately attributable; canonical contracts live in VAIXLNS",
   "repositories": [
-    {
-      "repository": "fisallllll280-code/VAIXLNS",
-      "role": "canonical",
-      "system": "V",
-      "status": "CANONICAL"
-    },
-    {
-      "repository": "fisallllll280-code/VAIXLNS-unified",
-      "role": "integrated-runtime",
-      "system": "VAIXLNS",
-      "status": "RUNTIME"
-    },
-    {
-      "repository": "fisallllll280-code/vaixlns-core",
-      "role": "constitutional-core",
-      "system": "V",
-      "status": "SOURCE_IMPLEMENTATION"
-    },
-    {
-      "repository": "fisallllll280-code/vaixlns-csd-kernel",
-      "role": "specialized-kernel",
-      "system": "CSD",
-      "status": "SPECIFIED"
-    },
-    {
-      "repository": "fisallllll280-code/VX-runtime",
-      "role": "runtime-specialization",
-      "system": "VX",
-      "status": "SOURCE_SPEC"
-    },
-    {
-      "repository": "fisallllll280-code/VX50_COMPLETE_BUILD",
-      "role": "build-surface",
-      "system": "VX50",
-      "status": "INCOMPLETE"
-    },
-    {
-      "repository": "fisallllll280-code/VAIXLNS-Intent-to-Reality",
-      "role": "intent-boundary",
-      "system": "Intent/V-IR",
-      "status": "SOURCE_CONTRACT"
-    },
-    {
-      "repository": "fisallllll280-code/VAIXLNS-Naming-Constitution-v1.0",
-      "role": "constitutional-support",
-      "system": "Identity/Naming",
-      "status": "SPECIFIED"
-    },
-    {
-      "repository": "fisallllll280-code/VAIXLNS_OPERATIONAL_ASSURANCE.md",
-      "role": "assurance-artifact",
-      "system": "Assurance",
-      "status": "SPECIFIED"
-    },
-    {
-      "repository": "fisallllll280-code/VAIXLNS-",
-      "role": "historical-variant",
-      "system": "Legacy",
-      "status": "QUARANTINED"
-    },
-    {
-      "repository": "fisallllll280-code/NEXENT",
-      "role": "discovery-and-architecture-search",
-      "system": "NEXENT/XV-adjacent",
-      "status": "DISCOVERY_ENGINE"
-    },
-    {
-      "repository": "fisallllll280-code/tools-vaixlns-meta-core-v0.3.ts",
-      "role": "meta-tooling",
-      "system": "Meta",
-      "status": "TOOLING"
-    },
-    {
-      "repository": "fisallllll280-code/VX_EXECUTION_BUILD_CONTRACT_V0_1.yaml",
-      "role": "execution-contract",
-      "system": "VX",
-      "status": "CONTRACT_SOURCE"
-    },
-    {
-      "repository": "VAIXLNS/VAIXLNS",
-      "role": "external-canonical-mirror",
-      "system": "VAIXLNS Architecture",
-      "status": "DISCOVERED"
-    },
-    {
-      "repository": "VAIXLNS/docs",
-      "role": "external-documentation-surface",
-      "system": "Documentation",
-      "status": "DISCOVERED"
-    },
-    {
-      "repository": "VAIXLNS/improved-barnacle",
-      "role": "unclassified-adjacent",
-      "system": "Unknown",
-      "status": "UNCLASSIFIED"
-    }
+    {"repository":"fisallllll280-code/VAIXLNS","role":"canonical","system":"V","status":"CANONICAL"},
+    {"repository":"fisallllll280-code/VAIXLNS-unified","role":"integrated-runtime","system":"VAIXLNS","status":"RUNTIME"},
+    {"repository":"fisallllll280-code/vaixlns-core","role":"constitutional-core","system":"V","status":"SOURCE_IMPLEMENTATION"},
+    {"repository":"fisallllll280-code/vaixlns-csd-kernel","role":"specialized-kernel","system":"CSD","status":"SPECIFIED"},
+    {"repository":"fisallllll280-code/VX-runtime","role":"runtime-specialization","system":"VX","status":"SOURCE_SPEC"},
+    {"repository":"fisallllll280-code/VX50_COMPLETE_BUILD","role":"build-surface","system":"VX50","status":"INCOMPLETE"},
+    {"repository":"fisallllll280-code/VAIXLNS-Intent-to-Reality","role":"intent-boundary","system":"Intent/V-IR","status":"SOURCE_CONTRACT"},
+    {"repository":"fisallllll280-code/VAIXLNS-Naming-Constitution-v1.0","role":"constitutional-support","system":"Identity/Naming","status":"SPECIFIED"},
+    {"repository":"fisallllll280-code/VAIXLNS_OPERATIONAL_ASSURANCE.md","role":"assurance-artifact","system":"Assurance","status":"SPECIFIED"},
+    {"repository":"fisallllll280-code/VAIXLNS-","role":"historical-variant","system":"Legacy","status":"QUARANTINED"},
+    {"repository":"fisallllll280-code/NAXLNS","role":"knowledge-discovery-adversarial-analysis","system":"VLNS","status":"FEDERATED-CANDIDATE","identity_status":"UNVERIFIED"},
+    {"repository":"fisallllll280-code/NEXENT","role":"discovery-architecture-search-research","system":"NEXNET","status":"FEDERATED-CANDIDATE","identity_status":"UNVERIFIED"},
+    {"repository":"fisallllll280-code/tools-vaixlns-meta-core-v0.3.ts","role":"meta-tooling","system":"Meta","status":"TOOLING"},
+    {"repository":"fisallllll280-code/VX_EXECUTION_BUILD_CONTRACT_V0_1.yaml","role":"execution-contract","system":"VX","status":"CONTRACT_SOURCE"}
   ],
   "unclassified_policy": "Adjacent repositories remain untouched until content establishes a defensible VAIXLNS relationship.",
-  "operational_state": "PARTIAL"
+  "operational_state": "PARTIAL",
+  "admission_rule": "Federation membership does not imply implementation, verification, or runtime readiness."
 }
