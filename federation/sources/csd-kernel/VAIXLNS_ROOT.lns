@@ -1,0 +1,14 @@
+// Federated source snapshot
+// Source repository: fisallllll280-code/vaixlns-csd-kernel
+// Source path: VAIXLNS_ROOT.lns
+// Source blob SHA: 9c826c1f88a50a7c9f22c1d5666593a00b183a4d
+// Federation status: SOURCE-PRESERVED / SPECIALIZED-KEEP
+
+vaixlns_root {
+    meta {
+        id "VAIXLNS://ROOT/GENESIS/1.0"
+        name "VAIXLNS Civilization Root"
+        version "1.0.0"
+        authority "VX_SOVEREIGN_CORE"
+    }
+}
