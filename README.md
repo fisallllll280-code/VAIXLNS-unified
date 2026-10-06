@@ -422,7 +422,7 @@ This anchors regression testing and prevents unintended changes.
 
 ---
 
-## Evidence Status — Unified Runtime 1.1.0
+## Evidence Status — Unified Runtime 1.1.1
 
 This release strengthens the executable boundary without converting architecture
 claims into deployment claims.

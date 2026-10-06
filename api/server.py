@@ -42,7 +42,7 @@ def _authorized(authorization: str | None) -> bool:
 
 
 def create_app(db_path: str | Path = DB_PATH) -> FastAPI:
-    app = FastAPI(title="VAIXLNS Runtime API", version="1.1.0")
+    app = FastAPI(title="VAIXLNS Runtime API", version="1.1.1")
     store = DurableEventStore(db_path)
 
     @app.on_event("shutdown")
@@ -54,7 +54,7 @@ def create_app(db_path: str | Path = DB_PATH) -> FastAPI:
         return {
             "ok": True,
             "service": "VAIXLNS-runtime",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "durable_store": store.verify_integrity(),
         }
 
