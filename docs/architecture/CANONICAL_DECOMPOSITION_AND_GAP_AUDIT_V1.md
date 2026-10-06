@@ -49,7 +49,7 @@ minds and workspaces.
 | Observability | Operational docs exist; unified runtime needs distributed telemetry conventions | OpenTelemetry traces/metrics/logs |
 | Artifact provenance | GitHub/CI evidence exists, but artifact-level supply-chain attestations are not canonical | SLSA/in-toto compatible provenance |
 | Architecture search | NEXENT describes search/mutation, while executable Forge is still pairwise recombination | Search space, fitness, causal analysis, blast radius |
-| Self-architecture | Meta architecture is specified, not yet an executable self-critique loop | Gated architecture audit + sandboxed PR generation |
+| Self-architecture | Self-discovery kernel now executable for capability gaps and hypothesis generation; full governed PR generation remains open | Gated architecture audit + sandboxed PR generation |
 | Interface runtime | Command Studio is specified, not yet a complete executable UI | Mission-driven workspace runtime |
 
 ## OpenAI bridge
