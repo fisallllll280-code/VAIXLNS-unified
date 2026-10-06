@@ -382,6 +382,8 @@ This anchors regression testing and prevents unintended changes.
 ## Development Phases
 
 ### Phase 1: Foundation (Current)
+- ✅ Conformance additions: Governance, Capability Registry, Evidence, Proof, CVL, V-DIFF, Health, Recovery, Boot
+- 🟡 Distributed coordination contract added; leader election/replication/consensus remain OPEN
 - ✅ Core ledger and identity
 - ✅ Basic VX runtime
 - ✅ State machine
