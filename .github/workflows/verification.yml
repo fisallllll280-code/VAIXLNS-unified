@@ -2,7 +2,7 @@ name: VAIXLNS Unified Verification
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "integration/**"]
   pull_request:
     branches: ["main"]
 
