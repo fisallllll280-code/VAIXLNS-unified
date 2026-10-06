@@ -120,12 +120,7 @@ class ExternalIntegrationProofBoundary:
         max_state_mutations: int = 1,
         explicit_authority: bool = False,
     ) -> IntegrationAdmission:
-        base = self._gate.admit(
-            integration,
-            policy,
-            verified=False,
-            explicit_authority=False,
-        )
+        base = self._gate.admit(integration, policy, verified=False, explicit_authority=False)
         if base.state is IntegrationState.QUARANTINED:
             rejected = PromotionDecision(
                 f"integration:{integration.integration_id}",
@@ -140,11 +135,7 @@ class ExternalIntegrationProofBoundary:
         candidate = self._candidate(integration)
         if evidence.candidate_id != candidate.candidate_id:
             rejected = PromotionDecision(
-                candidate.candidate_id,
-                Stage.REJECTED,
-                False,
-                "NOVEL",
-                None,
+                candidate.candidate_id, Stage.REJECTED, False, "NOVEL", None,
                 ("EVIDENCE:CANDIDATE_MISMATCH",),
             )
             decision = IntegrationDecision(
@@ -157,11 +148,7 @@ class ExternalIntegrationProofBoundary:
 
         if proof_validity.evidence_fingerprint != evidence.fingerprint:
             rejected = PromotionDecision(
-                candidate.candidate_id,
-                Stage.REJECTED,
-                False,
-                "NOVEL",
-                None,
+                candidate.candidate_id, Stage.REJECTED, False, "NOVEL", None,
                 ("PROOF:EVIDENCE_FINGERPRINT_MISMATCH",),
             )
             decision = IntegrationDecision(
@@ -174,11 +161,8 @@ class ExternalIntegrationProofBoundary:
 
         trio = IndependentVerificationTrio(verifiers, verifier_profiles)
         proof_gate = ProofBeforePromotion(
-            NoveltyShield(),
-            CounterfactualArena(),
-            FalsificationGate(attacks),
-            trio,
-            ReplayVerifier(),
+            NoveltyShield(), CounterfactualArena(), FalsificationGate(attacks),
+            trio, ReplayVerifier(),
         )
         promotion = proof_gate.evaluate(
             candidate,
@@ -216,10 +200,7 @@ class ExternalIntegrationProofBoundary:
             return IntegrationAdmission(decision, None, promotion)
 
         final = self._gate.admit(
-            integration,
-            policy,
-            verified=True,
-            explicit_authority=True,
+            integration, policy, verified=True, explicit_authority=True
         )
         if final.state is not IntegrationState.ADMITTED:
             return IntegrationAdmission(final, None, promotion)
