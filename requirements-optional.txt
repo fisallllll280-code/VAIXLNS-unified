@@ -1,0 +1,5 @@
+# Optional open-source infrastructure backends.
+# Core VAIXLNS execution remains dependency-free for these integrations.
+nats-py
+opentelemetry-sdk
+opentelemetry-exporter-otlp
