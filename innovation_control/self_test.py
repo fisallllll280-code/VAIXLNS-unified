@@ -137,12 +137,24 @@ def run_self_test() -> tuple[SelfTestResult, ...]:
     ))
 
     # 2. Falsification must kill a candidate.
-    kill = _gate()
-    kill.falsifier = FalsificationGate({
-        "deterministic": lambda c, e: False,
-        "replayable": lambda c, e: True,
-        "survives_adversarial_checks": lambda c, e: True,
-    })
+    kill = ProofBeforePromotion(
+        NoveltyShield(),
+        CounterfactualArena(),
+        FalsificationGate({
+            "deterministic": lambda c, e: False,
+            "replayable": lambda c, e: True,
+            "survives_adversarial_checks": lambda c, e: True,
+        }),
+        IndependentVerificationTrio(
+            [lambda c, e: True, lambda c, e: True, lambda c, e: True],
+            [
+                VerifierProfile("v1", "impl-a", "symbolic", ("e1",), "rule"),
+                VerifierProfile("v2", "impl-b", "replay", ("e2",), "hash"),
+                VerifierProfile("v3", "impl-c", "statistical", ("e3",), "model"),
+            ],
+        ),
+        ReplayVerifier(),
+    )
     decision = kill.evaluate(
         candidate, [], _metrics(), evidence, {"x": 21}, 42, lambda p: p["x"] * 2,
         _fresh(candidate), 120, "dep:v1", "env:v1",
