@@ -23,9 +23,8 @@ def test_health_and_events_are_durable(tmp_path):
 
 def test_api_token_guard(monkeypatch, tmp_path):
     monkeypatch.setenv("VAIXLNS_API_TOKEN", "unit-secret")
-    from importlib import import_module, reload
+    from importlib import import_module
     module = import_module("api.server")
-    reload(module)
     client = TestClient(module.create_app(tmp_path / "secure.db"))
     assert client.post(
         "/events",
