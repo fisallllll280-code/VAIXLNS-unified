@@ -23,5 +23,7 @@ jobs:
         run: python main.py
       - name: Innovation Control self-adversarial gate
         run: python -m innovation_control.self_test
+      - name: External integration boundary tests
+        run: python -m pytest -q tests/test_external_integration_control.py
       - name: Unit and integration tests
         run: python -m pytest -q
