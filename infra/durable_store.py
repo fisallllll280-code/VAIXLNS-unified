@@ -11,6 +11,7 @@ import hashlib
 import json
 from pathlib import Path
 import sqlite3
+import threading
 from typing import Any, Iterable, Mapping
 
 
@@ -63,6 +64,7 @@ class DurableEventStore:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._conn = sqlite3.connect(self.path, check_same_thread=False)
+        self._lock = threading.RLock()
         self._conn.execute("PRAGMA journal_mode=WAL")
         self._conn.execute("PRAGMA synchronous=FULL")
         self._conn.execute("PRAGMA foreign_keys=ON")
@@ -94,10 +96,12 @@ class DurableEventStore:
 
     @property
     def last_hash(self) -> str:
-        row = self._conn.execute(
+        with self._lock:
+            with self._lock:
+            row = self._conn.execute(
             "SELECT event_hash FROM events ORDER BY sequence DESC LIMIT 1"
-        ).fetchone()
-        return row[0] if row else "GENESIS"
+            ).fetchone()
+            return row[0] if row else "GENESIS"
 
     def append(
         self,
@@ -119,7 +123,7 @@ class DurableEventStore:
             "payload": dict(payload or {}),
             "created_at": created_at or _now(),
         }
-        with self._conn:
+        with self._lock, self._conn:
             previous_hash = self.last_hash
             event_hash = _digest({**body, "previous_hash": previous_hash})
             cur = self._conn.execute(
@@ -165,7 +169,8 @@ class DurableEventStore:
             query += " WHERE aggregate_id=?"
             params = (aggregate_id,)
         query += " ORDER BY sequence"
-        rows = self._conn.execute(query, params).fetchall()
+        with self._lock:
+            rows = self._conn.execute(query, params).fetchall()
         return [
             StoredEvent(
                 sequence=row[0], event_id=row[1], event_type=row[2],
@@ -211,7 +216,7 @@ class DurableEventStore:
             "ledger_root": ledger_root,
             "lineage": list(lineage_tuple),
         })
-        with self._conn:
+        with self._lock, self._conn:
             self._conn.execute(
                 """
                 INSERT OR REPLACE INTO snapshots(
