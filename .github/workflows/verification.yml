@@ -21,5 +21,7 @@ jobs:
           python -m pip install pytest
       - name: Federated boot smoke
         run: python main.py
+      - name: Innovation Control self-adversarial gate
+        run: python -m innovation_control.self_test
       - name: Unit and integration tests
         run: python -m pytest -q
