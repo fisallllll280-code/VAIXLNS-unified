@@ -13,6 +13,8 @@ from hashlib import sha256
 import json
 from typing import Any, Callable, Mapping, Sequence
 
+from innovation_control.assurance import VerificationDiversity, VerifierProfile
+
 
 class Stage(str, Enum):
     IDEA = "IDEA"
@@ -166,12 +168,20 @@ class FalsificationGate:
 
 
 class IndependentVerificationTrio:
-    """Three distinct verification decisions; no single proposer is authoritative."""
+    """Three verifiers plus an independence check; count alone is not independence."""
 
-    def __init__(self, verifiers: Sequence[Callable[[InnovationCandidate, Evidence], bool]]):
+    def __init__(
+        self,
+        verifiers: Sequence[Callable[[InnovationCandidate, Evidence], bool]],
+        profiles: Sequence[VerifierProfile],
+        diversity_threshold: float = 0.5,
+    ):
         if len(verifiers) != 3:
             raise ValueError("VERIFIER_TRIO_REQUIRED")
+        if len(profiles) != 3:
+            raise ValueError("VERIFIER_PROFILE_TRIO_REQUIRED")
         self.verifiers = tuple(verifiers)
+        self.diversity = VerificationDiversity().assess(profiles, threshold=diversity_threshold)
 
     def verify(self, candidate: InnovationCandidate, evidence: Evidence) -> tuple[VerificationResult, ...]:
         results: list[VerificationResult] = []
@@ -216,6 +226,8 @@ class ProofBeforePromotion:
             reasons.append(f"NOVELTY:{novelty}")
         if not arena.mandatory_passed:
             reasons.extend(f"ARENA:{r}" for r in arena.reasons)
+        if not self.trio.diversity.passed:
+            reasons.append("INDEPENDENT:DIVERSITY:FAIL")
         failures = self.falsifier.run(candidate, evidence)
         if failures:
             reasons.extend(f"FALSIFICATION:{x}" for x in failures)
@@ -233,6 +245,7 @@ class ProofBeforePromotion:
             "evidence": evidence.fingerprint,
             "arena": arena.score,
             "verifiers": [asdict(v) for v in verifications],
+            "verification_diversity": self.trio.diversity.score,
             "replay": True,
         }
         proof = _digest(proof_payload)
