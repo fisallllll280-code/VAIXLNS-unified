@@ -8,13 +8,17 @@ from .gateway import (
     IntegrationPolicy,
     IntegrationState,
 )
+from .proof_boundary import ExternalIntegrationProofBoundary, IntegrationAdmission, IntegrationProofBinding
 
 __all__ = [
     "ExternalCallBoundary",
     "ExternalIntegration",
     "ExternalIntegrationGate",
+    "ExternalIntegrationProofBoundary",
+    "IntegrationAdmission",
     "IntegrationClass",
     "IntegrationDecision",
     "IntegrationPolicy",
+    "IntegrationProofBinding",
     "IntegrationState",
 ]
