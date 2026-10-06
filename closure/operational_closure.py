@@ -4,6 +4,8 @@ from hashlib import sha256
 import json
 from typing import Any, Mapping, Iterable
 
+from tools.productivity_router import ProductivityRouter, ToolCandidate
+
 def canonical_hash(value: Any) -> str:
     raw=json.dumps(value,sort_keys=True,separators=(",",":"),default=str).encode()
     return sha256(raw).hexdigest()
@@ -86,6 +88,12 @@ class ToolRecord:
     approved:bool
     health:str
     provenance:str
+    reliability:float = 0.0
+    evidence_strength:float = 0.0
+    latency_ms:float = 1000.0
+    cost:float = 0.0
+    risk:float = 1.0
+    parallel_safe:bool = True
 
 class MCPTrustRegistry:
     def __init__(self): self._tools={}
@@ -93,6 +101,28 @@ class MCPTrustRegistry:
     def authorize(self,server:str,name:str,scope:str)->bool:
         r=self._tools.get((server,name))
         return bool(r and r.approved and r.health=="healthy" and scope in r.scope and r.provenance)
+
+    def recommend(self, capability:str, *, max_tools:int=1, require_parallel:bool=False):
+        candidates=[]
+        for record in self._tools.values():
+            if capability not in record.scope:
+                continue
+            candidates.append(ToolCandidate(
+                name=record.name,
+                server=record.server,
+                capabilities=frozenset(record.scope),
+                approved=record.approved,
+                health=record.health,
+                reliability=record.reliability,
+                evidence_strength=record.evidence_strength,
+                latency_ms=record.latency_ms,
+                cost=record.cost,
+                risk=record.risk,
+                parallel_safe=record.parallel_safe,
+            ))
+        return ProductivityRouter().select(
+            capability, candidates, max_tools=max_tools, require_parallel=require_parallel
+        )
 
 def change_fingerprint(snapshot:Mapping[str,Any])->str:return canonical_hash(snapshot)
 def detect_change(previous:str|None,snapshot:Mapping[str,Any]):
