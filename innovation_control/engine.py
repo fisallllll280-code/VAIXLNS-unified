@@ -152,6 +152,15 @@ class CounterfactualArena:
         )
         return ArenaResult(candidate.candidate_id, dict(metrics), score, not reasons, reasons)
 
+    def rank(
+        self,
+        candidates: Sequence[tuple[InnovationCandidate, Mapping[str, float]]],
+        thresholds: Mapping[str, float] | None = None,
+    ) -> tuple[ArenaResult, ...]:
+        """Deterministically rank alternative architectures by measured score."""
+        results = tuple(self.evaluate(candidate, metrics, thresholds) for candidate, metrics in candidates)
+        return tuple(sorted(results, key=lambda item: (-item.score, item.candidate_id)))
+
 
 class FalsificationGate:
     """Execute explicit attempts to disprove every mandatory proof obligation."""
