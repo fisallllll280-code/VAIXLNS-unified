@@ -41,7 +41,8 @@ class ProofAtom:
     def issue(cls,*,subject,claim,method,preconditions:Iterable[str],input_cids:Iterable[str],execution_cid,output_cids:Iterable[str],verifier,proof_type:ProofLevel,valid,parent_lineage:Iterable[str]=()):
         if not subject or not claim or not method or not verifier: raise ValueError('PROOF_ATOM_IDENTITY_REQUIRED')
         body={'subject':subject,'claim':claim,'method':method,'preconditions':tuple(preconditions),'input_cids':tuple(input_cids),'execution_cid':execution_cid,'output_cids':tuple(output_cids),'verifier':verifier,'proof_type':int(proof_type),'valid':valid,'parent_lineage':tuple(parent_lineage)}
-        return cls(**body,proof_digest=_digest(body))
+        body['proof_type']=ProofLevel(body['proof_type'])
+        return cls(**body,proof_digest=_digest({**body,'proof_type':int(body['proof_type'])}))
 
 def select_proof_level(policy:ProofPolicy,*,available:Iterable[ProofLevel],verified:bool,independently_verified:bool=False):
     for level in sorted(set(available),reverse=True):
