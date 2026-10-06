@@ -14,6 +14,7 @@ from tempfile import TemporaryDirectory
 from typing import Any, Callable
 
 from integration.canonical_gap_audit import report as gap_report
+from integration.final_closure_audit import audit_local_closure
 from vx.mission_router import MissionRouter
 from intelligence.openai_responses_adapter import OpenAIResponsesAdapter
 from vlns import LifecycleState, SystemContract, VLNSRuntime
@@ -54,6 +55,7 @@ class BootReport:
     csd_compiler_verified: bool
     vlns_server_configured: bool
     scck_commit_verified: bool
+    local_closure_status: str
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -314,6 +316,8 @@ def run_smoke() -> BootReport:
     smoke_passed = smoke_passed and ledger.verify_integrity()
     smoke_passed = smoke_passed and durable_recovery_verified and csd_compiler_verified
     gap_audit = gap_report(ROOT / "config" / "canonical_decomposition.v1.json")
+    local_closure = audit_local_closure()
+    smoke_passed = smoke_passed and local_closure["status"] == "LOCAL_CLOSURE_PASS"
     room = MissionRouter(ROOT / "config" / "vx_mission_profiles.json").compose(
         "VAIXLNS four-domain smoke mission",
         ("mathematics", "physics", "engineering", "computing"),
@@ -354,4 +358,5 @@ def run_smoke() -> BootReport:
         csd_compiler_verified=csd_compiler_verified,
         vlns_server_configured=vlns_server_configured,
         scck_commit_verified=governed.last_scck_commit_verified,
+        local_closure_status=local_closure["status"],
     )
