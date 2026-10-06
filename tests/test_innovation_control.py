@@ -13,6 +13,7 @@ from innovation_control.engine import (
     VerifierProfile,
 )
 from innovation_control.assurance import ProofFreshness
+from innovation_control.impact import ImpactNode
 
 
 class InnovationControlTests(unittest.TestCase):
@@ -70,6 +71,14 @@ class InnovationControlTests(unittest.TestCase):
         )
         return validity
 
+    def impact_context(self):
+        return (
+            [ImpactNode("candidate-sandbox", 0.2, False)],
+            0.5,
+            frozenset({"constitution"}),
+            1,
+        )
+
     def good_metrics(self):
         return {
             "correctness": 0.99,
@@ -88,7 +97,7 @@ class InnovationControlTests(unittest.TestCase):
         c = self.make_candidate()
         e = self.make_evidence(c)
         gate = self.make_gate()
-        d = gate.evaluate(c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2, self.fresh_context(c), 120, "dep:v1", "env:v1")
+        d = gate.evaluate(c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2, self.fresh_context(c), 120, "dep:v1", "env:v1", *self.impact_context())
         self.assertTrue(d.accepted)
         self.assertEqual(d.stage, Stage.ADMISSIBLE)
         self.assertTrue(d.proof_package)
@@ -155,7 +164,7 @@ class InnovationControlTests(unittest.TestCase):
         gate = self.make_gate()
         d = gate.evaluate(
             c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2,
-            self.fresh_context(c), 201, "dep:v1", "env:v1"
+            self.fresh_context(c), 201, "dep:v1", "env:v1", *self.impact_context()
         )
         self.assertFalse(d.accepted)
         self.assertIn("PROOF:EXPIRED", d.reasons)
@@ -166,7 +175,7 @@ class InnovationControlTests(unittest.TestCase):
         gate = self.make_gate()
         d = gate.evaluate(
             c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2,
-            self.fresh_context(c), 120, "dep:v2", "env:v1"
+            self.fresh_context(c), 120, "dep:v2", "env:v1", *self.impact_context()
         )
         self.assertFalse(d.accepted)
         self.assertIn("PROOF:INVALIDATED", d.reasons)
