@@ -1,6 +1,7 @@
 import unittest
 
 from innovation_control.engine import InnovationCandidate, IndependentVerificationTrio, NoveltyShield
+from innovation_control.assurance import VerifierProfile
 
 
 class InnovationControlRegressionTests(unittest.TestCase):
@@ -24,7 +25,14 @@ class InnovationControlRegressionTests(unittest.TestCase):
                 return True
             return f
 
-        trio = IndependentVerificationTrio([verifier("a"), verifier("b"), verifier("c")])
+        trio = IndependentVerificationTrio(
+            [verifier("a"), verifier("b"), verifier("c")],
+            [
+                VerifierProfile("v1", "impl-a", "symbolic", ("e1",), "rule"),
+                VerifierProfile("v2", "impl-b", "replay", ("e2",), "hash"),
+                VerifierProfile("v3", "impl-c", "statistical", ("e3",), "model"),
+            ],
+        )
         candidate = InnovationCandidate("a", "m", {"runtime": "vx"}, ("p",))
         evidence = type("E", (), {})()
         results = trio.verify(candidate, evidence)
