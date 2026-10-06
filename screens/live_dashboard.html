@@ -1,0 +1,21 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VAIXLNS · VX-CONTINUUM Live Runtime</title>
+<style>
+body{font:15px system-ui;margin:0;background:#080d18;color:#eaf0ff}header{padding:22px 28px;border-bottom:1px solid #27324a;display:flex;justify-content:space-between}.live{font-weight:700}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;padding:20px}.card{border:1px solid #27324a;border-radius:14px;padding:18px;background:#0e1525}.ok{font-size:24px;font-weight:700}pre{white-space:pre-wrap;max-height:260px;overflow:auto}.wide{grid-column:1/-1}.nav a{margin-right:12px;color:inherit}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#58d68d;margin-right:8px}
+</style>
+<header><div><strong>VAIXLNS / VX-CONTINUUM</strong><div>Live Runtime Dashboard</div></div><div class="live"><span class="dot"></span><span id="status">CONNECTING</span></div></header>
+<div class="grid">
+<section class="card"><h2>Atomaton</h2><div id="atom" class="ok">—</div></section>
+<section class="card"><h2>Flux Grid</h2><div id="topo" class="ok">—</div></section>
+<section class="card"><h2>Proof Gate</h2><div id="proof" class="ok">—</div></section>
+<section class="card"><h2>Governance</h2><div id="gov" class="ok">—</div></section>
+<section class="card wide"><h2>Canonical State Ledger</h2><pre id="ledger">—</pre></section>
+<section class="card wide"><h2>Evolution Gate / Event Stream</h2><pre id="events">—</pre></section>
+<section class="card wide nav"><h2>Operator Screens</h2>
+<a href="/atomaton_status_monitor.html">Atomaton</a><a href="/flux_grid_topology_viz.html">Flux Grid</a><a href="/proof_verification_dashboard.html">Proof</a><a href="/canonical_state_ledger.html">Ledger</a><a href="/evolution_gate_decisions.html">Evolution</a></section>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+function render(x){const s=x.state||{};$("status").textContent=s.status||"LIVE";$("atom").textContent=s.atomaton||"IDLE";$("topo").textContent=(s.topology||[]).join(", ")||"NONE";$("proof").textContent=s.proof||"PENDING";$("gov").textContent=s.governance||"BLOCKED";$("ledger").textContent=JSON.stringify(s,null,2);$("events").textContent=(x.events||[]).slice(-30).map(e=>JSON.stringify(e)).join("\n")||"waiting…";}
+fetch("/api/state").then(r=>r.json()).then(render); new EventSource("/api/events").onmessage=e=>render(JSON.parse(e.data));
+</script>
