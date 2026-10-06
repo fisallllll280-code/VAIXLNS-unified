@@ -10,6 +10,7 @@ from innovation_control.engine import (
     ProofBeforePromotion,
     ReplayVerifier,
     Stage,
+    VerifierProfile,
 )
 
 
@@ -37,11 +38,18 @@ class InnovationControlTests(unittest.TestCase):
             "deterministic": lambda c, e: attack_ok,
             "replayable": lambda c, e: attack_ok,
         }
-        trio = IndependentVerificationTrio([
-            lambda c, e: verifier_ok,
-            lambda c, e: verifier_ok,
-            lambda c, e: verifier_ok,
-        ])
+        trio = IndependentVerificationTrio(
+            [
+                lambda c, e: verifier_ok,
+                lambda c, e: verifier_ok,
+                lambda c, e: verifier_ok,
+            ],
+            [
+                VerifierProfile("v1", "impl-a", "symbolic", ("e1",), "rule"),
+                VerifierProfile("v2", "impl-b", "replay", ("e2",), "hash"),
+                VerifierProfile("v3", "impl-c", "statistical", ("e3",), "model"),
+            ],
+        )
         return ProofBeforePromotion(
             NoveltyShield(),
             CounterfactualArena(),
@@ -103,6 +111,31 @@ class InnovationControlTests(unittest.TestCase):
     def test_exact_duplicate_is_redundant(self):
         c = self.make_candidate()
         self.assertEqual(NoveltyShield().classify(c, [c]), "REDUNDANT")
+
+    def test_shared_verification_mechanism_blocks_promotion(self):
+        c = self.make_candidate()
+        e = self.make_evidence(c)
+        shared = [
+            VerifierProfile("v1", "impl-a", "model-x", ("e1",), "rule"),
+            VerifierProfile("v2", "impl-a", "model-x", ("e1",), "rule"),
+            VerifierProfile("v3", "impl-a", "model-x", ("e1",), "rule"),
+        ]
+        gate = ProofBeforePromotion(
+            NoveltyShield(),
+            CounterfactualArena(),
+            FalsificationGate({
+                "deterministic": lambda c, e: True,
+                "replayable": lambda c, e: True,
+            }),
+            IndependentVerificationTrio(
+                [lambda c, e: True, lambda c, e: True, lambda c, e: True],
+                shared,
+            ),
+            ReplayVerifier(),
+        )
+        d = gate.evaluate(c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2)
+        self.assertFalse(d.accepted)
+        self.assertIn("INDEPENDENT:DIVERSITY:FAIL", d.reasons)
 
 
 if __name__ == "__main__":
