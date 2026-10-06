@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "transport": "HTTPS",
+  "principle": "opt-in-no-embedded-secrets",
+  "servers": [
+    {
+      "id": "vlns-control",
+      "url_env": "VLNS_SERVER_URL",
+      "token_env": "VLNS_SERVER_TOKEN",
+      "health_path_env": "VLNS_SERVER_HEALTH_PATH",
+      "enabled_env": "VLNS_SERVER_ENABLED",
+      "timeout_env": "VLNS_SERVER_TIMEOUT",
+      "status": "configuration-only"
+    }
+  ]
+}
