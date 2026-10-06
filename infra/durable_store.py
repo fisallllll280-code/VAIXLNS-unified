@@ -97,9 +97,8 @@ class DurableEventStore:
     @property
     def last_hash(self) -> str:
         with self._lock:
-            with self._lock:
             row = self._conn.execute(
-            "SELECT event_hash FROM events ORDER BY sequence DESC LIMIT 1"
+                "SELECT event_hash FROM events ORDER BY sequence DESC LIMIT 1"
             ).fetchone()
             return row[0] if row else "GENESIS"
 
@@ -234,10 +233,11 @@ class DurableEventStore:
         )
 
     def latest_snapshot(self) -> DurableSnapshot | None:
-        row = self._conn.execute(
-            "SELECT snapshot_id,created_at,state_json,ledger_root,lineage_json,state_hash "
-            "FROM snapshots ORDER BY created_at DESC LIMIT 1"
-        ).fetchone()
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT snapshot_id,created_at,state_json,ledger_root,lineage_json,state_hash "
+                "FROM snapshots ORDER BY created_at DESC LIMIT 1"
+            ).fetchone()
         if row is None:
             return None
         return DurableSnapshot(
