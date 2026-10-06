@@ -13,8 +13,7 @@ from infra.durable_store import DurableEventStore
 from infra.vlns_server_client import ServerConfig, VLNSServerClient
 
 
-DB_PATH = Path(os.getenv("VAIXLNS_DB_PATH", "var/vaxlns/events.db"))
-API_TOKEN = os.getenv("VAIXLNS_API_TOKEN")
+DB_PATH = Path(os.getenv("VAIXLNS_DB_PATH", "var/vaixlns/events.db"))
 
 
 class EventRequest(BaseModel):
@@ -33,12 +32,13 @@ class SnapshotRequest(BaseModel):
 
 
 def _authorized(authorization: str | None) -> bool:
-    if API_TOKEN is None:
+    token = os.getenv("VAIXLNS_API_TOKEN")
+    if token is None:
         return True
     if not authorization or not authorization.startswith("Bearer "):
         return False
     provided = authorization.removeprefix("Bearer ").strip()
-    return hmac.compare_digest(provided, API_TOKEN)
+    return hmac.compare_digest(provided, token)
 
 
 def create_app(db_path: str | Path = DB_PATH) -> FastAPI:
@@ -59,7 +59,9 @@ def create_app(db_path: str | Path = DB_PATH) -> FastAPI:
         }
 
     @app.get("/status")
-    def status() -> dict[str, Any]:
+    def status(authorization: str | None = Header(default=None)) -> dict[str, Any]:
+        if os.getenv("VAIXLNS_API_TOKEN") is not None and not _authorized(authorization):
+            raise HTTPException(status_code=401, detail="AUTHORIZATION_REQUIRED")
         events = store.events()
         latest = store.latest_snapshot()
         remote = ServerConfig.from_env("vlns-control")
@@ -72,7 +74,12 @@ def create_app(db_path: str | Path = DB_PATH) -> FastAPI:
         }
 
     @app.get("/events")
-    def events(aggregate_id: str | None = None) -> dict[str, Any]:
+    def events(
+        aggregate_id: str | None = None,
+        authorization: str | None = Header(default=None),
+    ) -> dict[str, Any]:
+        if os.getenv("VAIXLNS_API_TOKEN") is not None and not _authorized(authorization):
+            raise HTTPException(status_code=401, detail="AUTHORIZATION_REQUIRED")
         return {
             "events": [event.to_dict() for event in store.events(aggregate_id)],
             "integrity": store.verify_integrity(),
