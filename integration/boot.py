@@ -15,6 +15,7 @@ from typing import Any, Callable
 from integration.canonical_gap_audit import report as gap_report
 from vx.mission_router import MissionRouter
 from intelligence.openai_responses_adapter import OpenAIResponsesAdapter
+from vlns import LifecycleState, SystemContract, VLNSRuntime
 
 from core.identity import Identity, IdentityService, Permission
 from core.ledger import Event, SovereignEventLedger
@@ -165,6 +166,17 @@ def run_smoke() -> BootReport:
         ("mathematics", "physics", "engineering", "computing"),
         mode="solve",
     )
+    vlns = VLNSRuntime()
+    for contract in (
+        SystemContract("VX", "0.1", ("execution",), ("integration.smoke",), provenance="unified-smoke"),
+        SystemContract("NEXENT", "baseline", ("research",), ("discover",), provenance="federated-registry"),
+        SystemContract("VAIXLNS", "1.0.0", ("governance",), ("admission",), provenance="project.genome"),
+    ):
+        vlns.register(contract)
+    vlns.transition("VX", LifecycleState.INITIALIZING)
+    vlns.transition("VX", LifecycleState.READY, "HEALTHY")
+    vlns.dispatch("integration.smoke", {"a": 21, "b": 21}, {"VX": lambda p: p["a"] + p["b"]})
+
     openai_bridge = OpenAIResponsesAdapter()
 
     return BootReport(
