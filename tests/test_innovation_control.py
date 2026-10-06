@@ -12,6 +12,7 @@ from innovation_control.engine import (
     Stage,
     VerifierProfile,
 )
+from innovation_control.assurance import ProofFreshness
 
 
 class InnovationControlTests(unittest.TestCase):
@@ -58,6 +59,17 @@ class InnovationControlTests(unittest.TestCase):
             ReplayVerifier(),
         )
 
+    def fresh_context(self, candidate):
+        evidence = self.make_evidence(candidate)
+        validity = ProofFreshness.issue(
+            evidence_fingerprint=evidence.fingerprint,
+            issued_epoch=100,
+            ttl_epochs=100,
+            dependency_fingerprint="dep:v1",
+            environment_fingerprint="env:v1",
+        )
+        return validity
+
     def good_metrics(self):
         return {
             "correctness": 0.99,
@@ -76,7 +88,7 @@ class InnovationControlTests(unittest.TestCase):
         c = self.make_candidate()
         e = self.make_evidence(c)
         gate = self.make_gate()
-        d = gate.evaluate(c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2)
+        d = gate.evaluate(c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2, self.fresh_context(c), 120, "dep:v1", "env:v1")
         self.assertTrue(d.accepted)
         self.assertEqual(d.stage, Stage.ADMISSIBLE)
         self.assertTrue(d.proof_package)
@@ -136,6 +148,28 @@ class InnovationControlTests(unittest.TestCase):
         d = gate.evaluate(c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2)
         self.assertFalse(d.accepted)
         self.assertIn("INDEPENDENT:DIVERSITY:FAIL", d.reasons)
+
+    def test_stale_proof_context_blocks_promotion(self):
+        c = self.make_candidate()
+        e = self.make_evidence(c)
+        gate = self.make_gate()
+        d = gate.evaluate(
+            c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2,
+            self.fresh_context(c), 201, "dep:v1", "env:v1"
+        )
+        self.assertFalse(d.accepted)
+        self.assertIn("PROOF:EXPIRED", d.reasons)
+
+    def test_dependency_change_blocks_promotion(self):
+        c = self.make_candidate()
+        e = self.make_evidence(c)
+        gate = self.make_gate()
+        d = gate.evaluate(
+            c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2,
+            self.fresh_context(c), 120, "dep:v2", "env:v1"
+        )
+        self.assertFalse(d.accepted)
+        self.assertIn("PROOF:INVALIDATED", d.reasons)
 
 
 if __name__ == "__main__":
