@@ -24,7 +24,7 @@ from innovation_control.engine import (
     ReplayVerifier,
     Stage,
 )
-from innovation_control.impact import CausalImpactBudget, ImpactNode
+from innovation_control.impact import ImpactNode
 from .gateway import (
     ExternalIntegration,
     ExternalIntegrationGate,
@@ -50,8 +50,11 @@ class IntegrationProofBinding:
         dependency_fingerprint: str,
         environment_fingerprint: str,
         current_identity: str,
+        evidence_fingerprint: str | None = None,
     ) -> Freshness:
         if current_identity != self.integration_identity:
+            return Freshness.INVALIDATED
+        if evidence_fingerprint is not None and evidence_fingerprint != self.validity.evidence_fingerprint:
             return Freshness.INVALIDATED
         return ProofFreshness().evaluate(
             self.validity,
@@ -149,6 +152,23 @@ class ExternalIntegrationProofBoundary:
                 IntegrationState.QUARANTINED,
                 (),
                 ("PROOF_REJECTED:EVIDENCE_CANDIDATE_MISMATCH",),
+            )
+            return IntegrationAdmission(decision, None, rejected)
+
+        if proof_validity.evidence_fingerprint != evidence.fingerprint:
+            rejected = PromotionDecision(
+                candidate.candidate_id,
+                Stage.REJECTED,
+                False,
+                "NOVEL",
+                None,
+                ("PROOF:EVIDENCE_FINGERPRINT_MISMATCH",),
+            )
+            decision = IntegrationDecision(
+                integration.integration_id,
+                IntegrationState.QUARANTINED,
+                (),
+                ("PROOF_REJECTED:EVIDENCE_FINGERPRINT_MISMATCH",),
             )
             return IntegrationAdmission(decision, None, rejected)
 
