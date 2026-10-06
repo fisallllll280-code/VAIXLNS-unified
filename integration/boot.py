@@ -14,6 +14,7 @@ from tempfile import TemporaryDirectory
 from typing import Any, Callable
 
 from integration.canonical_gap_audit import report as gap_report
+from integration.final_closure_audit import audit_local_closure
 from vx.mission_router import MissionRouter
 from intelligence.openai_responses_adapter import OpenAIResponsesAdapter
 from vlns import LifecycleState, SystemContract, VLNSRuntime
@@ -27,7 +28,9 @@ from infra.durable_store import DurableEventStore
 from infra.vlns_server_client import ServerConfig
 from csd import compile_file
 from governance.authority_contract import ConstitutionAuthorizer
-from governance.governance_engine import GovernanceEngine
+from governance.capability_registry import Capability, CapabilityRegistry
+from governance.governance_engine import GovernanceEngine, Policy
+from scck import Artifact, Contract, ExternalObservation, KernelState, SCCKKernel, canonical_hash
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -51,20 +54,31 @@ class BootReport:
     durable_recovery_verified: bool
     csd_compiler_verified: bool
     vlns_server_configured: bool
+    scck_commit_verified: bool
+    local_closure_status: str
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
 class GovernedVX:
-    """Small constitutional adapter around the existing VX runtime."""
+    """Constitutional VX adapter with SCCK as the canonical commit boundary."""
 
     def __init__(self, constitution: SovereignConstitution, ledger: SovereignEventLedger):
         self.constitution = constitution
         self.ledger = ledger
         self.authorizer = ConstitutionAuthorizer(constitution)
         self.governance = GovernanceEngine()
+        self.capabilities = CapabilityRegistry()
+        self.scck = SCCKKernel(
+            self.capabilities,
+            self.governance,
+            authority_resolver=lambda actor_id, _capability, ctx: (
+                actor_id == ctx.get("actor_id") and bool(ctx.get("constitution_allowed"))
+            ),
+        )
         self.runtime = VXRuntime(ledger)
+        self.last_scck_commit_verified = False
 
     def execute(
         self,
@@ -73,25 +87,103 @@ class GovernedVX:
         inputs: dict[str, Any],
         worker: Callable[[dict[str, Any]], Any],
     ):
+        self.capabilities.register(Capability(capability))
         authority = self.authorizer.decide(actor, capability, {"inputs": inputs})
         if not authority.allowed:
             raise PermissionError(authority.reason)
-
-        governance = self.governance.evaluate(
-            actor_id=actor.id,
-            permissions={permission.value for permission in actor.permissions},
-            capability=capability,
-            context={"inputs": inputs},
-        )
-        if not governance.allowed:
-            raise PermissionError(governance.reason)
 
         envelope = ExecutionEnvelope(
             actor=actor,
             capability=capability,
             inputs=dict(inputs),
         )
-        return self.runtime.execute(envelope, worker)
+        contract = Contract(
+            contract_id=f"vx:{capability}:v1",
+            version="1.0",
+            capability_id=capability,
+            source_state="READY",
+            target_state="EXECUTED",
+        )
+        current = Artifact(
+            artifact_id=f"execution:{envelope.execution_id}",
+            content_cid=canonical_hash(dict(inputs)),
+            schema_cid=contract.schema_cid,
+            policy_cid="default",
+            authority_cid=f"authority:{actor.id}",
+            provenance_cid="vx-local",
+            parent_cid="",
+            contract_cid=contract.contract_id,
+            state="READY",
+            version=0,
+            epoch=0,
+            nonce=envelope.execution_id,
+            issued_by="VAIXLNS",
+            authorized_for=capability,
+            payload={"inputs": dict(inputs)},
+        )
+
+        prepared = self.scck.prepare(
+            actor_id=actor.id,
+            permissions={permission.value for permission in actor.permissions},
+            capability_id=capability,
+            current=current,
+            contract=contract,
+            policy=Policy(policy_id="default"),
+            authority_id=f"authority:{actor.id}",
+            context={
+                "actor_id": actor.id,
+                "inputs": dict(inputs),
+                "constitution_allowed": authority.allowed,
+            },
+            nonce=envelope.execution_id,
+        )
+        if prepared.state is not KernelState.PREPARED or prepared.intent is None:
+            raise PermissionError(prepared.reason)
+
+        result = self.runtime.execute(envelope, worker)
+        if result.status is not ExecutionStatus.SUCCESS:
+            self.last_scck_commit_verified = False
+            return result
+
+        observation_payload = result.to_dict()
+        observation = ExternalObservation(
+            intent_id=prepared.intent.intent_id,
+            adapter_id="worker:local",
+            success=True,
+            payload=observation_payload,
+            content_cid=canonical_hash(observation_payload),
+            observed_state="EXECUTED",
+            observed_version=prepared.intent.expected_version,
+            observed_epoch=prepared.intent.expected_epoch,
+        )
+        committed = self.scck.finalize(
+            intent=prepared.intent,
+            current=current,
+            observation=observation,
+            contract=contract,
+            policy=Policy(policy_id="default"),
+        )
+        self.last_scck_commit_verified = committed.state is KernelState.COMMITTED
+        if not self.last_scck_commit_verified:
+            result.status = ExecutionStatus.BLOCKED
+            result.errors.append(f"SCCK:{committed.reason}")
+            return result
+
+        self.ledger.append(
+            Event(
+                aggregate_id=actor.id,
+                event_type="SCCK_CANONICAL_COMMIT",
+                actor_id=actor.id,
+                capability_used=capability,
+                payload={
+                    "execution_id": envelope.execution_id,
+                    "artifact_id": committed.artifact.artifact_id,
+                    "evidence": committed.evidence.fingerprint,
+                    "proof": committed.proof.proof_digest,
+                },
+            )
+        )
+        return result
 
 
 def load_registry() -> dict[str, Any]:
@@ -115,6 +207,14 @@ def check_local_modules() -> dict[str, bool]:
         "evolution.architecture_lab": "evolution.architecture_lab",
         "interface.manifest": "interface.manifest",
         "operations.reconciliation": "operations.reconciliation",
+        "operations.telemetry": "operations.telemetry",
+        "scck.kernel": "scck.kernel",
+        "tools.productivity_router": "tools.productivity_router",
+        "federation.source_snapshot": "federation.source_snapshot",
+        "provenance.attestation": "provenance.attestation",
+        "intent.v_ir": "intent.v_ir",
+        "interface.runtime": "interface.runtime",
+        "evolution.governed_change": "evolution.governed_change",
     }
     return {name: importlib.util.find_spec(module) is not None for name, module in required.items()}
 
@@ -211,10 +311,13 @@ def run_smoke() -> BootReport:
     smoke_passed = all(local_modules.values()) and all(constitutional_checks.values())
     smoke_passed = smoke_passed and state.get_state() == State.ACTIVE
     smoke_passed = smoke_passed and result.status == ExecutionStatus.SUCCESS
+    smoke_passed = smoke_passed and governed.last_scck_commit_verified
     smoke_passed = smoke_passed and replay.status == ExecutionStatus.SUCCESS
     smoke_passed = smoke_passed and ledger.verify_integrity()
     smoke_passed = smoke_passed and durable_recovery_verified and csd_compiler_verified
     gap_audit = gap_report(ROOT / "config" / "canonical_decomposition.v1.json")
+    local_closure = audit_local_closure()
+    smoke_passed = smoke_passed and local_closure["status"] == "LOCAL_CLOSURE_PASS"
     room = MissionRouter(ROOT / "config" / "vx_mission_profiles.json").compose(
         "VAIXLNS four-domain smoke mission",
         ("mathematics", "physics", "engineering", "computing"),
@@ -254,4 +357,6 @@ def run_smoke() -> BootReport:
         durable_recovery_verified=durable_recovery_verified,
         csd_compiler_verified=csd_compiler_verified,
         vlns_server_configured=vlns_server_configured,
+        scck_commit_verified=governed.last_scck_commit_verified,
+        local_closure_status=local_closure["status"],
     )
