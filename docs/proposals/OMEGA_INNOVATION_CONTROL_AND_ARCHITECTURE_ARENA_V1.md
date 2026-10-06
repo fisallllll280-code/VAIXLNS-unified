@@ -128,3 +128,17 @@ The first slice should deliberately include at least one candidate that fails, s
 ## Research position
 
 External frontier systems establish strong baselines around agent tooling, sandboxing, containment, evaluation, verification, and multi-agent research. VAIXLNS uses these as comparison inputs, then goes further by making failure, uncertainty, novelty, replay, blast radius, and proof coverage part of the promotion contract itself.
+
+## Strengthening additions
+
+### Verification Diversity Gate
+Three verifier outputs are insufficient when all verifiers share the same implementation, model family, algorithm family, or evidence source. The executable gate therefore requires verifier profiles and rejects low structural diversity.
+
+### Proof Freshness Contract
+Proof is scoped, not eternal. A proof must carry an evidence fingerprint, dependency fingerprint, execution environment fingerprint, issue epoch and expiry policy. Material dependency or environment changes invalidate the proof.
+
+### Causal Impact Budget
+Blast radius is converted from a descriptive graph into a pre-admission budget. A proposed change can be blocked because its weighted criticality, forbidden surfaces, or number of state mutations exceeds policy.
+
+### Deterministic Counterfactual Ranking
+The Architecture Arena now supports ranking multiple candidates using deterministic score ordering. The ranking signal cannot override mandatory falsification, verification, replay, freshness or impact gates.
