@@ -10,6 +10,7 @@ from dataclasses import dataclass, asdict
 import importlib.util
 import json
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any, Callable
 
 from integration.canonical_gap_audit import report as gap_report
@@ -22,6 +23,11 @@ from core.ledger import Event, SovereignEventLedger
 from core.sovereign_constitution import SovereignConstitution
 from execution.state_machine import Event as StateEvent, StateMachine, State
 from execution.vx_runtime import ExecutionEnvelope, ExecutionStatus, VXRuntime
+from infra.durable_store import DurableEventStore
+from infra.vlns_server_client import ServerConfig
+from csd import compile_file
+from governance.authority_contract import ConstitutionAuthorizer
+from governance.governance_engine import GovernanceEngine
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,6 +48,9 @@ class BootReport:
     gap_audit: dict[str, Any]
     four_domain_room: dict[str, Any]
     openai_bridge_configured: bool
+    durable_recovery_verified: bool
+    csd_compiler_verified: bool
+    vlns_server_configured: bool
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -53,6 +62,8 @@ class GovernedVX:
     def __init__(self, constitution: SovereignConstitution, ledger: SovereignEventLedger):
         self.constitution = constitution
         self.ledger = ledger
+        self.authorizer = ConstitutionAuthorizer(constitution)
+        self.governance = GovernanceEngine()
         self.runtime = VXRuntime(ledger)
 
     def execute(
@@ -62,15 +73,18 @@ class GovernedVX:
         inputs: dict[str, Any],
         worker: Callable[[dict[str, Any]], Any],
     ):
-        if not actor.active:
-            raise PermissionError("INACTIVE_IDENTITY")
-        if not actor.has_permission(Permission.EXECUTE):
-            raise PermissionError("EXECUTE_PERMISSION_REQUIRED")
-        if not actor.has_capability(capability):
-            raise PermissionError("CAPABILITY_REQUIRED")
-        for category in ("security", "execution", "governance", "data", "determinism"):
-            if not self.constitution.verify_compliance(category):
-                raise RuntimeError(f"CONSTITUTION_NON_COMPLIANT:{category}")
+        authority = self.authorizer.decide(actor, capability, {"inputs": inputs})
+        if not authority.allowed:
+            raise PermissionError(authority.reason)
+
+        governance = self.governance.evaluate(
+            actor_id=actor.id,
+            permissions={permission.value for permission in actor.permissions},
+            capability=capability,
+            context={"inputs": inputs},
+        )
+        if not governance.allowed:
+            raise PermissionError(governance.reason)
 
         envelope = ExecutionEnvelope(
             actor=actor,
@@ -105,9 +119,48 @@ def check_local_modules() -> dict[str, bool]:
     return {name: importlib.util.find_spec(module) is not None for name, module in required.items()}
 
 
+def run_infrastructure_checks() -> tuple[bool, bool, bool]:
+    """Verify local durability/CSD boundaries without contacting remote services."""
+    with TemporaryDirectory() as workdir:
+        db = Path(workdir) / "vlns-events.db"
+        with DurableEventStore(db) as store:
+            event = store.append(
+                event_id="boot:e1",
+                event_type="BOOT_CHECKPOINT",
+                aggregate_id="VAIXLNS-FEDERATED",
+                actor_id="SYSTEM",
+                capability="boot",
+                payload={"state": {"mode": "ACTIVE"}},
+            )
+            snap = store.save_snapshot(
+                snapshot_id="boot:s1",
+                state={"mode": "ACTIVE"},
+                lineage=[event.event_id],
+            )
+            durable_ok = store.verify_integrity() and store.verify_snapshot(snap)
+        with DurableEventStore(db) as reopened:
+            latest = reopened.latest_snapshot()
+            durable_ok = (
+                durable_ok
+                and reopened.verify_integrity()
+                and latest is not None
+                and latest.state == {"mode": "ACTIVE"}
+            )
+
+    csd_ir = compile_file(ROOT / "csd" / "fixtures" / "VAIXLNS_ROOT.lns")
+    csd_ok = (
+        csd_ir["ir_version"] == "VAIXLNS-LNS-IR-1"
+        and bool(csd_ir["source_hash"])
+        and bool(csd_ir["ast_hash"])
+    )
+    server = ServerConfig.from_env("vlns-control")
+    return durable_ok, csd_ok, bool(server.enabled and server.base_url)
+
+
 def run_smoke() -> BootReport:
     registry = load_registry()
     local_modules = check_local_modules()
+    durable_recovery_verified, csd_compiler_verified, vlns_server_configured = run_infrastructure_checks()
 
     constitution = SovereignConstitution()
     constitutional_checks = {
@@ -160,6 +213,7 @@ def run_smoke() -> BootReport:
     smoke_passed = smoke_passed and result.status == ExecutionStatus.SUCCESS
     smoke_passed = smoke_passed and replay.status == ExecutionStatus.SUCCESS
     smoke_passed = smoke_passed and ledger.verify_integrity()
+    smoke_passed = smoke_passed and durable_recovery_verified and csd_compiler_verified
     gap_audit = gap_report(ROOT / "config" / "canonical_decomposition.v1.json")
     room = MissionRouter(ROOT / "config" / "vx_mission_profiles.json").compose(
         "VAIXLNS four-domain smoke mission",
@@ -197,4 +251,7 @@ def run_smoke() -> BootReport:
             "gates": list(room.gates),
         },
         openai_bridge_configured=openai_bridge.configured,
+        durable_recovery_verified=durable_recovery_verified,
+        csd_compiler_verified=csd_compiler_verified,
+        vlns_server_configured=vlns_server_configured,
     )

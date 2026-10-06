@@ -1,0 +1,151 @@
+vaixlns_root {
+    meta {
+        id          "VAIXLNS://ROOT/GENESIS/1.0"
+        name        "VAIXLNS Civilization Root"
+        version     "1.0.0"
+        authority   "VX_SOVEREIGN_CORE"
+    }
+    
+    ontology {
+        domains {
+            core        "Civilization Core"
+            memory      "Living Memory System"
+            graph       "Dependency & Knowledge Graph"
+            constitution "Sovereign Constitutional Layer"
+            rce         "Runtime Control & Execution"
+            economy     "Resource & Value Economy"
+            agents      "Autonomous Sovereign Agents"
+            orchestrator "Global Orchestration Layer"
+            runtime     "Execution Substrate"
+        }
+        
+        entities {
+            core.kernel {
+                domain      core
+                kind        "kernel"
+                provides    ["identity", "timebase", "event_bus"]
+                requires    ["constitution.root", "graph.root"]
+            }
+            
+            memory.store {
+                domain      memory
+                kind        "living_store"
+                provides    ["state", "history", "snapshots"]
+                requires    ["core.kernel"]
+            }
+            
+            graph.root {
+                domain      graph
+                kind        "graph_root"
+                provides    ["dependency_graph", "knowledge_graph"]
+                requires    ["core.kernel"]
+            }
+            
+            constitution.root {
+                domain      constitution
+                kind        "sovereign_constitution"
+                provides    ["rules", "constraints", "sovereign_signatures"]
+                requires    ["core.kernel", "graph.root"]
+            }
+            
+            rce.controller {
+                domain      rce
+                kind        "runtime_controller"
+                provides    ["execution_control", "scheduling", "supervision"]
+                requires    ["core.kernel", "constitution.root"]
+            }
+            
+            economy.engine {
+                domain      economy
+                kind        "value_engine"
+                provides    ["credits", "quotas", "resource_policies"]
+                requires    ["core.kernel", "memory.store"]
+            }
+            
+            agents.mesh {
+                domain      agents
+                kind        "agent_mesh"
+                provides    ["sovereign_agents", "roles", "capabilities"]
+                requires    ["core.kernel", "memory.store", "graph.root"]
+            }
+            
+            orchestrator.global {
+                domain      orchestrator
+                kind        "global_orchestrator"
+                provides    ["flows", "pipelines", "coordination"]
+                requires    ["core.kernel", "agents.mesh", "rce.controller"]
+            }
+            
+            runtime.substrate {
+                domain      runtime
+                kind        "execution_substrate"
+                provides    ["threads", "tasks", "io"]
+                requires    ["rce.controller"]
+            }
+        }
+        
+        relations {
+            link core.kernel        -> memory.store
+            link core.kernel        -> graph.root
+            link core.kernel        -> constitution.root
+            link core.kernel        -> rce.controller
+            link core.kernel        -> economy.engine
+            link core.kernel        -> agents.mesh
+            link core.kernel        -> orchestrator.global
+            link rce.controller     -> runtime.substrate
+            link orchestrator.global -> agents.mesh
+            link orchestrator.global -> economy.engine
+        }
+    }
+    
+    laws {
+        sovereignty {
+            rule "no_unsigned_transition" {
+                require  "constitution.root.sovereign_signatures"
+                enforce  "all_state_changes_signed"
+            }
+            
+            rule "no_orphan_entity" {
+                enforce  "every_entity_has_domain_and_dependencies"
+            }
+        }
+        
+        consistency {
+            rule "acyclic_dependency_graph" {
+                enforce  "graph.root.dependency_graph.is_acyclic"
+            }
+            
+            rule "no_broken_links" {
+                enforce  "all_relations.resolve_successfully"
+            }
+        }
+        
+        lineage {
+            rule "immutable_genesis" {
+                enforce  "vaixlns_root.meta.version_is_genesis"
+            }
+        }
+    }
+    
+    axes {
+        axis "sovereignty" {
+            weight 1.0
+            binds  ["constitution.root", "core.kernel", "agents.mesh"]
+        }
+        
+        axis "memory" {
+            weight 0.9
+            binds  ["memory.store", "graph.root"]
+        }
+        
+        axis "execution" {
+            weight 0.9
+            binds  ["rce.controller", "runtime.substrate", "orchestrator.global"]
+        }
+        
+        axis "economy" {
+            weight 0.8
+            binds  ["economy.engine", "agents.mesh"]
+        }
+    }
+}

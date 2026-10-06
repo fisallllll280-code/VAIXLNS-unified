@@ -419,6 +419,27 @@ This anchors regression testing and prevents unintended changes.
 - ⏳ Scaling
 - ⏳ Multi-node deployment
 
+
+---
+
+## Evidence Status — Unified Runtime 1.1.0
+
+This release strengthens the executable boundary without converting architecture
+claims into deployment claims.
+
+- Local durable event/snapshot persistence: IMPLEMENTED + TESTED.
+- Opt-in VLNS HTTPS connection boundary: IMPLEMENTED; endpoint/credential configuration is external.
+- OPA policy adapter: IMPLEMENTED at the adapter boundary; remote policy availability is evidence-gated.
+- NATS JetStream distributed backend: IMPLEMENTED at the adapter boundary; real cluster/failover evidence remains pending.
+- Isolated math/physics/engineering solver bridge: IMPLEMENTED + TESTED.
+- OpenTelemetry SDK/exporters: optional integration; collector deployment remains external.
+- SPIFFE/SPIRE: deployment identity boundary only.
+- Formal theorem proving and full historical 0001–2750 atomic recovery: OPEN.
+- Multi-node production readiness: NOT CLAIMED until reproducible cluster/server evidence exists.
+
+The canonical repository remains `VAIXLNS`; this repository is its executable
+integration surface.
+
 ---
 
 ## License
