@@ -180,6 +180,29 @@ class InnovationControlTests(unittest.TestCase):
         self.assertFalse(d.accepted)
         self.assertIn("PROOF:INVALIDATED", d.reasons)
 
+    def test_counterfactual_arena_ranks_alternatives_deterministically(self):
+        c1 = self.make_candidate()
+        c2 = InnovationCandidate(
+            "inv-002",
+            c1.mission,
+            {"runtime": "vx", "verification": "trio", "replay": "strict"},
+            c1.proof_obligations,
+            c1.lineage,
+        )
+        ranked = CounterfactualArena().rank([
+            (c1, {
+                "correctness": 0.99, "reliability": 0.95, "proof_coverage": 0.95, "reproducibility": 1.0,
+                "evidence_strength": 1.0, "novelty_value": 0.90, "operational_value": 0.90,
+                "blast_risk": 0.05, "rollback_cost": 0.02, "unresolved_unknowns": 0.0,
+            }),
+            (c2, {
+                "correctness": 0.99, "reliability": 0.99, "proof_coverage": 0.99, "reproducibility": 1.0,
+                "evidence_strength": 1.0, "novelty_value": 0.95, "operational_value": 0.95,
+                "blast_risk": 0.01, "rollback_cost": 0.01, "unresolved_unknowns": 0.0,
+            }),
+        ])
+        self.assertEqual(ranked[0].candidate_id, "inv-002")
+
 
 if __name__ == "__main__":
     unittest.main()
