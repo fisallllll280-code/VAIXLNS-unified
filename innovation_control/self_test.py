@@ -166,6 +166,17 @@ def run_self_test() -> tuple[SelfTestResult, ...]:
         decision.reasons,
     ))
 
+    # 2b. Replay must kill a candidate.
+    decision = _gate().evaluate(
+        candidate, [], _metrics(), evidence, {"x": 21}, 42, lambda p: p["x"] * 3,
+        _fresh(candidate), 120, "dep:v1", "env:v1",
+        impact_nodes, budget, forbidden, mutation_limit,
+    )
+    results.append(SelfTestResult(
+        "replay-kill", not decision.accepted and "REPLAY:FAIL" in decision.reasons,
+        decision.reasons,
+    ))
+
     # 3. Shared verifier mechanism must fail the independence gate.
     decision = _gate(shared_verifiers=True).evaluate(
         candidate, [], _metrics(), evidence, {"x": 21}, 42, lambda p: p["x"] * 2,
@@ -212,6 +223,9 @@ def run_self_test() -> tuple[SelfTestResult, ...]:
         decision.reasons,
     ))
 
+    # 7. The self-test itself must never mutate canonical state.
+    if any("CANONICAL" in reason for result in results for reason in result.reasons):
+        raise AssertionError("SELF_TEST_ATTEMPTED_CANONICAL_MUTATION")
     return tuple(results)
 
 
