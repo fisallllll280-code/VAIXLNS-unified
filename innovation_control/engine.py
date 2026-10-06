@@ -14,6 +14,7 @@ import json
 from typing import Any, Callable, Mapping, Sequence
 
 from innovation_control.assurance import Freshness, ProofFreshness, VerificationDiversity, VerifierProfile
+from innovation_control.impact import CausalImpactBudget, ImpactNode
 
 
 class Stage(str, Enum):
@@ -222,6 +223,10 @@ class ProofBeforePromotion:
         proof_now_epoch: int | None = None,
         dependency_fingerprint: str | None = None,
         environment_fingerprint: str | None = None,
+        impact_nodes: Sequence[ImpactNode] | None = None,
+        impact_budget: float | None = None,
+        forbidden_impact_nodes: frozenset[str] = frozenset(),
+        max_state_mutations: int = 1,
     ) -> PromotionDecision:
         reasons: list[str] = []
         novelty = self.novelty.classify(candidate, known)
@@ -242,6 +247,17 @@ class ProofBeforePromotion:
             reasons.append("REPLAY:FAIL")
         if evidence.candidate_id != candidate.candidate_id:
             reasons.append("EVIDENCE:CANDIDATE_MISMATCH")
+        if impact_nodes is None or impact_budget is None:
+            reasons.append("IMPACT:CONTEXT_MISSING")
+        else:
+            impact = CausalImpactBudget().assess(
+                impact_nodes,
+                budget=impact_budget,
+                forbidden_nodes=forbidden_impact_nodes,
+                max_state_mutations=max_state_mutations,
+            )
+            if not impact.passed:
+                reasons.extend(f"IMPACT:{item}" for item in impact.blocked)
         if proof_validity is None:
             reasons.append("PROOF:FRESHNESS_CONTEXT_MISSING")
         elif proof_now_epoch is None or dependency_fingerprint is None or environment_fingerprint is None:
@@ -265,6 +281,8 @@ class ProofBeforePromotion:
             "verification_diversity": self.trio.diversity.score,
             "replay": True,
             "proof_freshness": "FRESH",
+            "impact_budget": impact_budget,
+
         }
         proof = _digest(proof_payload)
         return PromotionDecision(candidate.candidate_id, Stage.ADMISSIBLE, True, novelty, proof, ("PROVEN", "ADMISSIBLE"))
