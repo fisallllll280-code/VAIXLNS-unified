@@ -109,7 +109,7 @@ class InnovationControlTests(unittest.TestCase):
     def test_falsification_kills_candidate(self):
         c = self.make_candidate()
         e = self.make_evidence(c)
-        d = self.make_gate(attack_ok=False).evaluate(c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2)
+        d = self.make_gate(attack_ok=False).evaluate(c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2, self.fresh_context(c), 120, "dep:v1", "env:v1", *self.impact_context())
         self.assertFalse(d.accepted)
         self.assertEqual(d.stage, Stage.REJECTED)
         self.assertIn("FALSIFICATION:deterministic", d.reasons)
@@ -117,7 +117,7 @@ class InnovationControlTests(unittest.TestCase):
     def test_independent_verifier_failure_blocks_promotion(self):
         c = self.make_candidate()
         e = self.make_evidence(c)
-        d = self.make_gate(verifier_ok=False).evaluate(c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2)
+        d = self.make_gate(verifier_ok=False).evaluate(c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2, self.fresh_context(c), 120, "dep:v1", "env:v1", *self.impact_context())
         self.assertFalse(d.accepted)
         self.assertEqual(d.stage, Stage.REJECTED)
         self.assertIn("INDEPENDENT:verifier-1:FAIL", d.reasons)
@@ -125,7 +125,7 @@ class InnovationControlTests(unittest.TestCase):
     def test_replay_failure_blocks_promotion(self):
         c = self.make_candidate()
         e = self.make_evidence(c)
-        d = self.make_gate().evaluate(c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 3)
+        d = self.make_gate().evaluate(c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 3, self.fresh_context(c), 120, "dep:v1", "env:v1", *self.impact_context())
         self.assertFalse(d.accepted)
         self.assertIn("REPLAY:FAIL", d.reasons)
 
@@ -154,7 +154,7 @@ class InnovationControlTests(unittest.TestCase):
             ),
             ReplayVerifier(),
         )
-        d = gate.evaluate(c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2)
+        d = gate.evaluate(c, [], self.good_metrics(), e, {"x": 21}, 42, lambda p: p["x"] * 2, self.fresh_context(c), 120, "dep:v1", "env:v1", *self.impact_context())
         self.assertFalse(d.accepted)
         self.assertIn("INDEPENDENT:DIVERSITY:FAIL", d.reasons)
 
