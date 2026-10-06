@@ -9,6 +9,7 @@ from interface.runtime import InterfaceRuntime
 from operations.telemetry import InMemoryTelemetry, Telemetry
 from provenance.attestation import Material, build_attestation
 from tools.productivity_router import ProductivityRouter, ToolCandidate
+from closure.operational_closure import MCPTrustRegistry, ToolRecord
 
 
 class ClosureBoundaryTests(unittest.TestCase):
@@ -69,6 +70,21 @@ class ClosureBoundaryTests(unittest.TestCase):
         bad = InterfaceRuntime().command(session, "erase", intent="x")
         self.assertTrue(ok.allowed)
         self.assertFalse(bad.allowed)
+
+    def test_mcp_registry_recommendation_uses_productivity_router(self):
+        registry = MCPTrustRegistry()
+        registry.register(ToolRecord(
+            name="slow", server="s1", scope=("search",), approved=True,
+            health="healthy", provenance="p1", reliability=.9,
+            evidence_strength=.9, latency_ms=300
+        ))
+        registry.register(ToolRecord(
+            name="fast-untrusted", server="s2", scope=("search",), approved=False,
+            health="healthy", provenance="p2", reliability=1,
+            evidence_strength=1, latency_ms=1
+        ))
+        result = registry.recommend("search")
+        self.assertEqual(result.selected[0].name, "slow")
 
     def test_governed_change_requires_real_gates(self):
         proposal = create_proposal(
