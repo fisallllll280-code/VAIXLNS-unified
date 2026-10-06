@@ -11,7 +11,7 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 from hashlib import sha256
 import json
-from typing import Any, Callable, Iterable, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 
 class Stage(str, Enum):
@@ -39,14 +39,22 @@ class InnovationCandidate:
 
     @property
     def fingerprint(self) -> str:
-        payload = {
+        """Identity of the exact candidate record, including lineage."""
+        return _digest({
             "mission": self.mission,
             "architecture": self.architecture,
             "proof_obligations": self.proof_obligations,
             "lineage": self.lineage,
-        }
-        raw = json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()
-        return sha256(raw).hexdigest()
+        })
+
+    @property
+    def novelty_fingerprint(self) -> str:
+        """Architecture identity used for duplicate detection; lineage is not novelty."""
+        return _digest({
+            "mission": self.mission,
+            "architecture": self.architecture,
+            "proof_obligations": self.proof_obligations,
+        })
 
 
 @dataclass(frozen=True)
@@ -60,8 +68,7 @@ class Evidence:
 
     @property
     def fingerprint(self) -> str:
-        raw = json.dumps(asdict(self), sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()
-        return sha256(raw).hexdigest()
+        return _digest(asdict(self))
 
 
 @dataclass(frozen=True)
@@ -102,8 +109,8 @@ class NoveltyShield:
     """Reject exact duplicates and expose unresolved novelty as a blocker."""
 
     def classify(self, candidate: InnovationCandidate, known: Sequence[InnovationCandidate]) -> str:
-        fp = candidate.fingerprint
-        if any(k.fingerprint == fp for k in known):
+        fp = candidate.novelty_fingerprint
+        if any(k.novelty_fingerprint == fp for k in known):
             return "REDUNDANT"
         if any(set(candidate.architecture.keys()).intersection(k.architecture.keys()) for k in known):
             return "COMPOSITE_NOVEL"
@@ -167,10 +174,11 @@ class IndependentVerificationTrio:
         self.verifiers = tuple(verifiers)
 
     def verify(self, candidate: InnovationCandidate, evidence: Evidence) -> tuple[VerificationResult, ...]:
-        return tuple(
-            VerificationResult(f"verifier-{i+1}", bool(fn(candidate, evidence)), "PASS" if fn(candidate, evidence) else "FAIL")
-            for i, fn in enumerate(self.verifiers)
-        )
+        results: list[VerificationResult] = []
+        for i, fn in enumerate(self.verifiers, start=1):
+            passed = bool(fn(candidate, evidence))
+            results.append(VerificationResult(f"verifier-{i}", passed, "PASS" if passed else "FAIL"))
+        return tuple(results)
 
 
 class ReplayVerifier:
