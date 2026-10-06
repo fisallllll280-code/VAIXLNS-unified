@@ -242,18 +242,19 @@ class ProofBeforePromotion:
             reasons.append("REPLAY:FAIL")
         if evidence.candidate_id != candidate.candidate_id:
             reasons.append("EVIDENCE:CANDIDATE_MISMATCH")
-        if proof_validity is not None:
-            if proof_now_epoch is None or dependency_fingerprint is None or environment_fingerprint is None:
-                reasons.append("PROOF:FRESHNESS_CONTEXT_MISSING")
-            else:
-                freshness = ProofFreshness().evaluate(
-                    proof_validity,
-                    now_epoch=proof_now_epoch,
-                    dependency_fingerprint=dependency_fingerprint,
-                    environment_fingerprint=environment_fingerprint,
-                )
-                if freshness is not Freshness.FRESH:
-                    reasons.append(f"PROOF:{freshness.value}")
+        if proof_validity is None:
+            reasons.append("PROOF:FRESHNESS_CONTEXT_MISSING")
+        elif proof_now_epoch is None or dependency_fingerprint is None or environment_fingerprint is None:
+            reasons.append("PROOF:FRESHNESS_CONTEXT_MISSING")
+        else:
+            freshness = ProofFreshness().evaluate(
+                proof_validity,
+                now_epoch=proof_now_epoch,
+                dependency_fingerprint=dependency_fingerprint,
+                environment_fingerprint=environment_fingerprint,
+            )
+            if freshness is not Freshness.FRESH:
+                reasons.append(f"PROOF:{freshness.value}")
         if reasons:
             return PromotionDecision(candidate.candidate_id, Stage.REJECTED, False, novelty, None, tuple(reasons))
         proof_payload = {
@@ -263,7 +264,7 @@ class ProofBeforePromotion:
             "verifiers": [asdict(v) for v in verifications],
             "verification_diversity": self.trio.diversity.score,
             "replay": True,
-            "proof_freshness": "FRESH" if proof_validity is not None else "NOT_SCOPED",
+            "proof_freshness": "FRESH",
         }
         proof = _digest(proof_payload)
         return PromotionDecision(candidate.candidate_id, Stage.ADMISSIBLE, True, novelty, proof, ("PROVEN", "ADMISSIBLE"))
