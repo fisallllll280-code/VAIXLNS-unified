@@ -26,6 +26,8 @@ from execution.vx_runtime import ExecutionEnvelope, ExecutionStatus, VXRuntime
 from infra.durable_store import DurableEventStore
 from infra.vlns_server_client import ServerConfig
 from csd import compile_file
+from governance.authority_contract import ConstitutionAuthorizer
+from governance.governance_engine import GovernanceEngine
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -60,6 +62,8 @@ class GovernedVX:
     def __init__(self, constitution: SovereignConstitution, ledger: SovereignEventLedger):
         self.constitution = constitution
         self.ledger = ledger
+        self.authorizer = ConstitutionAuthorizer(constitution)
+        self.governance = GovernanceEngine()
         self.runtime = VXRuntime(ledger)
 
     def execute(
@@ -69,15 +73,18 @@ class GovernedVX:
         inputs: dict[str, Any],
         worker: Callable[[dict[str, Any]], Any],
     ):
-        if not actor.active:
-            raise PermissionError("INACTIVE_IDENTITY")
-        if not actor.has_permission(Permission.EXECUTE):
-            raise PermissionError("EXECUTE_PERMISSION_REQUIRED")
-        if not actor.has_capability(capability):
-            raise PermissionError("CAPABILITY_REQUIRED")
-        for category in ("security", "execution", "governance", "data", "determinism"):
-            if not self.constitution.verify_compliance(category):
-                raise RuntimeError(f"CONSTITUTION_NON_COMPLIANT:{category}")
+        authority = self.authorizer.decide(actor, capability, {"inputs": inputs})
+        if not authority.allowed:
+            raise PermissionError(authority.reason)
+
+        governance = self.governance.evaluate(
+            actor_id=actor.id,
+            permissions={permission.value for permission in actor.permissions},
+            capability=capability,
+            context={"inputs": inputs},
+        )
+        if not governance.allowed:
+            raise PermissionError(governance.reason)
 
         envelope = ExecutionEnvelope(
             actor=actor,
