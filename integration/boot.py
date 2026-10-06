@@ -147,7 +147,7 @@ def run_infrastructure_checks() -> tuple[bool, bool, bool]:
         and bool(csd_ir["ast_hash"])
     )
     server = ServerConfig.from_env("vlns-control")
-    return durable_ok, csd_ok, server.configured
+    return durable_ok, csd_ok, bool(server.enabled and server.base_url)
 
 
 def run_smoke() -> BootReport:
