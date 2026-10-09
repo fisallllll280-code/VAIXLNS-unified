@@ -24,6 +24,7 @@ ROLE_DEFAULT_PERMISSIONS: dict[str, frozenset[str]] = {
     for role in (
         "reasoning_mind", "architecture_mind", "adversary_mind", "verifier_mind",
         "recovery_mind", "security_mind", "innovation_mind", "research_mind",
+        "financial_mind", "engineering_mind", "governance_mind", "operations_mind",
     )
 }
 IDENTITY_FIELDS = (
