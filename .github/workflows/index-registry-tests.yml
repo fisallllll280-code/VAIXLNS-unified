@@ -26,5 +26,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install test dependency
+        run: python -m pip install --upgrade pytest
       - name: Validate consolidated registries
         run: python -m pytest -q tests/test_innovation_index_registry.py
