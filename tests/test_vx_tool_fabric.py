@@ -11,6 +11,7 @@ from vx.tool_fabric import ServerContract, VXToolFabric, tool_contract_digest
 class VXToolFabricTests(unittest.TestCase):
     def setUp(self):
         self.calls = []
+        self.health_calls = []
         self.registry = ToolRegistry()
         self.spec = ToolSpec(
             "server.read", "Read-only server operation",
@@ -48,7 +49,7 @@ class VXToolFabricTests(unittest.TestCase):
         )
         fabric = VXToolFabric(
             self.gateway, supervisor,
-            health_probe=lambda _contract: {
+            health_probe=lambda _contract: self.health_calls.append(_contract.server_id) or {
                 "healthy": healthy,
                 "protocol": protocol,
                 "protocol_version": protocol_version,
@@ -102,6 +103,7 @@ class VXToolFabricTests(unittest.TestCase):
         self.assertEqual(result.status, "BLOCKED")
         self.assertTrue(any(item.startswith("REQUIRED_SCOPE_MISSING") for item in result.reasons))
         self.assertEqual(self.calls, [])
+        self.assertEqual(self.health_calls, [])
 
     def test_unadmitted_integration_blocks_before_handler(self):
         _, fabric = self.make_fabric(integration_admitted=False)
