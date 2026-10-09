@@ -19,9 +19,8 @@ RECORD_ID_PATTERN = re.compile(
     r"(?im)^\s*(?:#{1,6}\s*)?(?:ID\s*[:：]|(?:Ω\.)?\d{1,6}[.)、:]\s*)"
 )
 EXPLICIT_ID_PATTERN = re.compile(
-    r"(?im)^\s*(?:#{1,6}\s*)?(?:ID\s*[:：]\s*|)"
-    r"((?:Ω\.)?[A-Z][A-Z0-9_.:-]{1,63}|\d{1,6})"
-    r"\s*(?:[.)、:]\s*)?"
+    r"(?im)^\s*(?:#{1,6}\s*)?(?:ID\s*[:：]\s*([A-Z0-9_.:-]{2,64})"
+    r"|((?:Ω\.)?[A-Z][A-Z0-9_.:-]{1,63}|\d{1,6})\s*[.)、:])"
 )
 HEADING_PATTERN = re.compile(r"(?m)^#{1,6}\s+(.+?)\s*$")
 STATUS_VALUES = {
@@ -168,7 +167,7 @@ def _legacy_id(chunk: str, ordinal: int) -> str:
     first_lines = "\n".join(chunk.splitlines()[:4])
     match = EXPLICIT_ID_PATTERN.search(first_lines)
     if match:
-        candidate = match.group(1).strip()
+        candidate = (match.group(1) or match.group(2)).strip()
         # A standalone numbered Markdown heading/entry is a legacy ID only when
         # the original text actually uses an enumerated form.
         return candidate
