@@ -55,6 +55,10 @@ class VXToolFabricTests(unittest.TestCase):
                 "latency_ms": latency_ms,
             },
             integration_admission=lambda _integration_id: integration_admitted,
+            arc_x_gate=lambda *_: {
+                "allowed": True, "decision": "ADMITTED", "eir_sha256": "d" * 64,
+                "reason_codes": ["TEST_POLICY_FIXTURE"],
+            },
         )
         fabric.register_server(self.contract)
         return supervisor, fabric
@@ -80,7 +84,8 @@ class VXToolFabricTests(unittest.TestCase):
         self.assertEqual([event["phase"] for event in result.replay], [
             "prepared", "simulated", "tested", "authorized", "executing", "verified",
         ])
-        self.assertEqual(supervisor.operations[result.operation_id].snapshot["args_sha256"], result.compatibility.contract_sha256 if False else supervisor.operations[result.operation_id].snapshot["args_sha256"])
+        self.assertEqual(supervisor.operations[result.operation_id].snapshot["arcx_eir_sha256"], result.eir_sha256)
+        self.assertEqual(result.eir_sha256, "d" * 64)
 
     def test_incompatible_protocol_blocks_before_tool_handler(self):
         supervisor, fabric = self.make_fabric(protocol="wrong")
@@ -123,6 +128,50 @@ class VXToolFabricTests(unittest.TestCase):
             fabric.register_server(self.contract)
         with self.assertRaisesRegex(ValueError, "TOOL_CONTRACT_DIGEST_MISMATCH"):
             fabric.register_server(bad)
+
+    def test_arc_x_gate_must_admit_and_bind_eir_hash(self):
+        supervisor = VXSupervisor(
+            authorizer=lambda _: True, executor=lambda _: {"ok": False},
+            verifier=lambda _, result: result.get("ok") is True,
+        )
+        denied = VXToolFabric(
+            self.gateway, supervisor,
+            health_probe=lambda contract: {
+                "healthy": True, "protocol": contract.protocol,
+                "protocol_version": contract.protocol_version,
+                "contract_version": contract.contract_version, "latency_ms": 3,
+            },
+            integration_admission=lambda _: True,
+            arc_x_gate=lambda *_: {
+                "allowed": False, "decision": "BLOCKED",
+                "eir_sha256": "e" * 64, "reason_codes": ["UNRESOLVED_CONFLICT"],
+            },
+        )
+        denied.register_server(self.contract)
+        result = self.invoke(denied, request_id="req-arcx-denied")
+        self.assertEqual(result.status, "BLOCKED")
+        self.assertTrue(any(code.startswith("ARC_X_ADMISSION_REQUIRED") for code in result.reasons))
+        self.assertEqual(self.calls, [])
+
+    def test_arc_x_gate_without_eir_digest_is_rejected(self):
+        supervisor = VXSupervisor(
+            authorizer=lambda _: True, executor=lambda _: {"ok": False},
+            verifier=lambda _, result: result.get("ok") is True,
+        )
+        missing_digest = VXToolFabric(
+            self.gateway, supervisor,
+            health_probe=lambda contract: {
+                "healthy": True, "protocol": contract.protocol,
+                "protocol_version": contract.protocol_version,
+                "contract_version": contract.contract_version, "latency_ms": 3,
+            },
+            integration_admission=lambda _: True,
+            arc_x_gate=lambda *_: {"allowed": True, "decision": "ADMITTED", "eir_sha256": ""},
+        )
+        missing_digest.register_server(self.contract)
+        result = self.invoke(missing_digest, request_id="req-no-eir")
+        self.assertIn("ARC_X_EIR_SHA256_REQUIRED", result.reasons)
+        self.assertEqual(self.calls, [])
 
     def test_vx_authorizer_is_an_independent_gate(self):
         supervisor, fabric = self.make_fabric(vx_authorized=False)
@@ -171,6 +220,10 @@ class VXToolFabricTests(unittest.TestCase):
             gateway, supervisor,
             health_probe=lambda _contract: (_ for _ in ()).throw(RuntimeError("secret-bearing internal detail")),
             integration_admission=lambda _: True,
+            arc_x_gate=lambda *_: {
+                "allowed": True, "decision": "ADMITTED", "eir_sha256": "d" * 64,
+                "reason_codes": ["TEST_POLICY_FIXTURE"],
+            },
         )
         broken.register_server(self.contract)
         result = self.invoke(broken, request_id="req-12")
