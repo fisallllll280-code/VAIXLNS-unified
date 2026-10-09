@@ -57,7 +57,7 @@ class ArcXCoreTests(unittest.TestCase):
         self.assertEqual(a.eir, b.eir)
 
     def test_mutable_revision_is_rejected(self):
-        with self.assertRaisesRegex(ValueError, "SOURCE_REVISION_MUST_BE_PINNED"):
+        with self.assertRaisesRegex(ValueError, "SOURCE_REVISION_MUST_BE_IMMUTABLE_PIN"):
             SourceReceipt("SRC", "owner/repo", "main", "README.md", HASH_A, "2026-10-09T10:00:00Z")
 
     def test_invalid_source_hash_is_rejected(self):
@@ -131,6 +131,58 @@ class ArcXCoreTests(unittest.TestCase):
         admitted = evaluate_admission(result, "EXECUTE", approval, lambda item, scope: item.actor_id == "operator-1" and scope == "execution")
         self.assertEqual(admitted.decision, AdmissionDecision.ADMITTED)
         self.assertEqual(admitted.eir_sha256, result.eir_sha256)
+
+    def test_proof_for_another_claim_cannot_satisfy_obligation(self):
+        claims = [
+            ClaimRecord("CLM-1", "First claim", ClaimKind.IMPLEMENTATION),
+            ClaimRecord("CLM-2", "Second claim", ClaimKind.IMPLEMENTATION),
+        ]
+        evidence = [
+            EvidenceRecord("EVD-1", "SRC-1", EvidenceKind.TEST_RESULT, "Test for second claim",
+                           "CLM-2", Stance.SUPPORTS, result="PASS", artifact_sha256=HASH_B),
+        ]
+        obligations = [ProofObligation("PO-1", "CLM-1", "Proof for first claim", evidence_ids=("EVD-1",))]
+        result = compile_eir([source()], evidence, claims, obligations)
+        self.assertEqual(result.obligation_results["PO-1"], "OPEN")
+        self.assertIn("PROOF_OBLIGATION_OPEN", {item["code"] for item in result.findings})
+        self.assertFalse(result.verified_for_declared_scope)
+
+    def test_each_required_claim_needs_a_required_obligation(self):
+        claims = [
+            ClaimRecord("CLM-1", "First claim", ClaimKind.IMPLEMENTATION),
+            ClaimRecord("CLM-2", "Second claim", ClaimKind.IMPLEMENTATION),
+        ]
+        evidence = [
+            EvidenceRecord("EVD-1", "SRC-1", EvidenceKind.TEST_RESULT, "Passing check",
+                           "CLM-1", Stance.SUPPORTS, result="PASS", artifact_sha256=HASH_B),
+            EvidenceRecord("EVD-2", "SRC-1", EvidenceKind.SOURCE_EXTRACT, "Supports second",
+                           "CLM-2", Stance.SUPPORTS),
+        ]
+        obligations = [ProofObligation("PO-1", "CLM-1", "Proof for first", evidence_ids=("EVD-1",))]
+        result = compile_eir([source()], evidence, claims, obligations)
+        self.assertIn("REQUIRED_CLAIM_WITHOUT_PROOF_OBLIGATION", {item["code"] for item in result.findings})
+        self.assertFalse(result.verified_for_declared_scope)
+
+    def test_revision_tag_is_not_accepted_as_immutable_pin(self):
+        with self.assertRaisesRegex(ValueError, "SOURCE_REVISION_MUST_BE_IMMUTABLE_PIN"):
+            SourceReceipt("SRC", "owner/repo", "v1.0.0", "README.md", HASH_A, "2026-10-09T10:00:00Z")
+
+    def test_retrieval_timestamp_must_be_timezone_aware_iso8601(self):
+        with self.assertRaisesRegex(ValueError, "SOURCE_RETRIEVAL_TIMESTAMP_MUST_BE_AWARE_ISO8601"):
+            SourceReceipt("SRC", "owner/repo", "1" * 40, "README.md", HASH_A, "2026-10-09 10:00:00")
+
+    def test_research_can_inspect_conflicts_but_execution_cannot(self):
+        claim = ClaimRecord("CLM-1", "The runtime is deterministic", ClaimKind.RUNTIME)
+        evidence = [
+            EvidenceRecord("EVD-1", "SRC-1", EvidenceKind.SOURCE_EXTRACT, "Supports", "CLM-1", Stance.SUPPORTS),
+            EvidenceRecord("EVD-2", "SRC-2", EvidenceKind.SOURCE_EXTRACT, "Refutes", "CLM-1", Stance.REFUTES),
+        ]
+        result = compile_eir([source("SRC-1"), source("SRC-2", HASH_B)], evidence, [claim])
+        research = evaluate_admission(result, "RESEARCH")
+        execution = evaluate_admission(result, "EXECUTE")
+        self.assertEqual(research.decision, AdmissionDecision.ELIGIBLE_FOR_REVIEW)
+        self.assertIn("CONFLICT_PRESERVED_FOR_RESEARCH", research.reason_codes)
+        self.assertEqual(execution.decision, AdmissionDecision.BLOCKED)
 
     def test_unknown_action_fails_closed(self):
         result = fully_supported()
