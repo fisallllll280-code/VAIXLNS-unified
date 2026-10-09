@@ -43,6 +43,7 @@ class EvidenceKind(str, Enum):
     RUNTIME_TRACE = "RUNTIME_TRACE"
     PROOF_ARTIFACT = "PROOF_ARTIFACT"
     STATIC_ANALYSIS = "STATIC_ANALYSIS"
+    SIMULATION_TRACE = "SIMULATION_TRACE"
 
 
 class AdmissionDecision(str, Enum):
