@@ -64,7 +64,7 @@ The caller must supply:
 - `integration_admission(integration_id)`: trusted policy/registry check. It must agree with the separate allowlist configured on `ExecutionGateway`; neither one replaces the other.
 - `arc_x_gate(contract, tool_spec, principal, args)`: trusted host integration that compiles or retrieves the relevant EIR, checks `CompilationResult.integrity_valid`, calls the appropriate ARC-X admission operation with trusted evidence and authority verifiers, and returns `allowed`, `decision`, `eir_sha256`, and `reason_codes`.
 
-The fabric accepts `ADMITTED` for normal tool execution. Explicitly declared low-risk read-only tools may also use an allowed `ELIGIBLE_FOR_REVIEW` decision; medium-risk read-only tools require `VERIFIED`. Mutating tools are not allowed to rely on a read-only/review decision. A correct 64-character EIR digest is required for every invocation. The fabric validates format and binds the digest into the VX operation and result, but the trusted ARC-X callback must verify the actual EIR and evidence; a syntactically valid hash is not proof by itself.
+The fabric accepts `ADMITTED` for normal tool execution. Explicitly declared low-risk read-only tools may also use an allowed `ELIGIBLE_FOR_REVIEW` or `VERIFIED` decision; medium-risk read-only tools require `VERIFIED`. Mutating tools are not allowed to rely on a read-only/review decision. A correct 64-character EIR digest is required for every invocation. The fabric validates format and binds the digest into the VX operation and result, but the trusted ARC-X callback must verify the actual EIR and evidence; a syntactically valid hash is not proof by itself.
 
 ## Runtime behavior
 
@@ -79,25 +79,19 @@ The fabric accepts `ADMITTED` for normal tool execution. Explicitly declared low
 
 ## Example registration
 
+For a single registered tool, derive its connector contract directly from the gateway registry:
+
 ```python
-from vx.tool_fabric import ServerContract, VXToolFabric, tool_contract_digest
-
-spec, _handler = execution_gateway.registry.get("repo.search")
-
-contract = ServerContract(
+contract = fabric.register_tool(
+    "repo.search",
     server_id="local-repository-tools",
-    integration_id=None,
     protocol="python-tool-contract",
     protocol_version="1",
     contract_version="repo-search.v1",
-    tool_ids=("repo.search",),
-    tool_contract_digests={"repo.search": tool_contract_digest(spec)},
 )
-
-fabric.register_server(contract)
 ```
 
-Use the tool's exact registered integration ID for remote providers and a host-configured health probe. Do not change the integration allowlist merely to make a failing connector pass.
+For several tools hosted by one server, build one `ServerContract` with the exact tool IDs and a `tool_contract_digest(spec)` for each registered `ToolSpec`, then call `register_server`. Use each remote tool's exact registered integration ID and a host-configured health probe. Cheap local checks run before ARC-X and the network health probe; rejected requests do not trigger the health probe. Do not change the integration allowlist merely to make a failing connector pass.
 
 ## Validation
 
