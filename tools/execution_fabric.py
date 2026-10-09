@@ -359,8 +359,6 @@ def build_default_gateway(
         lambda args: _inspect_json(root, args))
     def test_handler(args: Mapping[str, Any]) -> Any:
         executor = test_executor or _run_unit_tests
-        if test_executor:
-            return executor(root, args["pattern"], args.get("timeout_seconds", 30), SAFE_TEST_PATTERNS)
         return executor(root, args, SAFE_TEST_PATTERNS)
     registry.register(ToolSpec("tests.run_unit", "Run only an allowlisted unittest pattern.",
         frozenset({"pattern"}), frozenset({"timeout_seconds"}),
