@@ -107,3 +107,14 @@ CI success is necessary but does not prove production compatibility with a real 
 ## Promotion rule
 
 Until the relevant CI runs and host integration are reviewed, this remains an implemented candidate. Do not label every possible tool as connected: only the registered tool IDs with matching contracts, admitted integration, valid ARC-X decision, and verified VX execution have an evidenced connection.
+
+
+## Concrete server adapter: VLNS activation
+
+`vx/server_adapters.py` provides `register_vlns_activation_tool` for the existing `vlns.activation.VLNSActivationBridge`.
+
+The adapter is registered disabled by default and has `risk="CRITICAL"`, `read_only=False`, and a dedicated `request:vlns-activation` scope. To activate it, the host must explicitly enable the ToolSpec, admit the `vlns-control` integration in the ExecutionGateway and the VXToolFabric integration callback, provide the existing VLNS bridge with runtime credentials, and return a successful ARC-X admission tied to a valid EIR digest. VX authorization and result verification remain independent gates.
+
+A call is considered successful only when the remote server confirms `ACTIVATED` with a receipt bound to the exact activation envelope and the local VX evidence recorder acknowledges the corresponding event. Remote rejection, unconfigured server, failed transport, invalid receipt, or missing local evidence must not be exposed as a successful tool result. The output deliberately excludes the signed envelope, context payload and secrets.
+
+Conformance coverage: `tests/test_vx_server_adapters.py`. These tests use test fixtures; a real VLNS server, production credentials, deployment identity and persistent evidence store still require environment-specific validation.
