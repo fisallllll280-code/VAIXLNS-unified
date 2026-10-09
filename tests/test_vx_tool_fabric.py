@@ -19,6 +19,7 @@ class VXToolFabricTests(unittest.TestCase):
             required_scopes=frozenset({"read:server"}),
             external_integration_id="server-alpha",
             risk="LOW",
+            read_only=True,
         )
         self.registry.register(
             self.spec,
@@ -56,7 +57,7 @@ class VXToolFabricTests(unittest.TestCase):
             },
             integration_admission=lambda _integration_id: integration_admitted,
             arc_x_gate=lambda *_: {
-                "allowed": True, "decision": "ADMITTED", "eir_sha256": "d" * 64,
+                "allowed": True, "decision": "ELIGIBLE_FOR_REVIEW", "eir_sha256": "d" * 64,
                 "reason_codes": ["TEST_POLICY_FIXTURE"],
             },
         )
@@ -118,6 +119,29 @@ class VXToolFabricTests(unittest.TestCase):
         self.assertIn("SERVER_CONTRACT_VERSION_MISMATCH", result2.reasons)
         self.assertEqual(self.calls, [])
 
+    def test_register_tool_derives_contract_from_registered_spec(self):
+        supervisor, fabric = self.make_fabric()
+        another = VXToolFabric(
+            self.gateway, supervisor,
+            health_probe=lambda contract: {
+                "healthy": True, "protocol": contract.protocol,
+                "protocol_version": contract.protocol_version,
+                "contract_version": contract.contract_version, "latency_ms": 2,
+            },
+            integration_admission=lambda _: True,
+            arc_x_gate=lambda *_: {
+                "allowed": True, "decision": "ELIGIBLE_FOR_REVIEW", "eir_sha256": "d" * 64,
+                "reason_codes": [],
+            },
+        )
+        contract = another.register_tool(
+            "server.read", server_id="auto-server", protocol="json-rpc",
+            protocol_version="1.0", contract_version="read.v1",
+        )
+        self.assertEqual(contract.integration_id, "server-alpha")
+        self.assertEqual(contract.tool_contract_digests["server.read"], tool_contract_digest(self.spec))
+        self.assertEqual(another.list_servers()[0]["status"], "DECLARED_NOT_ADMITTED")
+
     def test_tool_contract_drift_is_rejected_at_registration(self):
         bad = ServerContract(
             "bad-server", "server-alpha", "json-rpc", "1.0", "read.v1",
@@ -166,7 +190,7 @@ class VXToolFabricTests(unittest.TestCase):
                 "contract_version": contract.contract_version, "latency_ms": 3,
             },
             integration_admission=lambda _: True,
-            arc_x_gate=lambda *_: {"allowed": True, "decision": "ADMITTED", "eir_sha256": ""},
+            arc_x_gate=lambda *_: {"allowed": True, "decision": "ELIGIBLE_FOR_REVIEW", "eir_sha256": ""},
         )
         missing_digest.register_server(self.contract)
         result = self.invoke(missing_digest, request_id="req-no-eir")
