@@ -57,7 +57,7 @@ This protocol is an explicit contract implemented in the client. The repository 
 
 ## 4. Configuration
 
-Configure through environment variables only:
+Configure through environment variables only. Put the SQLite evidence file on a persistent runtime volume; the default relative path is illustrative and must be adapted to the deployment:
 
     VLNS_SERVER_ENABLED=true
     VLNS_SERVER_URL=https://<configured-vlns-host>
@@ -65,6 +65,7 @@ Configure through environment variables only:
     VLNS_SERVER_HEALTH_PATH=/health
     VLNS_SERVER_ACTIVATION_PATH=/v1/activations
     VLNS_SERVER_TIMEOUT=5
+    VLNS_ACTIVATION_EVIDENCE_DB=var/vx_activation_events.sqlite3
     VLNS_ACTIVATION_SIGNING_KEY=<separate-secret-of-at-least-32-bytes>
     VLNS_ALLOWED_PROVIDERS=ollama,openai-compatible
     VLNS_ALLOWED_CAPABILITIES=reasoning,research,engineering,verification
@@ -104,6 +105,6 @@ The companion reference gate is maintained in the separate vx-agents-fabric repo
 - Tests: tests/test_vlns_activation.py
 - CI evidence: https://github.com/fisallllll280-code/vx-agents-fabric/actions/runs/37915189114
 
-When VX_VLNS_ACTIVATION_REQUIRED=true, specialist agent calls and independent parent-review minds must obtain a matching remote activation receipt and evidence-event acknowledgement before model inference. Failure returns HOLD and the provider is not invoked. The gate is optional for legacy compatibility; any deployment claiming VLNS-governed model execution must enable it explicitly and must not claim production readiness solely because its local tests pass.
+When VX_VLNS_ACTIVATION_REQUIRED=true, specialist agent calls and independent parent-review minds must obtain a matching remote activation receipt and append a hash-linked event to the local VX evidence journal before model inference. Failure returns HOLD and the provider is not invoked. The journal path is configured by VX_VLNS_EVIDENCE_DB. The gate is optional for legacy compatibility; any deployment claiming VLNS-governed model execution must enable it explicitly and must not claim production readiness solely because its local tests pass.
 
-The agent-fabric gate branch is CI-green but is not merged into the default branch. It shares the envelope protocol but does not establish live connectivity or the unresolved VLNS↔NAXLNS repository identity.
+The agent-fabric gate branch is CI-green but is not merged into the default branch. Its local SQLite journal is a separate evidence source; automatic federation of that journal into the canonical VAIXLNS store is still required for a single cross-repository ledger. Neither this code nor local tests establish live connectivity or resolve the VLNS↔NAXLNS identity.
