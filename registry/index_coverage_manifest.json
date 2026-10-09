@@ -2,7 +2,7 @@
   "schema": "VAIXLNS.IndexCoverageManifest.v1",
   "source_files_in_workspace": 69,
   "source_bytes_total": 786341,
-  "index_views_catalogued": 56,
+  "index_views_catalogued": 48,
   "innovation_records_compiled": 59,
   "derived_atomic_decomposition_records": 570,
   "derived_decomposition_id_range": {
