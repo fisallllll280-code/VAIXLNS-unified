@@ -267,6 +267,27 @@ class VXToolFabric:
             reasons.append("UNDECLARED_INPUT:" + ",".join(extra_inputs))
         if not spec.enabled:
             reasons.append("TOOL_DISABLED")
+        if contract.integration_id:
+            try:
+                allowed = bool(self.integration_admission(contract.integration_id))
+            except Exception:
+                allowed = False
+            if not allowed:
+                reasons.append("INTEGRATION_NOT_ADMITTED")
+
+        # Fast-fail on cheap local checks before running ARC-X callbacks or probing
+        # a remote server. Rejected requests therefore cause no network health call.
+        if reasons:
+            return CompatibilityReport(
+                compatible=False,
+                server_id=server_id,
+                tool_id=tool_id,
+                reasons=tuple(reasons),
+                contract_sha256=fingerprint,
+                health_status="NOT_CHECKED",
+                arcx_decision="NOT_RUN",
+            )
+
         arcx_decision = "BLOCKED"
         eir_sha256 = ""
         try:
@@ -287,15 +308,21 @@ class VXToolFabric:
                     reasons.append("ARC_X_ADMISSION_REQUIRED" + (":" + ",".join(codes) if codes else ""))
                 if len(eir_sha256) != 64 or any(ch not in "0123456789abcdef" for ch in eir_sha256.lower()):
                     reasons.append("ARC_X_EIR_SHA256_REQUIRED")
+                eir_sha256 = eir_sha256.lower()
         except Exception as exc:
             reasons.append("ARC_X_POLICY_GATE_FAILED:" + type(exc).__name__)
-        if contract.integration_id:
-            try:
-                allowed = bool(self.integration_admission(contract.integration_id))
-            except Exception:
-                allowed = False
-            if not allowed:
-                reasons.append("INTEGRATION_NOT_ADMITTED")
+
+        if reasons:
+            return CompatibilityReport(
+                compatible=False,
+                server_id=server_id,
+                tool_id=tool_id,
+                reasons=tuple(reasons),
+                contract_sha256=fingerprint,
+                health_status="NOT_CHECKED",
+                arcx_decision=arcx_decision,
+                eir_sha256=eir_sha256,
+            )
 
         latency: float | None = None
         health_status = "FAILED"
