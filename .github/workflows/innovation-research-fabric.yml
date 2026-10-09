@@ -1,0 +1,37 @@
+name: Ω Research-to-Engineering Decision Fabric
+
+on:
+  push:
+    branches:
+      - main
+      - feat/innovation-research-investigation-fabric-v1
+    paths:
+      - "innovation_control/research_fabric.py"
+      - "tests/test_research_fabric.py"
+      - "config/research-decision-bundle.schema.json"
+      - ".github/workflows/innovation-research-fabric.yml"
+  pull_request:
+    paths:
+      - "innovation_control/research_fabric.py"
+      - "tests/test_research_fabric.py"
+      - "config/research-decision-bundle.schema.json"
+      - ".github/workflows/innovation-research-fabric.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  research-decision-conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run research fabric tests
+        run: python -m unittest discover -s tests -p "test_research_fabric.py" -v
+      - name: Validate research decision schema JSON
+        run: python -c "import json; json.load(open('config/research-decision-bundle.schema.json', encoding='utf-8'))"
