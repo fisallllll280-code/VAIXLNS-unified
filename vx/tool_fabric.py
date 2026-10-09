@@ -177,6 +177,42 @@ class VXToolFabric:
                 raise ValueError("TOOL_CONTRACT_DIGEST_MISMATCH:" + tool_id)
         self._servers[contract.server_id] = _RegisteredServer(contract, self.health_probe)
 
+    def register_tool(
+        self,
+        tool_id: str,
+        *,
+        server_id: str | None = None,
+        protocol: str = "python-tool-contract",
+        protocol_version: str = "1",
+        contract_version: str = "tool-spec.v1",
+        endpoint_ref: str = "local://host-managed",
+        max_latency_ms: int = 5000,
+    ) -> ServerContract:
+        """Bind any existing gateway tool to a single-tool VX connector contract.
+
+        The tool handler must already be registered on the gateway. This helper
+        derives the integration identity and contract digest from that registered
+        ToolSpec rather than accepting caller-supplied capabilities or scopes.
+        It declares the connector; it does not grant integration admission.
+        """
+        try:
+            spec, _handler = self.gateway.registry.get(tool_id)
+        except KeyError as exc:
+            raise ValueError("SERVER_REFERENCES_UNKNOWN_TOOL:" + tool_id) from exc
+        contract = ServerContract(
+            server_id=server_id or "tool:" + tool_id,
+            integration_id=spec.external_integration_id,
+            protocol=protocol,
+            protocol_version=protocol_version,
+            contract_version=contract_version,
+            tool_ids=(tool_id,),
+            tool_contract_digests={tool_id: tool_contract_digest(spec)},
+            endpoint_ref=endpoint_ref,
+            max_latency_ms=max_latency_ms,
+        )
+        self.register_server(contract)
+        return contract
+
     def list_servers(self) -> tuple[Mapping[str, Any], ...]:
         return tuple({
             "server_id": item.contract.server_id,
