@@ -21,7 +21,7 @@ from vx.runtime_supervisor import Operation, Phase, VXSupervisor
 
 HealthProbe = Callable[["ServerContract"], Mapping[str, Any]]
 IntegrationAdmission = Callable[[str], bool]
-ArcXPolicyGate = Callable[[\"ServerContract\", ToolSpec, Principal, Mapping[str, Any]], Mapping[str, Any]]
+ArcXPolicyGate = Callable[["ServerContract", ToolSpec, Principal, Mapping[str, Any]], Mapping[str, Any]]
 
 
 def _sha256(value: str) -> str:
