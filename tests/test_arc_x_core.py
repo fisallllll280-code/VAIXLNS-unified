@@ -218,6 +218,20 @@ class ArcXCoreTests(unittest.TestCase):
         self.assertIn("CONFLICT_PRESERVED_FOR_RESEARCH", research.reason_codes)
         self.assertEqual(execution.decision, AdmissionDecision.BLOCKED)
 
+    def test_eir_mutation_after_compilation_is_detected_and_blocks_admission(self):
+        result = fully_supported()
+        self.assertTrue(result.integrity_valid)
+        result.eir["claims"][0]["statement"] = "tampered after digest"
+        self.assertFalse(result.integrity_valid)
+        denied = evaluate_admission(
+            result, "EXECUTE",
+            AuthorityApproval("APR-1", "operator-1", "execution"),
+            evidence_verifier=lambda _: True,
+            authority_verifier=lambda *_: True,
+        )
+        self.assertEqual(denied.decision, AdmissionDecision.BLOCKED)
+        self.assertIn("EIR_INTEGRITY_HASH_MISMATCH", denied.reason_codes)
+
     def test_unknown_action_fails_closed(self):
         result = fully_supported()
         denied = evaluate_admission(result, "DELETE_EVERYTHING")
