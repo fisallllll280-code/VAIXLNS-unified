@@ -12,7 +12,7 @@ def test_index_catalog_is_unique_and_nexus_owned():
     data = json.loads((ROOT / "registry/index_catalog.json").read_text(encoding="utf-8"))
     indexes = data["indexes"]
     ids = [item["index_id"] for item in indexes]
-    assert len(indexes) == 56
+    assert len(indexes) == 48
     assert len(ids) == len(set(ids))
     assert all(item["canonical_owner"] == "NEXUS" for item in indexes)
 
@@ -32,7 +32,7 @@ def test_innovation_records_preserve_status_and_wallet_nonproduction_boundary():
 def test_coverage_manifest_preserves_archive_counts_and_legacy_gap():
     data = json.loads((ROOT / "registry/index_coverage_manifest.json").read_text(encoding="utf-8"))
     assert data["source_files_in_workspace"] == 69
-    assert data["index_views_catalogued"] == 56
+    assert data["index_views_catalogued"] == 48
     assert data["innovation_records_compiled"] == 59
     assert data["derived_atomic_decomposition_records"] == 570
     assert data["original_legacy_mapping_status"] == "UNPROVEN_NOT_RECOVERED_ELEMENT_BY_ELEMENT"
