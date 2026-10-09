@@ -130,6 +130,15 @@ class ArcXVXBridgeTests(unittest.TestCase):
         self.assertIn("DUPLICATE_OPERATION_ID_REPLAY_BLOCKED", second.reason_codes)
         self.assertEqual(len(supervisor.operations), 1)
 
+    def test_mutated_eir_is_rejected_before_simulation(self):
+        supervisor, bridge = self.make_bridge()
+        candidate = compilation()
+        candidate.eir["claims"][0]["statement"] = "tampered"
+        result = bridge.execute(candidate, self.approval(), objective="Reject EIR mutation")
+        self.assertEqual(result.status, "BLOCKED")
+        self.assertIn("EIR_INTEGRITY_HASH_MISMATCH", result.reason_codes)
+        self.assertEqual(supervisor.operations, {})
+
     def test_runner_exception_fails_closed(self):
         supervisor = VXSupervisor(
             authorizer=lambda _: True, executor=lambda _: {"ok": True},
