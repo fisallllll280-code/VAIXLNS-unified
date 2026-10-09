@@ -178,8 +178,8 @@ def extract_atomic_records(source: SourceDocument) -> tuple[AtomicRecord, ...]:
     """Atomize a document without dropping content; record UIDs are reproducible."""
     records: list[AtomicRecord] = []
     for ordinal, (start, end) in enumerate(_split_spans(source.content), start=1):
-        chunk = source.content[start:end].strip()
-        if not chunk:
+        chunk = source.content[start:end]
+        if not chunk.strip():
             continue
         title = _title_for(chunk, ordinal)
         legacy_id = _legacy_id(chunk, ordinal)
