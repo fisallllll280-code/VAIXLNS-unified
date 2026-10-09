@@ -1,8 +1,8 @@
 # Ω Research-to-Engineering Decision Fabric V1
 
 **Status:** PROPOSED / IMPLEMENTATION-BOUND  
-**Canonical authority:** \`VAIXLNS/project.genome::v1.0.0\`  
-**Integration target:** \`Ω.000 → NEXENT discovery → research/investigation agents → engineering decision packet → VX sandbox/replay → innovation control → explicit governance admission\`
+**Canonical authority:** `VAIXLNS/project.genome::v1.0.0`  
+**Integration target:** `Ω.000 → NEXENT discovery → research/investigation agents → engineering decision packet → VX sandbox/replay → innovation control → explicit governance admission`
 
 ## 1. Purpose
 
@@ -15,7 +15,7 @@ Turn research from disconnected search results into a traceable engineering deci
 3. Exact and likely overlaps trigger lineage review, not silent renaming or deletion.
 4. Supporting and refuting evidence are both retained. An unresolved contradiction blocks the affected decision.
 5. Search/reasoning agents may discover, classify, compare, propose, and falsify. They may not self-authorize, self-promote, or change canonical policy.
-6. \`READY_FOR_ENGINEERING_REVIEW\` is not \`IMPLEMENTED\`, \`VERIFIED\`, \`CANONICAL\`, or \`RUNNING\`.
+6. `READY_FOR_ENGINEERING_REVIEW` is not `IMPLEMENTED`, `VERIFIED`, `CANONICAL`, or `RUNNING`.
 7. Novelty is never asserted while the relevant historical catalog is known to be incomplete.
 8. A canonical promotion must separately pass the repository's innovation proof gate and receive explicit authority.
 
@@ -30,7 +30,7 @@ Turn research from disconnected search results into a traceable engineering deci
 | INV-RESEARCH-05 Provenance Integrity | Check content digests and URI/revision collisions | source identity checks and provenance blockers |
 | Human/constitutional authority | Decide canonical adoption after the independent gate | signed or otherwise auditable authority record |
 
-Provider-specific search workers (GitHub, archive, web, local repository, test/runtime evidence) implement the \`SearchProvider\` contract. Provider failures must remain visible in the result.
+Provider-specific search workers (GitHub, archive, web, local repository, test/runtime evidence) implement the `SearchProvider` contract. Provider failures must remain visible in the result.
 
 ## 4. Mandatory investigation lanes
 
@@ -45,7 +45,7 @@ The query plan is generated deterministically from the mission and candidate. A 
 
 ## 5. Engineering-decision contract
 
-Each run produces a stable \`ResearchBundle\` with:
+Each run produces a stable `ResearchBundle` with:
 - mission and candidate identity;
 - deterministic query IDs and purposes;
 - source URIs, revisions, content hashes, evidence classes and source-bound claim excerpts;
@@ -60,15 +60,15 @@ Engineering specifications should include the problem, assumptions, invariants, 
 
 ## 6. Decision states
 
-\`BLOCKED\` — integrity failure, unresolved support/refutation contradiction, exact duplicate proposed as a new record, or other hard blocker.
+`BLOCKED` — integrity failure, unresolved support/refutation contradiction, exact duplicate proposed as a new record, or other hard blocker.
 
-\`NEEDS_INVESTIGATION\` — insufficient source coverage, failed mandatory query lanes, unclassified evidence, possible overlap, incomplete historical catalog, or missing counterevidence.
+`NEEDS_INVESTIGATION` — insufficient source coverage, failed mandatory query lanes, unclassified evidence, possible overlap, incomplete historical catalog, or missing counterevidence.
 
-\`ENGINEERING_GAPS\` — research coverage is adequate, but required contract/specification fields are missing.
+`ENGINEERING_GAPS` — research coverage is adequate, but required contract/specification fields are missing.
 
-\`READY_FOR_ENGINEERING_REVIEW\` — research and declared specification checks pass. This is only a handoff to independent engineering review.
+`READY_FOR_ENGINEERING_REVIEW` — research and declared specification checks pass. This is only a handoff to independent engineering review.
 
-There is no \`VERIFIED\`, \`CANONICAL\`, or \`RUNNING\` output state in this research layer. Those are separate downstream decisions.
+There is no `VERIFIED`, `CANONICAL`, or `RUNNING` output state in this research layer. Those are separate downstream decisions.
 
 ## 7. Federation and placement
 
@@ -84,7 +84,7 @@ Adapters and repository mappings are integration contracts. Documentation descri
 
 ## 8. Proposed flow
 
-\`\`\`text
+```text
 Mission
   → Query Plan
   → Source Search / Archive Recovery
@@ -98,7 +98,7 @@ Mission
   → Innovation Control proof gate
   → Explicit authority decision
   → Ω.000 canonical record + event ledger
-\`\`\`
+```
 
 ## 9. Acceptance criteria
 
@@ -114,12 +114,12 @@ Mission
 
 ## 10. Current limits
 
-The included package defines the orchestration and provider interface; deployment-grade adapters to live GitHub, external web search, historical archives, model services and runtime evidence remain separate integrations. The system must report an unavailable adapter instead of pretending research was performed. The historical \`0001–2750\` atomic catalog remains incomplete until every original row is exposed and reconciled.
+The included package defines the orchestration and provider interface; deployment-grade adapters to live GitHub, external web search, historical archives, model services and runtime evidence remain separate integrations. The system must report an unavailable adapter instead of pretending research was performed. The historical `0001–2750` atomic catalog remains incomplete until every original row is exposed and reconciled.
 
 ## 11. Implementation plan
 
 1. Add provider adapters with scoped credentials and read-only defaults.
-2. Connect source records to \`project.genome\`, \`Ω.000\` and the atomic-system-record schema.
+2. Connect source records to `project.genome`, `Ω.000` and the atomic-system-record schema.
 3. Add a versioned decision-record schema and append-only event evidence.
 4. Connect simulation and replay evidence from VX without granting research agents execution authority.
 5. Exercise every failure and refusal path in CI before enabling any production admission flow.
