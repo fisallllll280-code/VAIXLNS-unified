@@ -189,8 +189,16 @@ class ArcXVXBridge:
                 ("VX_AUTHORIZER_DENIED",), op.phase.value, replay=_replay(op),
             )
 
+        def verify_arcx_binding(operation: Operation, output: Mapping[str, Any]) -> bool:
+            return (
+                output.get("ok") is True
+                and output.get("operation_id") == operation_id
+                and output.get("eir_sha256") == compilation.eir_sha256
+                and operation.snapshot.get("eir_sha256") == compilation.eir_sha256
+            )
+
         try:
-            output = dict(self.supervisor.execute(op))
+            output = dict(self.supervisor.execute(op, additional_verifier=verify_arcx_binding))
         except Exception as exc:
             output = {"ok": False, "error_type": type(exc).__name__}
         replay = _replay(op)
