@@ -86,13 +86,13 @@ class ArcXCoreTests(unittest.TestCase):
         claim = ClaimRecord("CLM-1", "A new capability exists", ClaimKind.INFERENCE)
         result = compile_eir([source()], [], [claim])
         self.assertEqual(result.claim_results["CLM-1"], "UNSUPPORTED")
-        self.assertFalse(result.verified_for_declared_scope)
+        self.assertFalse(result.proof_scope_complete)
 
     def test_open_required_obligation_blocks_verification(self):
         claim = ClaimRecord("CLM-1", "Check passed", ClaimKind.IMPLEMENTATION)
         result = compile_eir([source()], [], [claim], [ProofObligation("PO-1", "CLM-1", "Test", evidence_ids=())])
         self.assertIn("PROOF_OBLIGATION_OPEN", {item["code"] for item in result.findings})
-        self.assertFalse(result.verified_for_declared_scope)
+        self.assertFalse(result.proof_scope_complete)
 
     def test_failed_test_cannot_satisfy_proof_obligation(self):
         claim = ClaimRecord("CLM-1", "Check passed", ClaimKind.IMPLEMENTATION)
@@ -102,35 +102,69 @@ class ArcXCoreTests(unittest.TestCase):
         )
         result = compile_eir([source()], [evidence], [claim], [ProofObligation("PO-1", "CLM-1", "Passing test", evidence_ids=("EVD-1",))])
         self.assertEqual(result.obligation_results["PO-1"], "OPEN")
-        self.assertFalse(result.verified_for_declared_scope)
+        self.assertFalse(result.proof_scope_complete)
 
     def test_passing_declared_scope_does_not_auto_authorize_execution(self):
         result = fully_supported()
-        self.assertTrue(result.verified_for_declared_scope)
+        self.assertTrue(result.proof_scope_complete)
         denied = evaluate_admission(result, "EXECUTE")
         self.assertEqual(denied.decision, AdmissionDecision.BLOCKED)
-        self.assertIn("TRUSTED_AUTHORITY_VERIFIER_REQUIRED", denied.reason_codes)
+        self.assertIn("TRUSTED_EVIDENCE_VERIFIER_REQUIRED", denied.reason_codes)
+        evidence_checked = evaluate_admission(result, "EXECUTE", evidence_verifier=lambda _: True)
+        self.assertIn("TRUSTED_AUTHORITY_VERIFIER_REQUIRED", evidence_checked.reason_codes)
 
     def test_wrong_approval_scope_is_denied(self):
         result = fully_supported()
         approval = AuthorityApproval("APR-1", "operator-1", "canonical-admission")
-        denied = evaluate_admission(result, "EXECUTE", approval, lambda *_: True)
+        denied = evaluate_admission(
+            result, "EXECUTE", approval,
+            evidence_verifier=lambda _: True,
+            authority_verifier=lambda *_: True,
+        )
         self.assertEqual(denied.decision, AdmissionDecision.BLOCKED)
         self.assertIn("AUTHORITY_SCOPE_OR_DECISION_MISMATCH", denied.reason_codes)
 
     def test_untrusted_or_failed_authority_verification_is_denied(self):
         result = fully_supported()
         approval = AuthorityApproval("APR-1", "operator-1", "execution")
-        denied = evaluate_admission(result, "EXECUTE", approval, lambda *_: False)
+        denied = evaluate_admission(
+            result, "EXECUTE", approval,
+            evidence_verifier=lambda _: True,
+            authority_verifier=lambda *_: False,
+        )
         self.assertEqual(denied.decision, AdmissionDecision.BLOCKED)
         self.assertIn("AUTHORITY_VERIFICATION_FAILED", denied.reason_codes)
 
     def test_only_verified_scope_and_trusted_approval_admit_action(self):
         result = fully_supported()
         approval = AuthorityApproval("APR-1", "operator-1", "execution")
-        admitted = evaluate_admission(result, "EXECUTE", approval, lambda item, scope: item.actor_id == "operator-1" and scope == "execution")
+        admitted = evaluate_admission(
+            result, "EXECUTE", approval,
+            evidence_verifier=lambda compiled: compiled.eir_sha256 == result.eir_sha256,
+            authority_verifier=lambda item, scope: item.actor_id == "operator-1" and scope == "execution",
+        )
         self.assertEqual(admitted.decision, AdmissionDecision.ADMITTED)
         self.assertEqual(admitted.eir_sha256, result.eir_sha256)
+
+    def test_verify_requires_trusted_evidence_verifier(self):
+        result = fully_supported()
+        denied = evaluate_admission(result, "VERIFY")
+        self.assertEqual(denied.decision, AdmissionDecision.BLOCKED)
+        self.assertIn("TRUSTED_EVIDENCE_VERIFIER_REQUIRED", denied.reason_codes)
+        verified = evaluate_admission(result, "VERIFY", evidence_verifier=lambda item: item.eir_sha256 == result.eir_sha256)
+        self.assertEqual(verified.decision, AdmissionDecision.VERIFIED)
+        self.assertIn("DECLARED_SCOPE_VERIFIED_BY_TRUSTED_EVIDENCE_VERIFIER", verified.reason_codes)
+
+    def test_evidence_verifier_failure_blocks_even_with_valid_looking_approval(self):
+        result = fully_supported()
+        approval = AuthorityApproval("APR-1", "operator-1", "execution")
+        denied = evaluate_admission(
+            result, "EXECUTE", approval,
+            evidence_verifier=lambda _: False,
+            authority_verifier=lambda *_: True,
+        )
+        self.assertEqual(denied.decision, AdmissionDecision.BLOCKED)
+        self.assertIn("EVIDENCE_ATTESTATION_FAILED", denied.reason_codes)
 
     def test_proof_for_another_claim_cannot_satisfy_obligation(self):
         claims = [
@@ -145,7 +179,7 @@ class ArcXCoreTests(unittest.TestCase):
         result = compile_eir([source()], evidence, claims, obligations)
         self.assertEqual(result.obligation_results["PO-1"], "OPEN")
         self.assertIn("PROOF_OBLIGATION_OPEN", {item["code"] for item in result.findings})
-        self.assertFalse(result.verified_for_declared_scope)
+        self.assertFalse(result.proof_scope_complete)
 
     def test_each_required_claim_needs_a_required_obligation(self):
         claims = [
@@ -161,7 +195,7 @@ class ArcXCoreTests(unittest.TestCase):
         obligations = [ProofObligation("PO-1", "CLM-1", "Proof for first", evidence_ids=("EVD-1",))]
         result = compile_eir([source()], evidence, claims, obligations)
         self.assertIn("REQUIRED_CLAIM_WITHOUT_PROOF_OBLIGATION", {item["code"] for item in result.findings})
-        self.assertFalse(result.verified_for_declared_scope)
+        self.assertFalse(result.proof_scope_complete)
 
     def test_revision_tag_is_not_accepted_as_immutable_pin(self):
         with self.assertRaisesRegex(ValueError, "SOURCE_REVISION_MUST_BE_IMMUTABLE_PIN"):
