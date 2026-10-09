@@ -368,17 +368,25 @@ class VXToolFabric:
         def verify(_operation: Operation, result: Mapping[str, Any]) -> bool:
             if result.get("ok") is not True or result.get("tool_status") != "SUCCESS":
                 return False
-            if not isinstance(result.get("tool_event_hash"), str) or len(result["tool_event_hash"]) != 64:
+            event_hash = result.get("tool_event_hash")
+            if not isinstance(event_hash, str) or len(event_hash) != 64:
                 return False
-            return isinstance(result.get("output_sha256"), str) and len(result["output_sha256"]) in {0, 64}
+            output_hash = result.get("output_sha256")
+            return isinstance(output_hash, str) and (output_hash == "" or (
+                len(output_hash) == 64 and all(ch in "0123456789abcdef" for ch in output_hash.lower())
+            ))
 
-        # VXSupervisor executes only after its own authorization and verifies the
-        # gateway result independently. Replace neither policy with the connector.
-        runtime_result = self.supervisor.execute(op)
-        # Existing VX supervisor determines phase using its host-configured verifier.
+        # Use a per-operation dispatcher rather than mutating the supervisor's
+        # shared executor. Both VX's base verifier and this request-bound gate run.
+        runtime_result = self.supervisor.execute(op, executor=dispatch, additional_verifier=verify)
         tool_result = tool_result_box.get("result")
         replay = _replay(op)
-        if op.phase is not Phase.VERIFIED or not isinstance(tool_result, object) or tool_result is None:
+        if (
+            op.phase is not Phase.VERIFIED
+            or tool_result is None
+            or not isinstance(runtime_result, Mapping)
+            or runtime_result.get("tool_status") != "SUCCESS"
+        ):
             return VXToolResult(
                 "EXECUTION_FAILED", request_id, operation_id, server_id, tool_id,
                 ("VX_RUNTIME_DID_NOT_VERIFY_EXECUTION",), op.phase.value,
