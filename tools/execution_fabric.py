@@ -78,6 +78,7 @@ class ToolSpec:
     risk: str = "LOW"
     external_integration_id: str | None = None
     max_output_bytes: int = 262144
+    read_only: bool = False
 
     def __post_init__(self) -> None:
         if not self.tool_id.strip():
@@ -88,6 +89,8 @@ class ToolSpec:
             raise ValueError("EMPTY_SCOPE_GROUP")
         if self.risk not in {"LOW", "MEDIUM", "HIGH", "CRITICAL"}:
             raise ValueError("INVALID_RISK")
+        if not isinstance(self.read_only, bool):
+            raise ValueError("READ_ONLY_MUST_BE_BOOLEAN")
 
 
 @dataclass(frozen=True)
