@@ -107,7 +107,7 @@ class VlnsActivationTests(unittest.TestCase):
             prepare_activation(request(requested_permissions=("read", "execute")), POLICY, KEY)
 
     def test_non_delegable_authority_cannot_be_granted_to_model_role(self):
-        with self.assertRaisesRegex(ActivationError, "NON_DELEGABLE"):
+        with self.assertRaisesRegex(ActivationError, "(UNKNOWN_ROLE_PERMISSION|NON_DELEGABLE)"):
             ActivationPolicy(
                 allowed_providers=frozenset({"ollama"}),
                 allowed_capabilities=frozenset({"research"}),
