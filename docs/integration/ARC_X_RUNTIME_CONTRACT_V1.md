@@ -12,7 +12,9 @@ This document defines an executable runtime-side contract. It does not replace o
 - Package: `arc_x/`
 - API: `compile_eir(sources, evidence, claims, proof_obligations)`
 - Gate: `evaluate_admission(compilation, action, approval, evidence_verifier, authority_verifier)`
-- Conformance tests: `tests/test_arc_x_core.py`
+- VX execution bridge: `arc_x/vx_bridge.py`
+- Generic server/tool fabric: `vx/tool_fabric.py`
+- Conformance tests: `tests/test_arc_x_core.py`, `tests/test_arc_x_vx_bridge.py`, `tests/test_vx_tool_fabric.py`
 
 The implementation uses only the Python standard library. It is deterministic for identical input records and does not fetch network data or run supplied code.
 
@@ -52,7 +54,7 @@ The evidence verifier must independently validate source retrieval, pinned revis
 
 ## 6. Fail-closed rules
 
-Unknown actions, unpinned revisions, contradictory evidence, missing proof, mismatched claim-to-proof links, failed evidence attestation, wrong approval scope, missing verifier, and verifier exceptions must not result in admission. The previous canonical state must remain unchanged unless a separate trusted authority layer commits a reviewed change.
+Unknown actions, unpinned revisions, EIR hash mutation, contradictory evidence, missing proof, mismatched claim-to-proof links, failed evidence attestation, wrong approval scope, missing verifier, and verifier exceptions must not result in admission. The runtime bridge adds a claim that the VX operation result must carry the same operation ID and EIR digest as the admitted request. The previous canonical state must remain unchanged unless a separate trusted authority layer commits a reviewed change.
 
 ## 7. Validation
 
@@ -64,3 +66,10 @@ python -m pytest -q
 ```
 
 CI pass on this branch is required before changing this candidate's state from `IMPLEMENTED` to `VERIFIED`.
+
+
+## 8. VX and federated tools
+
+The candidate execution path uses `arc_x.vx_bridge.ArcXVXBridge` for evidence-carrying candidate execution and `vx.tool_fabric.VXToolFabric` for registered server/tool calls. The latter requires an explicit host-supplied ARC-X policy callback, integration-admission callback, health probe, registered contract fingerprint, and the existing VX supervisor.
+
+See [VX Federated Tool Fabric v1](VX_FEDERATED_TOOL_FABRIC_V1.md). That adapter contract supports tools that have been registered with an exact `ToolSpec`; it is not a claim that arbitrary unregistered servers have been automatically connected. EIR digest, exact tool-contract digest, server protocol/version, health result, VX authority, gateway audit event, and VX verifier result remain distinct evidence fields.
