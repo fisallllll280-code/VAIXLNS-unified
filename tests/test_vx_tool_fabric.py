@@ -195,7 +195,7 @@ class VXToolFabricTests(unittest.TestCase):
             "not-registered", {"query": "x"}, request_id="req-9", objective="Unknown tool",
         )
         self.assertEqual(unknown.status, "BLOCKED")
-        self.assertIn("TOOL_NOT_DECLARED_BY_SERVER", unknown.reasons)
+        self.assertIn("TOOL_UNKNOWN", unknown.reasons)
         invalid = self.invoke(fabric, {"query": "x", "shell": "unsafe"}, request_id="req-10")
         self.assertTrue(any(item.startswith("UNDECLARED_INPUT") for item in invalid.reasons))
         self.assertEqual(self.calls, [])
