@@ -168,6 +168,14 @@ class CompilationResult:
     obligation_results: Mapping[str, str]
 
     @property
+    def integrity_valid(self) -> bool:
+        """Detect in-memory EIR mutation after its canonical digest was created."""
+        try:
+            return sha256_text(canonical_json(self.eir)) == self.eir_sha256
+        except (TypeError, ValueError):
+            return False
+
+    @property
     def has_conflicts(self) -> bool:
         return any(item.get("code") == "CONTRADICTORY_EVIDENCE" for item in self.findings)
 
@@ -400,6 +408,8 @@ def evaluate_admission(
     safe_actions = {"READ", "RESEARCH", "VERIFY", "EXECUTE", "CANONICAL_COMMIT"}
     if action not in safe_actions:
         return AdmissionResult(AdmissionDecision.BLOCKED, action, ("UNKNOWN_ACTION",), compilation.eir_sha256)
+    if not compilation.integrity_valid:
+        return AdmissionResult(AdmissionDecision.BLOCKED, action, ("EIR_INTEGRITY_HASH_MISMATCH",), compilation.eir_sha256)
 
     if action in {"READ", "RESEARCH"}:
         codes = ["NO_EXTERNAL_EFFECT"]
