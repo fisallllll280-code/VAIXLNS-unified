@@ -48,6 +48,7 @@ class EvidenceKind(str, Enum):
 class AdmissionDecision(str, Enum):
     BLOCKED = "BLOCKED"
     ELIGIBLE_FOR_REVIEW = "ELIGIBLE_FOR_REVIEW"
+    VERIFIED = "VERIFIED"
     ADMITTED = "ADMITTED"
 
 
@@ -187,8 +188,8 @@ class CompilationResult:
         )
 
     @property
-    def verified_for_declared_scope(self) -> bool:
-        """Limited to declared claims/obligations; never implies production readiness."""
+    def proof_scope_complete(self) -> bool:
+        """Structural completeness only; external evidence authenticity is not checked here."""
         required_claims = [
             item["claim_id"] for item in self.eir.get("claims", []) if item["required"]
         ]
@@ -383,13 +384,16 @@ def evaluate_admission(
     compilation: CompilationResult,
     action: str,
     approval: AuthorityApproval | None = None,
+    evidence_verifier: Callable[[CompilationResult], bool] | None = None,
     authority_verifier: Callable[[AuthorityApproval, str], bool] | None = None,
 ) -> AdmissionResult:
-    """Fail-closed gate.
+    """Fail-closed gate with separate evidence-authenticity and authority checks.
 
-    READ/RESEARCH can be reviewed without authority. EXECUTE and CANONICAL_COMMIT
-    require scope-complete evidence plus a trusted verifier supplied by the host.
-    This function does not authenticate actors or cryptographically verify approvals.
+    The trusted evidence verifier must independently validate source hashes,
+    artifact hashes, evidence origin/signatures, and the declared proof scope.
+    The trusted authority verifier must authenticate the approver and requested
+    scope. Both callbacks are host trust boundaries, not user-supplied policies.
+    This module never executes code, authenticates actors, or commits canonical state.
     """
     action = action.strip().upper()
     safe_actions = {"READ", "RESEARCH", "VERIFY", "EXECUTE", "CANONICAL_COMMIT"}
@@ -401,27 +405,39 @@ def evaluate_admission(
         if compilation.has_conflicts:
             codes.append("CONFLICT_PRESERVED_FOR_RESEARCH")
         return AdmissionResult(AdmissionDecision.ELIGIBLE_FOR_REVIEW, action, tuple(codes), compilation.eir_sha256)
+
     if compilation.epistemic_state == "CONFLICT" or compilation.has_conflicts:
         return AdmissionResult(AdmissionDecision.BLOCKED, action, ("UNRESOLVED_CONFLICT",), compilation.eir_sha256)
     if compilation.has_blocking_findings or compilation.epistemic_state in {"MISSING", "PARTIAL"}:
-        if action in {"EXECUTE", "CANONICAL_COMMIT", "VERIFY"}:
-            codes = tuple(sorted({str(item["code"]) for item in compilation.findings if item.get("blocking")}))
-            return AdmissionResult(AdmissionDecision.BLOCKED, action, codes or ("EVIDENCE_INCOMPLETE",), compilation.eir_sha256)
+        codes = tuple(sorted({str(item["code"]) for item in compilation.findings if item.get("blocking")}))
+        return AdmissionResult(AdmissionDecision.BLOCKED, action, codes or ("EVIDENCE_INCOMPLETE",), compilation.eir_sha256)
+    if not compilation.proof_scope_complete:
+        return AdmissionResult(AdmissionDecision.BLOCKED, action, ("DECLARED_PROOF_SCOPE_INCOMPLETE",), compilation.eir_sha256)
+    if evidence_verifier is None:
+        return AdmissionResult(AdmissionDecision.BLOCKED, action, ("TRUSTED_EVIDENCE_VERIFIER_REQUIRED",), compilation.eir_sha256)
+    try:
+        evidence_ok = bool(evidence_verifier(compilation))
+    except Exception:
+        evidence_ok = False
+    if not evidence_ok:
+        return AdmissionResult(AdmissionDecision.BLOCKED, action, ("EVIDENCE_ATTESTATION_FAILED",), compilation.eir_sha256)
+
     if action == "VERIFY":
-        if compilation.verified_for_declared_scope:
-            return AdmissionResult(AdmissionDecision.ELIGIBLE_FOR_REVIEW, action, ("DECLARED_SCOPE_CHECKS_SATISFIED",), compilation.eir_sha256)
-        return AdmissionResult(AdmissionDecision.BLOCKED, action, ("DECLARED_SCOPE_NOT_VERIFIED",), compilation.eir_sha256)
-    if not compilation.verified_for_declared_scope:
-        return AdmissionResult(AdmissionDecision.BLOCKED, action, ("VERIFIED_SCOPE_REQUIRED",), compilation.eir_sha256)
+        return AdmissionResult(
+            AdmissionDecision.VERIFIED, action,
+            ("DECLARED_SCOPE_VERIFIED_BY_TRUSTED_EVIDENCE_VERIFIER",),
+            compilation.eir_sha256,
+        )
+
+    expected_scope = "execution" if action == "EXECUTE" else "canonical-admission"
     if approval is None or authority_verifier is None:
         return AdmissionResult(AdmissionDecision.BLOCKED, action, ("TRUSTED_AUTHORITY_VERIFIER_REQUIRED",), compilation.eir_sha256)
-    expected_scope = "execution" if action == "EXECUTE" else "canonical-admission"
     if approval.decision != "APPROVE" or approval.scope != expected_scope:
         return AdmissionResult(AdmissionDecision.BLOCKED, action, ("AUTHORITY_SCOPE_OR_DECISION_MISMATCH",), compilation.eir_sha256, approval.approval_id)
     try:
-        verified = authority_verifier(approval, expected_scope)
+        authority_ok = bool(authority_verifier(approval, expected_scope))
     except Exception:
-        verified = False
-    if not verified:
+        authority_ok = False
+    if not authority_ok:
         return AdmissionResult(AdmissionDecision.BLOCKED, action, ("AUTHORITY_VERIFICATION_FAILED",), compilation.eir_sha256, approval.approval_id)
     return AdmissionResult(AdmissionDecision.ADMITTED, action, ("EVIDENCE_AND_AUTHORITY_GATES_PASSED",), compilation.eir_sha256, approval.approval_id)
