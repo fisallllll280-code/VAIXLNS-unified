@@ -45,7 +45,7 @@ class ExecutionFabricTests(unittest.TestCase):
         result = self.call_tool("repo.search", {"query": "innovation verification"})
         self.assertEqual(result.status, "SUCCESS")
         self.assertTrue(result.output["results"])
-        self.assertIn("file_sha256", result.output["results"][0])
+        self.assertIn("sha256", result.output["results"][0])
 
     def test_repo_read_is_bounded_and_hashes_full_content(self):
         result = self.call_tool("repo.read", {"path": "docs/architecture.md", "start_line": 1, "end_line": 1})
