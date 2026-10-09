@@ -1,0 +1,953 @@
+{
+  "schema": "VAIXLNS.InnovationRegistry.v1",
+  "identity_policy": "Assign no historical legacy ID unless a source proves it; keep status distinctions and bidirectional lineage.",
+  "records": [
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-001",
+      "original_name": "DCEG",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-002",
+      "original_name": "MVCC State Fabric",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-003",
+      "original_name": "Digital Twin Validation",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-004",
+      "original_name": "Constitutional Commit",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-005",
+      "original_name": "EXL Ledger",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-006",
+      "original_name": "KSL",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-007",
+      "original_name": "L6 Meta Temporal Ascension",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-008",
+      "original_name": "System Genome",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-009",
+      "original_name": "System Forge",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-010",
+      "original_name": "Domain Specification DSL",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-011",
+      "original_name": "VFSS-∞",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-012",
+      "original_name": "12-Layer Sovereign Stack",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-013",
+      "original_name": "Runtime Fabric",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-014",
+      "original_name": "Governance Spine",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-015",
+      "original_name": "Execution Spine",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-016",
+      "original_name": "Builder",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-017",
+      "original_name": "Civilization Compiler",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-018",
+      "original_name": "Research & Innovation Fabric",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-019",
+      "original_name": "Hypothesis / Experiment Concepts",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-020",
+      "original_name": "Intelligence Allocation / Composition / Arbitration",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-021",
+      "original_name": "Memory Civilization",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-022",
+      "original_name": "System Awareness",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-023",
+      "original_name": "Canonical Root",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-024",
+      "original_name": "Single-File Genesis",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-025",
+      "original_name": "Formal Core",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-026",
+      "original_name": "Self Certification",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-027",
+      "original_name": "Deployment Fabric",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-028",
+      "original_name": "GROT",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-029",
+      "original_name": "AEF",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-030",
+      "original_name": "ASGF",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-031",
+      "original_name": "SER Ω",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-032",
+      "original_name": "CME",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-033",
+      "original_name": "CTM",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-034",
+      "original_name": "CDG",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-035",
+      "original_name": "VX",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-036",
+      "original_name": "XV",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-037",
+      "original_name": "LNS",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-038",
+      "original_name": "AURX",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-039",
+      "original_name": "V-DIFF",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-040",
+      "original_name": "Ω-RAC",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-041",
+      "original_name": "Canonical Nexus",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-042",
+      "original_name": "VAMM / VAIXLNS-IR",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-043",
+      "original_name": "VSL",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-044",
+      "original_name": "VDL",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-045",
+      "original_name": "VML",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-046",
+      "original_name": "VPL",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-047",
+      "original_name": "VQL",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-048",
+      "original_name": "VCL",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-049",
+      "original_name": "SUF",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-050",
+      "original_name": "ARC-X Ω",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-ARCHIVE-MENTION-051",
+      "original_name": "Event Ledger + Replay",
+      "record_type": "innovation-or-architecture-concept",
+      "history_status": "RECOVERED_MENTION",
+      "lifecycle_state": "UNRESOLVED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "VAIXLNS Architecture Overview.txt",
+          "source_locator": "sections 69–71: Master Registry and Innovation Record"
+        }
+      ],
+      "note": "A source mention is not proof of a unique legacy ID, novelty, implementation, verification, or runtime readiness."
+    },
+    {
+      "innovation_id": "INNO-PROPOSED-001",
+      "original_name": "Architecture Self-Discovery Engine",
+      "description": "Derives capability gaps and architecture candidates from observations, evidence and Nexus relationships.",
+      "record_type": "innovation-design",
+      "history_status": "PROPOSED_OR_DERIVED",
+      "lifecycle_state": "DESIGNED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "تلخيص شامل VAIXLNS.txt"
+        }
+      ],
+      "note": "Proposal/derived design; not evidence of novelty or production implementation."
+    },
+    {
+      "innovation_id": "INNO-PROPOSED-002",
+      "original_name": "Capability Genome",
+      "description": "Models purpose, preconditions, I/O, state, authority, contracts, dependencies, proof, failure, recovery, security and evolution.",
+      "record_type": "innovation-design",
+      "history_status": "PROPOSED_OR_DERIVED",
+      "lifecycle_state": "DESIGNED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "تلخيص شامل VAIXLNS.txt"
+        }
+      ],
+      "note": "Proposal/derived design; not evidence of novelty or production implementation."
+    },
+    {
+      "innovation_id": "INNO-PROPOSED-003",
+      "original_name": "Architecture Mutation",
+      "description": "Sandboxed transformations including split, merge, compose, isolate, specialize and generalize.",
+      "record_type": "innovation-design",
+      "history_status": "PROPOSED_OR_DERIVED",
+      "lifecycle_state": "DESIGNED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "تلخيص شامل VAIXLNS.txt"
+        }
+      ],
+      "note": "Proposal/derived design; not evidence of novelty or production implementation."
+    },
+    {
+      "innovation_id": "INNO-PROPOSED-004",
+      "original_name": "Architecture Search Space",
+      "description": "Compares alternative architecture candidates instead of assuming a single design.",
+      "record_type": "innovation-design",
+      "history_status": "PROPOSED_OR_DERIVED",
+      "lifecycle_state": "DESIGNED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "تلخيص شامل VAIXLNS.txt"
+        }
+      ],
+      "note": "Proposal/derived design; not evidence of novelty or production implementation."
+    },
+    {
+      "innovation_id": "INNO-PROPOSED-005",
+      "original_name": "Innovation Science Workflow",
+      "description": "Observation → problem → hypothesis → prior art → novelty analysis → candidate → experiment → simulation → evidence → verification → proof → governed adoption.",
+      "record_type": "innovation-design",
+      "history_status": "PROPOSED_OR_DERIVED",
+      "lifecycle_state": "DESIGNED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "توسيع النظام التشغيلي.txt"
+        }
+      ],
+      "note": "Proposal/derived design; not evidence of novelty or production implementation."
+    },
+    {
+      "innovation_id": "INNO-PROPOSED-006",
+      "original_name": "NEXUS Canonical Registry + Relationship Substrate",
+      "description": "Makes index families views over canonical identities and typed relations rather than competing sources of truth.",
+      "record_type": "innovation-design",
+      "history_status": "PROPOSED_OR_DERIVED",
+      "lifecycle_state": "DESIGNED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "source_refs": [
+        {
+          "source_file": "قسم · قسم · بحث شامل للمنظومة.txt"
+        }
+      ],
+      "note": "Proposal/derived design; not evidence of novelty or production implementation."
+    },
+    {
+      "innovation_id": "INNO-WALLET-AUTOMATION-001",
+      "original_name": "Innovative Wallet Pooling and Reconciliation",
+      "aliases": [
+        "VAIXLNS wallet pooling"
+      ],
+      "record_type": "financial-workflow-innovation",
+      "history_status": "IMPLEMENTED_FOR_TESTING",
+      "lifecycle_state": "TESTED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "description": "Internal balanced double-entry ledger, wallet-to-pool contribution aggregation, idempotency, approval gate, settlement-reference replay protection and reconciliation.",
+      "evidence_refs": [
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/blob/feat/innovative-wallet-automation/wallet/engine.py",
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/blob/feat/innovative-wallet-automation/tests/test_innovative_wallet.py",
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/pull/24"
+      ],
+      "operational_state": "NOT_PRODUCTION",
+      "test_evidence": "Wallet GitHub Actions job completed successfully: 8 tests passed.",
+      "note": "In-memory reference implementation; external money movement is disabled; PR #24 remains Draft/unmerged."
+    },
+    {
+      "innovation_id": "INNO-EXECUTION-FABRIC-001",
+      "original_name": "Global Innovation Execution Fabric",
+      "record_type": "execution-workflow-design",
+      "history_status": "DESIGNED",
+      "lifecycle_state": "DESIGNED",
+      "novelty_status": "UNASSESSED",
+      "legacy_id": null,
+      "description": "Lifecycle gates, specialist agent roles, implementation packages and evidence checks linking innovation → capability → agent → contract → test → proof → deployment.",
+      "evidence_refs": [
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/blob/feat/global-innovation-execution-fabric/docs/INNOVATION_EXECUTION_FABRIC.md"
+      ],
+      "note": "Documented execution design; not a claim that all agents or integrations are running."
+    }
+  ]
+}
