@@ -349,16 +349,16 @@ def build_default_gateway(
     registry = ToolRegistry()
     scope_groups = (READ_SCOPES,)
     registry.register(ToolSpec("repo.search", "Search local text/source files.",
-        frozenset({"query"}), frozenset({"max_results"}), scope_groups=scope_groups),
+        frozenset({"query"}), frozenset({"max_results"}), scope_groups=scope_groups, read_only=True),
         lambda args: _search(root, args))
     registry.register(ToolSpec("repo.read", "Read a bounded range from one local file.",
-        frozenset({"path"}), frozenset({"start_line", "end_line"}), scope_groups=scope_groups),
+        frozenset({"path"}), frozenset({"start_line", "end_line"}), scope_groups=scope_groups, read_only=True),
         lambda args: _read(root, args))
     registry.register(ToolSpec("repo.sha256", "Compute a file content digest.",
-        frozenset({"path"}), required_scopes=frozenset({"read:provenance"})),
+        frozenset({"path"}), required_scopes=frozenset({"read:provenance"}), read_only=True),
         lambda args: _hash_file(root, args))
     registry.register(ToolSpec("json.inspect", "Parse JSON and report its shape and digest.",
-        frozenset({"path"}), scope_groups=scope_groups),
+        frozenset({"path"}), scope_groups=scope_groups, read_only=True),
         lambda args: _inspect_json(root, args))
     def test_handler(args: Mapping[str, Any]) -> Any:
         executor = test_executor or _run_unit_tests
@@ -370,7 +370,7 @@ def build_default_gateway(
     if github_provider is not None:
         registry.register(ToolSpec("research.github.search", "Read-only GitHub search using an admitted provider.",
             frozenset({"query", "purpose", "repositories"}), frozenset({"max_sources"}),
-            required_scopes=frozenset({"read:public-repositories"}), risk="MEDIUM",
+            required_scopes=frozenset({"read:public-repositories"}), risk="MEDIUM", read_only=True,
             external_integration_id=github_integration_id),
             lambda args: _github_search(github_provider, args))
     return ExecutionGateway(registry, admitted_integrations=admitted_integrations)
