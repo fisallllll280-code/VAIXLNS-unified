@@ -92,3 +92,18 @@ This change implements a deterministic activation contract, local policy checks,
 - model quality or authority to execute arbitrary tools.
 
 Required remaining gates are repository identity evidence, endpoint identity/authentication, sandbox verification, functional and rejection-path tests, failure/recovery, replay, independent verification, proof freshness, explicit authority, admission, and continuous revalidation.
+
+
+## 7. Specialist-agent provider integration
+
+The companion reference gate is maintained in the separate vx-agents-fabric repository to preserve source ownership:
+
+- Source branch: https://github.com/fisallllll280-code/vx-agents-fabric/tree/feat/vlns-provider-adapter-20261009
+- Gate module: src/vx_agents_fabric/vlns_activation.py
+- Provider factory: src/vx_agents_fabric/providers/factory.py
+- Tests: tests/test_vlns_activation.py
+- CI evidence: https://github.com/fisallllll280-code/vx-agents-fabric/actions/runs/37915189114
+
+When VX_VLNS_ACTIVATION_REQUIRED=true, specialist agent calls and independent parent-review minds must obtain a matching remote activation receipt and evidence-event acknowledgement before model inference. Failure returns HOLD and the provider is not invoked. The gate is optional for legacy compatibility; any deployment claiming VLNS-governed model execution must enable it explicitly and must not claim production readiness solely because its local tests pass.
+
+The agent-fabric gate branch is CI-green but is not merged into the default branch. It shares the envelope protocol but does not establish live connectivity or the unresolved VLNS↔NAXLNS repository identity.
