@@ -1,0 +1,455 @@
+{
+  "schema": "VAIXLNS.IndexCatalog.v1",
+  "canonical_substrate": "NEXUS",
+  "policy": "All indexes are views over shared canonical entities; no index replaces the historical archive.",
+  "indexes": [
+    {
+      "index_id": "IDX-MASTER-ENTITY",
+      "name": "Master Entity Index",
+      "scope": "All entities; source IDs and canonical IDs remain distinct.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-SYSTEM",
+      "name": "System Index",
+      "scope": "Projects, systems, subsystems, and boundaries.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-ARCHITECTURE",
+      "name": "Architecture Index",
+      "scope": "Layers, architecture variants, spines, and compositions.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-MECHANISM",
+      "name": "Mechanism Index",
+      "scope": "Mechanisms, algorithms, state transitions, and operational behavior.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-LANGUAGE",
+      "name": "Language Index",
+      "scope": "Languages and DSLs; distinct from AST, IR, compiler, binder, kernel, runtime.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-REPRESENTATION",
+      "name": "Representation Index",
+      "scope": "AST, IR, V-IR, manifests, and structural representations.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-EXECUTION",
+      "name": "Execution Index",
+      "scope": "VX, kernel, runtime, bindings, workers, jobs, contracts.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-INTELLIGENCE",
+      "name": "Intelligence Index",
+      "scope": "XV, minds, routing, composition, arbitration, intelligence allocation.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-KNOWLEDGE",
+      "name": "Knowledge Index",
+      "scope": "LNS, memory, patterns, entities, causal and temporal knowledge.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-GOVERNANCE",
+      "name": "Governance Index",
+      "scope": "Constitution, policy, authority, capability controls, admission.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-VERIFICATION",
+      "name": "Verification Index",
+      "scope": "VV, conformance, replay checks, and verifier outcomes.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-PROOF",
+      "name": "Proof Index",
+      "scope": "Evidence, proof obligations, proof results, and attestations.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-GENERATION",
+      "name": "Generation Index",
+      "scope": "ASGF, generators, Forge, synthesis, candidate generation.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-GENOME",
+      "name": "Genome Index",
+      "scope": "System Genome, Architecture Genome, Capability Genome.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-SIMULATION",
+      "name": "Simulation Index",
+      "scope": "Digital Twin, counterfactuals, simulation and experiment evidence.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-EVOLUTION",
+      "name": "Evolution Index",
+      "scope": "AEF, SER Ω, GROT, mutation, selection and promotion.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-OPERATIONAL",
+      "name": "Operational Index",
+      "scope": "OIF, health, readiness, recovery, observability, operations.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-PROJECT",
+      "name": "Project Index",
+      "scope": "Project identity and owners.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-REPOSITORY",
+      "name": "Repository Index",
+      "scope": "Repositories distinct from projects, systems, and components.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-FILE",
+      "name": "File Index",
+      "scope": "Source files, content digests, generated artifacts.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-VISUAL",
+      "name": "Visual Index",
+      "scope": "Diagrams and visual representations.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "IDX-LINEAGE",
+      "name": "Lineage Index",
+      "scope": "Origin, derivation, revision, and supersession.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-IDEA",
+      "name": "Idea Registry",
+      "scope": "Ideas stay distinct from innovations and implementations.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-INNOVATION",
+      "name": "Innovation Registry",
+      "scope": "Claims/candidates, origins, prior art, dependencies, evidence and lifecycle.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-SUBSYSTEM",
+      "name": "Subsystem Registry",
+      "scope": "Subsystem identity and parent-child relations.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-LANGUAGE",
+      "name": "Language Registry",
+      "scope": "Language definitions and versions.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-MODEL",
+      "name": "Model Registry",
+      "scope": "AI/solver models, capabilities, contracts and limits.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-PROTOCOL",
+      "name": "Protocol Registry",
+      "scope": "Protocols, interfaces and compatibility.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-ALGORITHM",
+      "name": "Algorithm Registry",
+      "scope": "Algorithm specifications and implementations.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-ENGINE",
+      "name": "Engine Registry",
+      "scope": "Engines and offered capabilities.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-MIND",
+      "name": "Mind Registry",
+      "scope": "Research, reasoning, planning, verification and specialist minds.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-INTELLIGENCE",
+      "name": "Intelligence Registry",
+      "scope": "Intelligence capabilities, routes and composition policies.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-AGENT",
+      "name": "Agent Registry",
+      "scope": "Identity, owner, capabilities, tools, policies, memory and audit boundaries.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-ARTIFACT",
+      "name": "Artifact Registry",
+      "scope": "Specs, builds, packages, reports, diagrams and generated outputs.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-EVIDENCE",
+      "name": "Evidence Registry",
+      "scope": "Source-backed evidence with provenance and validation.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-CAPABILITY",
+      "name": "Capability Registry",
+      "scope": "Preconditions, I/O, authority, limits, dependencies and proof obligations.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-AUTHORITY",
+      "name": "Authority Registry",
+      "scope": "Permission, approval and delegation ownership.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-PATTERN",
+      "name": "Pattern Registry",
+      "scope": "Recovered and derived reusable patterns.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-VERSION",
+      "name": "Version Registry",
+      "scope": "Revisions, compatibility and supersession history.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-PROJECT",
+      "name": "Project Registry",
+      "scope": "Project entities and lineage.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-SYSTEM",
+      "name": "System Registry",
+      "scope": "Canonical systems and execution surfaces.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "REG-MODEL",
+      "name": "Model Registry",
+      "scope": "Model identities and external-provider bindings.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "GRAPH-SYSTEM",
+      "name": "System Graph",
+      "scope": "System composition.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "GRAPH-CAPABILITY",
+      "name": "Capability Graph",
+      "scope": "Capability availability and dependencies.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "GRAPH-SEMANTIC",
+      "name": "Semantic Graph",
+      "scope": "Meaning, aliases and canonicalization relations.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "GRAPH-DEPENDENCY",
+      "name": "Dependency Graph",
+      "scope": "Typed dependencies and impact propagation.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "GRAPH-CONTRACT",
+      "name": "Contract Graph",
+      "scope": "Inputs, outputs, invariants and acceptance rules.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "GRAPH-AUTHORITY",
+      "name": "Authority Graph",
+      "scope": "Actors, approvals and authority boundaries.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "GRAPH-STATE",
+      "name": "State Graph",
+      "scope": "States and legal transitions.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "GRAPH-EVIDENCE",
+      "name": "Evidence Graph",
+      "scope": "Source → claim → test → proof links.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "GRAPH-PROOF",
+      "name": "Proof Graph",
+      "scope": "Proof obligations, verifiers and proof artifacts.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "GRAPH-CAUSAL",
+      "name": "Causal Graph",
+      "scope": "Causal hypotheses and evidence.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "GRAPH-GENERATION",
+      "name": "Generation Graph",
+      "scope": "Candidate origins, derivations and mutations.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "GRAPH-EVOLUTION",
+      "name": "Evolution Graph",
+      "scope": "Evolution lineage and governed promotion.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "GRAPH-LINEAGE",
+      "name": "Lineage Graph",
+      "scope": "Bidirectional identity and provenance trail.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    },
+    {
+      "index_id": "GRAPH-INNOVATION",
+      "name": "Innovation Graph",
+      "scope": "Innovation dependencies, composition, evidence and lifecycle.",
+      "canonical_owner": "NEXUS",
+      "index_status": "CATALOGUED",
+      "content_coverage": "PARTIAL_UNTIL_SOURCE_COVERAGE_PROVEN"
+    }
+  ]
+}
