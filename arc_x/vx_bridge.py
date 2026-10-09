@@ -122,6 +122,8 @@ class ArcXVXBridge:
         """
         if not objective.strip():
             return VXBridgeResult("BLOCKED", "", compilation.eir_sha256, ("OBJECTIVE_REQUIRED",))
+        if not compilation.integrity_valid:
+            return VXBridgeResult("BLOCKED", "", compilation.eir_sha256, ("EIR_INTEGRITY_HASH_MISMATCH",))
         if compilation.epistemic_state == "CONFLICT" or compilation.has_conflicts:
             return VXBridgeResult("BLOCKED", "", compilation.eir_sha256, ("UNRESOLVED_CONFLICT",))
         if not compilation.proof_scope_complete:
