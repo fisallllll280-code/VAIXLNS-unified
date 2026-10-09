@@ -19,7 +19,8 @@
       "type": "string",
       "enum": [
         "reasoning_mind", "architecture_mind", "adversary_mind", "verifier_mind",
-        "recovery_mind", "security_mind", "innovation_mind", "research_mind"
+        "recovery_mind", "security_mind", "innovation_mind", "research_mind",
+        "financial_mind", "engineering_mind", "governance_mind", "operations_mind"
       ]
     },
     "capability_profile": {
