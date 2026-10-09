@@ -20,6 +20,7 @@ class ServerConfig:
     token: str | None = None
     timeout_seconds: float = 5.0
     enabled: bool = True
+    activation_path: str = "/v1/activations"
 
     @classmethod
     def from_env(cls, server_id: str, prefix: str = "VLNS_SERVER") -> "ServerConfig":
@@ -29,7 +30,8 @@ class ServerConfig:
             health_path=os.getenv(f"{prefix}_HEALTH_PATH", "/health"),
             token=os.getenv(f"{prefix}_TOKEN") or None,
             timeout_seconds=float(os.getenv(f"{prefix}_TIMEOUT", "5")),
-            enabled=os.getenv(f"{prefix}_ENABLED", "false").lower() in {"1","true","yes"},
+            enabled=os.getenv(f"{prefix}_ENABLED", "false").lower() in {"1", "true", "yes"},
+            activation_path=os.getenv(f"{prefix}_ACTIVATION_PATH", "/v1/activations"),
         )
 
 
@@ -49,7 +51,7 @@ class VLNSServerClient:
         body = None
         if payload is not None:
             headers["Content-Type"] = "application/json"
-            body = json.dumps(dict(payload), ensure_ascii=False).encode("utf-8")
+            body = json.dumps(dict(payload), ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
         if self.config.token:
             headers["Authorization"] = f"Bearer {self.config.token}"
         try:
@@ -72,6 +74,10 @@ class VLNSServerClient:
 
     def status(self) -> dict[str, Any]:
         return self._request("GET", "/status")
+
+    def activate_model(self, envelope: Mapping[str, Any]) -> dict[str, Any]:
+        """Request model activation; caller must validate the receipt and record evidence."""
+        return self._request("POST", self.config.activation_path, envelope)
 
     def emit_event(self, event: Mapping[str, Any]) -> dict[str, Any]:
         return self._request("POST", "/events", event)

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/fisallllll280-code/VAIXLNS-unified/blob/main/schemas/vlns-activation-envelope.schema.json",
+  "title": "VLNS Governed Model Activation Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "model_id", "provider", "model_version", "role",
+    "capability_profile", "context_hash", "tool_profile", "permission_profile",
+    "constraints", "provenance", "activation_id", "status",
+    "signature_algorithm", "signature"
+  ],
+  "properties": {
+    "schema_version": { "const": "vlns.activation-envelope.v1" },
+    "model_id": { "type": "string", "minLength": 1 },
+    "provider": { "type": "string", "minLength": 1 },
+    "model_version": { "type": "string", "minLength": 1 },
+    "role": {
+      "type": "string",
+      "enum": [
+        "reasoning_mind", "architecture_mind", "adversary_mind", "verifier_mind",
+        "recovery_mind", "security_mind", "innovation_mind", "research_mind",
+        "financial_mind", "engineering_mind", "governance_mind", "operations_mind"
+      ]
+    },
+    "capability_profile": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "context_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "tool_profile": {
+      "type": "array", "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "permission_profile": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": { "type": "string", "enum": ["read", "propose", "execute", "modify"] }
+    },
+    "constraints": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["task_id", "source_id", "source_digest"],
+      "properties": {
+        "task_id": { "type": "string", "minLength": 1 },
+        "source_id": { "type": "string", "minLength": 1 },
+        "source_digest": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": true
+    },
+    "activation_id": { "type": "string", "pattern": "^VLNS-ACT-[a-f0-9]{24}$" },
+    "status": { "const": "PREPARED" },
+    "signature_algorithm": { "const": "HMAC-SHA256" },
+    "signature": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

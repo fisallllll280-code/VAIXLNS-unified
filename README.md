@@ -437,6 +437,11 @@ claims into deployment claims.
 - Formal theorem proving and full historical 0001–2750 atomic recovery: OPEN.
 - Multi-node production readiness: NOT CLAIMED until reproducible cluster/server evidence exists.
 
+Governed integration references:
+- docs/integration/VLNS_VX_ACTIVATION_BRIDGE_V1.md
+- schemas/vlns-activation-envelope.schema.json
+- tests/test_vlns_activation_bridge.py
+
 The canonical repository remains `VAIXLNS`; this repository is its executable
 integration surface.
 
