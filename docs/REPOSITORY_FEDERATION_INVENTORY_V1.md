@@ -17,7 +17,7 @@
 
 ## 2. First-pass VAIXLNS-related repository inventory
 
-The following entries matched VAIXLNS/NEXENT/VX/kernel/agent/fabric/assurance naming in the accessible account inventory. They are **candidates for inspection**, not a declaration that each is canonical or safe to merge.
+The following **public repositories** matched VAIXLNS/NEXENT/VX/kernel/agent/fabric naming in the accessible account inventory. Private repository names and metadata are intentionally excluded from this public document and must be catalogued in a private inventory. These are candidates for inspection, not a declaration that each is canonical or safe to merge.
 
 | Repository | Default branch | Visibility | Size (GitHub-reported KB) | Initial role hypothesis |
 |---|---|---:|---:|---|
@@ -43,7 +43,7 @@ The following entries matched VAIXLNS/NEXENT/VX/kernel/agent/fabric/assurance na
 
 ## 3. Scope and completeness
 
-The connected account inventory returned **51 repositories total**. The table above contains **19 first-pass candidates** based on project-related names. The other repositories were not classified as VAIXLNS components in this pass; this is not proof that they contain no reusable assets.
+The connected account inventory returned **51 repositories total**. The table above contains **9 public first-pass candidates** after removing private-repository metadata from this public document. The connected account inventory also includes private repositories, which are not enumerated here to avoid publishing private repository names. The other public repositories were not classified as VAIXLNS components in this pass; this is not proof that they contain no reusable assets.
 
 Private repositories are listed because they are visible to the connected GitHub account. Access visibility does not mean they have been copied or inspected.
 
