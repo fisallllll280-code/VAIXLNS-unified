@@ -10,11 +10,10 @@
     "last": "A-570"
   },
   "derived_source_file": "قسم · التفكيك الهرمي لـ VAIXLNS.txt",
-  "derived_source_sha256": "c65952b3fc4d1f82b4cbf0b8ff85ea1c81cbbf6c9987fb3fe385c6d438a9a6ad",
+  "derived_source_sha256": "1616ced3b6e0383090d289d919dca4541ccef4ca0d5395318ea8f1206ce7fd0",
   "original_legacy_range_expected": "0001–2750",
   "original_legacy_mapping_status": "UNPROVEN_NOT_RECOVERED_ELEMENT_BY_ELEMENT",
-  "confirmed_original_numeric_ids_from_available_mapping_table": 0,
-  "critical_distinction": "A-001..A-570 are source-local derived decomposition labels. They are NOT the original 0001..2750 identifiers.",
+  "critical_distinction": "A-001..A-570 are source-local derived decomposition labels, not original 0001..2750 identifiers.",
   "zero_loss_rules": [
     "Never invent missing legacy IDs.",
     "Never merge similar names without preserving both UIDs, source references, reason, relation type and lineage.",
@@ -24,7 +23,7 @@
   ],
   "remaining_gaps": [
     "Recover original numeric registry 0001–2750 element by element.",
-    "Resolve original ID-to-name mapping for each historical entry.",
+    "Resolve original ID-to-name mapping for every historical entry.",
     "Build cross-source duplicate/conflict adjudication while preserving source IDs.",
     "Prove source/family coverage and report unresolved records.",
     "Add durable database and trusted provider integration before financial production."
