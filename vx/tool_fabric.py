@@ -19,6 +19,7 @@ from vx.runtime_supervisor import Operation, Phase, VXSupervisor
 
 HealthProbe = Callable[["ServerContract"], Mapping[str, Any]]
 IntegrationAdmission = Callable[[str], bool]
+ArcXPolicyGate = Callable[[\"ServerContract\", ToolSpec, Principal, Mapping[str, Any]], Mapping[str, Any]]
 
 
 def _sha256(value: str) -> str:
@@ -81,6 +82,8 @@ class CompatibilityReport:
     contract_sha256: str = ""
     latency_ms: float | None = None
     health_status: str = "NOT_CHECKED"
+    arcx_decision: str = "PENDING"
+    eir_sha256: str = ""
 
 
 @dataclass(frozen=True)
@@ -97,6 +100,7 @@ class VXToolResult:
     tool_event_hash: str = ""
     compatibility: CompatibilityReport | None = None
     replay: tuple[Mapping[str, Any], ...] = ()
+    eir_sha256: str = ""
 
 
 @dataclass(frozen=True)
@@ -138,13 +142,15 @@ class VXToolFabric:
         *,
         health_probe: HealthProbe,
         integration_admission: IntegrationAdmission,
+        arc_x_gate: ArcXPolicyGate,
     ) -> None:
-        if not callable(health_probe) or not callable(integration_admission):
-            raise ValueError("TRUSTED_HEALTH_AND_ADMISSION_CALLBACKS_REQUIRED")
+        if not callable(health_probe) or not callable(integration_admission) or not callable(arc_x_gate):
+            raise ValueError("TRUSTED_HEALTH_ARCX_AND_ADMISSION_CALLBACKS_REQUIRED")
         self.gateway = gateway
         self.supervisor = supervisor
         self.health_probe = health_probe
         self.integration_admission = integration_admission
+        self.arc_x_gate = arc_x_gate
         self._servers: dict[str, _RegisteredServer] = {}
         self._request_fingerprints: dict[tuple[str, str, str, str], str] = {}
 
@@ -218,6 +224,23 @@ class VXToolFabric:
             reasons.append("UNDECLARED_INPUT:" + ",".join(extra_inputs))
         if not spec.enabled:
             reasons.append("TOOL_DISABLED")
+        arcx_decision = "BLOCKED"
+        eir_sha256 = ""
+        try:
+            policy = self.arc_x_gate(contract, spec, principal, args if isinstance(args, Mapping) else {})
+            if not isinstance(policy, Mapping):
+                reasons.append("ARC_X_POLICY_RESPONSE_NOT_OBJECT")
+            else:
+                arcx_decision = str(policy.get("decision", "PENDING"))
+                eir_sha256 = str(policy.get("eir_sha256", ""))
+                if policy.get("allowed") is not True or arcx_decision != "ADMITTED":
+                    raw_codes = policy.get("reason_codes", ())
+                    codes = [str(value) for value in raw_codes] if isinstance(raw_codes, (list, tuple)) else []
+                    reasons.append("ARC_X_ADMISSION_REQUIRED" + (":" + ",".join(codes) if codes else ""))
+                if len(eir_sha256) != 64 or any(ch not in "0123456789abcdef" for ch in eir_sha256.lower()):
+                    reasons.append("ARC_X_EIR_SHA256_REQUIRED")
+        except Exception as exc:
+            reasons.append("ARC_X_POLICY_GATE_FAILED:" + type(exc).__name__)
         if contract.integration_id:
             try:
                 allowed = bool(self.integration_admission(contract.integration_id))
@@ -270,6 +293,8 @@ class VXToolFabric:
             contract_sha256=fingerprint,
             latency_ms=latency,
             health_status=health_status,
+            arcx_decision=arcx_decision,
+            eir_sha256=eir_sha256,
         )
 
     def invoke(
@@ -319,6 +344,9 @@ class VXToolFabric:
             },
         )
         report = self.check_compatibility(server_id, principal, tool_id, args)
+        op.snapshot["contract_sha256"] = report.contract_sha256
+        op.snapshot["arcx_eir_sha256"] = report.eir_sha256
+        op.snapshot["arcx_decision"] = report.arcx_decision
         if not report.compatible:
             op.transition(Phase.FAILED, "tool_compatibility_blocked", {
                 "reasons": list(report.reasons),
@@ -327,7 +355,7 @@ class VXToolFabric:
             })
             return VXToolResult(
                 "BLOCKED", request_id, operation_id, server_id, tool_id, report.reasons,
-                op.phase.value, compatibility=report, replay=_replay(op),
+                op.phase.value, compatibility=report, replay=_replay(op), eir_sha256=report.eir_sha256,
             )
 
         self.supervisor.simulate(op, {
@@ -345,7 +373,7 @@ class VXToolFabric:
             return VXToolResult(
                 "BLOCKED", request_id, operation_id, server_id, tool_id,
                 ("VX_AUTHORIZER_DENIED",), op.phase.value,
-                compatibility=report, replay=_replay(op),
+                compatibility=report, replay=_replay(op), eir_sha256=report.eir_sha256,
             )
 
         tool_result_box: dict[str, Any] = {}
@@ -390,7 +418,7 @@ class VXToolFabric:
             return VXToolResult(
                 "EXECUTION_FAILED", request_id, operation_id, server_id, tool_id,
                 ("VX_RUNTIME_DID_NOT_VERIFY_EXECUTION",), op.phase.value,
-                compatibility=report, replay=replay,
+                compatibility=report, replay=replay, eir_sha256=report.eir_sha256,
             )
         # Return output to the authorized caller, but do not insert it into VX event payloads.
         return VXToolResult(
@@ -399,7 +427,7 @@ class VXToolFabric:
             op.phase.value, output=tool_result.output,
             output_sha256=_sha256(canonical_json(tool_result.output)) if tool_result.output is not None else "",
             tool_event_hash=tool_result.event_hash,
-            compatibility=report, replay=replay,
+            compatibility=report, replay=replay, eir_sha256=report.eir_sha256,
         )
 
 
