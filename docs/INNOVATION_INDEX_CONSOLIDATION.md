@@ -7,7 +7,7 @@ This consolidates the existing index families and registries as views over **one
 ## Current inventory
 
 - Uploaded archive inventory: **69 text sources**, 786,341 bytes.
-- Catalogued index views and registries/graphs: **56**.
+- Catalogued index views and registries/graphs: **48**.
 - Named innovation/architecture records compiled: **59**.
 - Source-local atomic decomposition headings extracted: **570**, labelled A-001 through A-570 from `قسم · التفكيك الهرمي لـ VAIXLNS.txt`.
 - Historical numeric registry expected: `0001–2750`. Its complete element-by-element ID/name mapping remains **UNPROVEN**.
