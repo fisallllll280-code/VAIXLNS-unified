@@ -10,7 +10,7 @@ from dataclasses import asdict, dataclass, field
 import hashlib
 import hmac
 import json
-from typing import Any, Mapping, Protocol
+from typing import Any, Callable, Mapping, Protocol
 
 
 SCHEMA_VERSION = "vlns.activation-envelope.v1"
@@ -43,7 +43,6 @@ class ActivationTransport(Protocol):
     @property
     def configured(self) -> bool: ...
     def activate_model(self, envelope: Mapping[str, Any]) -> Mapping[str, Any]: ...
-    def emit_event(self, event: Mapping[str, Any]) -> Mapping[str, Any]: ...
 
 
 def canonical_json(value: Any) -> str:
@@ -241,19 +240,21 @@ class ActivationOutcome:
 
 
 class VLNSActivationBridge:
-    """Prepare, authorize, dispatch, bind the remote receipt, then record evidence."""
+    """Validate the remote receipt, then append evidence to the local VX ledger."""
 
     def __init__(
         self,
         client: ActivationTransport,
         policy: ActivationPolicy,
         signing_key: bytes,
+        evidence_recorder: Callable[[Mapping[str, Any]], Mapping[str, Any]] | None = None,
     ) -> None:
         if not isinstance(signing_key, bytes) or len(signing_key) < 32:
             raise ActivationError("SIGNING_KEY_MUST_BE_AT_LEAST_32_BYTES")
         self.client = client
         self.policy = policy
         self.signing_key = signing_key
+        self.evidence_recorder = evidence_recorder
 
     def activate(self, request: ActivationRequest) -> ActivationOutcome:
         envelope = prepare_activation(request, self.policy, self.signing_key)
@@ -307,12 +308,18 @@ class VLNSActivationBridge:
             "provenance": envelope["provenance"],
             "evidence_status": "REMOTE_RECEIPT_VALIDATED",
         }
+        if self.evidence_recorder is None:
+            return ActivationOutcome(
+                "ACTIVATED_EVIDENCE_PENDING", activation_id, digest,
+                activated=True, evidence_recorded=False,
+                reason="VX_LOCAL_EVIDENCE_RECORDER_NOT_CONFIGURED", envelope=envelope,
+            )
         try:
-            recorded = self.client.emit_event(event)
+            recorded = self.evidence_recorder(event)
         except Exception as exc:
-            recorded = {"ok": False, "status": "EVENT_TRANSPORT_EXCEPTION:" + type(exc).__name__}
+            recorded = {"ok": False, "status": "LOCAL_VX_EVIDENCE_EXCEPTION:" + type(exc).__name__}
         if not isinstance(recorded, Mapping) or not recorded.get("ok"):
-            reason = str(recorded.get("status", "EVENT_RECORDING_FAILED")) if isinstance(recorded, Mapping) else "INVALID_EVENT_RESPONSE"
+            reason = str(recorded.get("status", "LOCAL_VX_EVIDENCE_WRITE_FAILED")) if isinstance(recorded, Mapping) else "INVALID_LOCAL_EVIDENCE_RESPONSE"
             return ActivationOutcome(
                 "ACTIVATED_EVIDENCE_PENDING", activation_id, digest,
                 activated=True, evidence_recorded=False, reason=reason, envelope=envelope,
