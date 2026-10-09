@@ -41,6 +41,7 @@ def tool_contract_digest(spec: ToolSpec) -> str:
         "risk": spec.risk,
         "external_integration_id": spec.external_integration_id,
         "max_output_bytes": spec.max_output_bytes,
+        "read_only": spec.read_only,
     }
     return _sha256(canonical_json(payload))
 
@@ -239,7 +240,12 @@ class VXToolFabric:
             else:
                 arcx_decision = str(policy.get("decision", "PENDING"))
                 eir_sha256 = str(policy.get("eir_sha256", ""))
-                if policy.get("allowed") is not True or arcx_decision != "ADMITTED":
+                accepted_decisions = {"ADMITTED"}
+                if spec.read_only and spec.risk == "LOW":
+                    accepted_decisions |= {"ELIGIBLE_FOR_REVIEW", "VERIFIED"}
+                elif spec.read_only and spec.risk == "MEDIUM":
+                    accepted_decisions |= {"VERIFIED"}
+                if policy.get("allowed") is not True or arcx_decision not in accepted_decisions:
                     raw_codes = policy.get("reason_codes", ())
                     codes = [str(value) for value in raw_codes] if isinstance(raw_codes, (list, tuple)) else []
                     reasons.append("ARC_X_ADMISSION_REQUIRED" + (":" + ",".join(codes) if codes else ""))
