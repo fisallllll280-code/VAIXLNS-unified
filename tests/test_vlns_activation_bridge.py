@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 import unittest
 from unittest.mock import patch
 
+from infra.durable_store import DurableEventStore
 from infra.vlns_server_client import ServerConfig, VLNSServerClient
+from scripts.vlns_activation_bridge import _record_vx_activation_event
 from vlns.activation import (
     ActivationError,
     ActivationPolicy,
@@ -72,6 +76,18 @@ class FakeClient:
         return self.event_response
 
 
+class FakeRecorder:
+    def __init__(self, response=None):
+        self.response = response
+        self.events = []
+
+    def record(self, event):
+        self.events.append(dict(event))
+        if self.response is not None:
+            return self.response
+        return {"ok": True, "status": "LOCAL_VX_EVENT_RECORDED", "data": {"recorded": True}}
+
+
 class VlnsActivationTests(unittest.TestCase):
     def test_envelope_is_deterministic_and_does_not_leak_context(self):
         first = prepare_activation(request(), POLICY, KEY)
@@ -122,38 +138,69 @@ class VlnsActivationTests(unittest.TestCase):
         self.assertFalse(result.evidence_recorded)
         self.assertEqual(client.activated_envelopes, [])
 
-    def test_valid_remote_receipt_and_evidence_event_complete_bridge(self):
+    def test_valid_remote_receipt_and_local_vx_evidence_complete_bridge(self):
         client = FakeClient()
-        result = VLNSActivationBridge(client, POLICY, KEY).activate(request())
+        recorder = FakeRecorder()
+        result = VLNSActivationBridge(client, POLICY, KEY, evidence_recorder=recorder.record).activate(request())
         self.assertEqual(result.status, "ACTIVATED_AND_RECORDED")
         self.assertTrue(result.activated)
         self.assertTrue(result.evidence_recorded)
-        self.assertEqual(client.events[0]["activation_id"], result.activation_id)
-        self.assertEqual(client.events[0]["envelope_hash"], result.envelope_hash)
+        self.assertEqual(recorder.events[0]["activation_id"], result.activation_id)
+        self.assertEqual(recorder.events[0]["envelope_hash"], result.envelope_hash)
+        self.assertEqual(client.events, [])
 
     def test_receipt_for_other_envelope_is_rejected(self):
         client = FakeClient(response={
             "ok": True,
             "data": {"status": "ACTIVATED", "activation_id": "VLNS-ACT-else", "envelope_hash": "b" * 64},
         })
-        result = VLNSActivationBridge(client, POLICY, KEY).activate(request())
+        recorder = FakeRecorder()
+        result = VLNSActivationBridge(client, POLICY, KEY, evidence_recorder=recorder.record).activate(request())
         self.assertEqual(result.status, "RECEIPT_INVALID")
         self.assertFalse(result.activated)
-        self.assertEqual(client.events, [])
+        self.assertEqual(recorder.events, [])
 
     def test_remote_rejection_is_not_overridden(self):
         client = FakeClient(response={"ok": True, "data": {"status": "QUARANTINED", "reason": "policy"}})
-        result = VLNSActivationBridge(client, POLICY, KEY).activate(request())
+        recorder = FakeRecorder()
+        result = VLNSActivationBridge(client, POLICY, KEY, evidence_recorder=recorder.record).activate(request())
         self.assertEqual(result.status, "REMOTE_REJECTED")
         self.assertFalse(result.activated)
-        self.assertEqual(client.events, [])
+        self.assertEqual(recorder.events, [])
 
-    def test_activation_without_durable_event_is_not_full_success(self):
-        client = FakeClient(event_response={"ok": False, "status": "CONNECTION_ERROR"})
+    def test_missing_local_evidence_recorder_is_not_full_success(self):
+        client = FakeClient()
         result = VLNSActivationBridge(client, POLICY, KEY).activate(request())
         self.assertEqual(result.status, "ACTIVATED_EVIDENCE_PENDING")
         self.assertTrue(result.activated)
         self.assertFalse(result.evidence_recorded)
+        self.assertEqual(result.reason, "VX_LOCAL_EVIDENCE_RECORDER_NOT_CONFIGURED")
+
+    def test_local_vx_recorder_is_hash_linked_and_idempotent(self):
+        event = {
+            "event_type": "VLNS_MODEL_ACTIVATION_CONFIRMED",
+            "activation_id": "VLNS-ACT-1234567890abcdef12345678",
+            "envelope_hash": "a" * 64,
+            "provider": "ollama",
+            "model_id": "qwen3:8b",
+            "model_version": "qwen3:8b",
+            "role": "research_mind",
+            "context_hash": "b" * 64,
+            "provenance": {"task_id": "T-1", "source_id": "repo://VAIXLNS", "source_digest": "c" * 64},
+            "evidence_status": "REMOTE_RECEIPT_VALIDATED",
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = os.path.join(tmp, "vx-events.sqlite3")
+            with patch.dict(os.environ, {"VLNS_ACTIVATION_EVIDENCE_DB": db_path}):
+                first = _record_vx_activation_event(event)
+                second = _record_vx_activation_event(event)
+            self.assertTrue(first["ok"])
+            self.assertEqual(first["status"], "LOCAL_VX_EVENT_RECORDED")
+            self.assertTrue(second["ok"])
+            self.assertEqual(second["status"], "LOCAL_VX_EVENT_ALREADY_RECORDED")
+            with DurableEventStore(db_path) as store:
+                self.assertTrue(store.verify_integrity())
+                self.assertEqual(len(store.events()), 1)
 
     def test_server_client_posts_activation_to_configured_path(self):
         class Response:
