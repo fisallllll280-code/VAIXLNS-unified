@@ -7,9 +7,11 @@ boundaries independently allow it.
 """
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from hashlib import sha256
 import json
+from threading import RLock
+from types import MappingProxyType
 from typing import Any, Callable, Mapping
 
 from arc_x.core import canonical_json
@@ -66,11 +68,14 @@ class ServerContract:
             raise ValueError("SERVER_TOOL_CONTRACT_DIGEST_SET_MISMATCH")
         if isinstance(self.max_latency_ms, bool) or not isinstance(self.max_latency_ms, int) or self.max_latency_ms <= 0:
             raise ValueError("SERVER_MAX_LATENCY_MUST_BE_POSITIVE_INTEGER")
-        for tool_id, fingerprint in self.tool_contract_digests.items():
+        normalized_digests = dict(self.tool_contract_digests)
+        for tool_id, fingerprint in normalized_digests.items():
             if not tool_id.strip() or not isinstance(fingerprint, str) or len(fingerprint) != 64:
                 raise ValueError("SERVER_TOOL_CONTRACT_DIGEST_INVALID")
             if any(ch not in "0123456789abcdef" for ch in fingerprint.lower()):
                 raise ValueError("SERVER_TOOL_CONTRACT_DIGEST_INVALID")
+            normalized_digests[tool_id] = fingerprint.lower()
+        object.__setattr__(self, "tool_contract_digests", MappingProxyType(normalized_digests))
 
 
 @dataclass(frozen=True)
@@ -153,6 +158,7 @@ class VXToolFabric:
         self.arc_x_gate = arc_x_gate
         self._servers: dict[str, _RegisteredServer] = {}
         self._request_fingerprints: dict[tuple[str, str, str, str], str] = {}
+        self._lock = RLock()
 
     def register_server(self, contract: ServerContract) -> None:
         """Register a declared contract only; registration is not admission."""
@@ -319,17 +325,25 @@ class VXToolFabric:
             return VXToolResult("BLOCKED", request_id, "", server_id, tool_id, ("OBJECTIVE_REQUIRED",), "")
         operation_id = _operation_id(server_id, tool_id, principal.principal_id, request_id)
         request_key = (server_id, tool_id, principal.principal_id, request_id)
-        args_hash = _sha256(canonical_json(args if isinstance(args, Mapping) else {"invalid_args_type": type(args).__name__}))
-        prior = self._request_fingerprints.get(request_key)
-        if prior is not None:
-            reason = "DUPLICATE_REQUEST_REPLAY_BLOCKED" if prior == args_hash else "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_PAYLOAD"
+        try:
+            args_hash = _sha256(canonical_json(args if isinstance(args, Mapping) else {"invalid_args_type": type(args).__name__}))
+        except (TypeError, ValueError):
+            return VXToolResult("BLOCKED", request_id, operation_id, server_id, tool_id, ("ARGUMENTS_NOT_CANONICAL_JSON",), "")
+        with self._lock:
+            prior = self._request_fingerprints.get(request_key)
             operation = self.supervisor.operations.get(operation_id)
-            return VXToolResult(
-                "BLOCKED", request_id, operation_id, server_id, tool_id, (reason,),
-                operation.phase.value if operation else "",
-                replay=_replay(operation) if operation else (),
-            )
-        self._request_fingerprints[request_key] = args_hash
+            if prior is not None or operation is not None:
+                reason = (
+                    "DUPLICATE_REQUEST_REPLAY_BLOCKED"
+                    if prior == args_hash or (prior is None and operation is not None)
+                    else "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_PAYLOAD"
+                )
+                return VXToolResult(
+                    "BLOCKED", request_id, operation_id, server_id, tool_id, (reason,),
+                    operation.phase.value if operation else "",
+                    replay=_replay(operation) if operation else (),
+                )
+            self._request_fingerprints[request_key] = args_hash
 
         op = self.supervisor.prepare(
             operation_id,
@@ -362,11 +376,14 @@ class VXToolFabric:
             "simulation_kind": "PREFLIGHT_ONLY",
             "compatible": True,
             "contract_sha256": report.contract_sha256,
+            "arcx_eir_sha256": report.eir_sha256,
         })
         self.supervisor.test(op, {
             "contract_test": "PASS",
             "health_status": report.health_status,
             "latency_ms": report.latency_ms,
+            "arcx_decision": report.arcx_decision,
+            "arcx_eir_sha256": report.eir_sha256,
         })
 
         if not self.supervisor.authorize(op):
