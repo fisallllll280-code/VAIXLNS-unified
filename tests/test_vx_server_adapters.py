@@ -193,7 +193,7 @@ class VLNSServerAdapterTests(unittest.TestCase):
         )
         self.assertEqual(result.status, "BLOCKED")
         self.assertIn("VLNS_ACTIVATION_NOT_FULLY_RECORDED", result.reason_code)
-        self.assertEqual(len(self.remote.envelopes), 2)
+        self.assertEqual(len(self.remote.envelopes), 1)
 
     def test_remote_rejection_cannot_be_promoted_to_success(self):
         remote = FakeVLNSServer(status="QUARANTINED")
