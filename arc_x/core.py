@@ -12,12 +12,13 @@ from enum import Enum
 from hashlib import sha256
 import json
 import re
+from datetime import datetime
 from typing import Any, Callable, Mapping, Sequence
 
 
 SCHEMA_VERSION = "arc-x.eir.v1"
-_SHA256 = re.compile(r"^[0-9a-f]{64}$")
-_MUTABLE_REVISIONS = frozenset({"head", "main", "master", "latest", "default"})
+_SHA256 = re.compile(r"^[0-9a-f]{64}$", re.IGNORECASE)
+_PINNED_REVISION = re.compile(r"^(?:[0-9a-f]{40}|[0-9a-f]{64}|sha256:[0-9a-f]{64})$", re.IGNORECASE)
 
 
 class Stance(str, Enum):
@@ -68,10 +69,17 @@ class SourceReceipt:
         for name in ("source_id", "repository", "revision", "path", "retrieved_at"):
             if not getattr(self, name).strip():
                 raise ValueError(f"SOURCE_{name.upper()}_REQUIRED")
-        if self.revision.casefold() in _MUTABLE_REVISIONS:
-            raise ValueError("SOURCE_REVISION_MUST_BE_PINNED")
-        if not _SHA256.fullmatch(self.content_sha256.lower()):
+        if not _PINNED_REVISION.fullmatch(self.revision):
+            raise ValueError("SOURCE_REVISION_MUST_BE_IMMUTABLE_PIN")
+        if not _SHA256.fullmatch(self.content_sha256):
             raise ValueError("SOURCE_CONTENT_HASH_MUST_BE_SHA256")
+        object.__setattr__(self, "content_sha256", self.content_sha256.lower())
+        try:
+            parsed_time = datetime.fromisoformat(self.retrieved_at.replace("Z", "+00:00"))
+            if parsed_time.tzinfo is None or parsed_time.utcoffset() is None:
+                raise ValueError
+        except (TypeError, ValueError) as exc:
+            raise ValueError("SOURCE_RETRIEVAL_TIMESTAMP_MUST_BE_AWARE_ISO8601") from exc
         if self.retrieval_status != "SUCCESS":
             raise ValueError("SOURCE_RETRIEVAL_NOT_SUCCESSFUL")
         if not self.parser_version.strip():
@@ -97,8 +105,10 @@ class EvidenceRecord:
                 raise ValueError(f"EVIDENCE_{name.upper()}_REQUIRED")
         if self.result not in {"PASS", "FAIL", "UNKNOWN", "NOT_APPLICABLE"}:
             raise ValueError("EVIDENCE_RESULT_INVALID")
-        if self.artifact_sha256 and not _SHA256.fullmatch(self.artifact_sha256.lower()):
+        if self.artifact_sha256 and not _SHA256.fullmatch(self.artifact_sha256):
             raise ValueError("EVIDENCE_ARTIFACT_HASH_MUST_BE_SHA256")
+        if self.artifact_sha256:
+            object.__setattr__(self, "artifact_sha256", self.artifact_sha256.lower())
         if self.kind in {EvidenceKind.TEST_RESULT, EvidenceKind.PROOF_ARTIFACT}:
             if self.result in {"PASS", "FAIL"} and not self.artifact_sha256:
                 raise ValueError("TEST_OR_PROOF_RESULT_REQUIRES_ARTIFACT_HASH")
@@ -165,11 +175,15 @@ class CompilationResult:
 
     @property
     def required_obligations_satisfied(self) -> bool:
+        claims = [item["claim_id"] for item in self.eir.get("claims", []) if item["required"]]
         obligations = self.eir.get("proof_obligations", [])
         required = [item for item in obligations if item["required"]]
-        return bool(required) and all(
-            self.obligation_results.get(item["obligation_id"]) == "SATISFIED"
-            for item in required
+        covered = {item["claim_id"] for item in required}
+        return (
+            bool(claims)
+            and bool(required)
+            and set(claims) <= covered
+            and all(self.obligation_results.get(item["obligation_id"]) == "SATISFIED" for item in required)
         )
 
     @property
@@ -307,6 +321,7 @@ def compile_eir(
             proof_rows = [evidence_index[eid] for eid in obligation["evidence_ids"] if eid in evidence_index]
             eligible = refs_exist and bool(proof_rows) and all(
                 item["source_id"] in source_index
+                and item["claim_id"] == claim_id
                 and item["kind"] in accepted_proof_kinds
                 and item["result"] == "PASS"
                 and bool(item["artifact_sha256"])
@@ -319,6 +334,16 @@ def compile_eir(
                 f"Required obligation {obligation_id} lacks valid passing test/runtime/proof evidence.",
                 refs=obligation["evidence_ids"],
             ))
+
+    required_claim_ids = {ident for ident, item in claim_index.items() if item["required"]}
+    claims_with_required_obligations = {
+        item["claim_id"] for item in obligation_rows if item["required"]
+    }
+    for claim_id in sorted(required_claim_ids - claims_with_required_obligations):
+        findings.append(_finding(
+            "REQUIRED_CLAIM_WITHOUT_PROOF_OBLIGATION",
+            f"Required claim {claim_id} has no required proof obligation.",
+        ))
 
     # References and claims are sorted to ensure the compilation is input-order independent.
     eir = {
@@ -371,14 +396,17 @@ def evaluate_admission(
     if action not in safe_actions:
         return AdmissionResult(AdmissionDecision.BLOCKED, action, ("UNKNOWN_ACTION",), compilation.eir_sha256)
 
+    if action in {"READ", "RESEARCH"}:
+        codes = ["NO_EXTERNAL_EFFECT"]
+        if compilation.has_conflicts:
+            codes.append("CONFLICT_PRESERVED_FOR_RESEARCH")
+        return AdmissionResult(AdmissionDecision.ELIGIBLE_FOR_REVIEW, action, tuple(codes), compilation.eir_sha256)
     if compilation.epistemic_state == "CONFLICT" or compilation.has_conflicts:
         return AdmissionResult(AdmissionDecision.BLOCKED, action, ("UNRESOLVED_CONFLICT",), compilation.eir_sha256)
     if compilation.has_blocking_findings or compilation.epistemic_state in {"MISSING", "PARTIAL"}:
         if action in {"EXECUTE", "CANONICAL_COMMIT", "VERIFY"}:
             codes = tuple(sorted({str(item["code"]) for item in compilation.findings if item.get("blocking")}))
             return AdmissionResult(AdmissionDecision.BLOCKED, action, codes or ("EVIDENCE_INCOMPLETE",), compilation.eir_sha256)
-    if action in {"READ", "RESEARCH"}:
-        return AdmissionResult(AdmissionDecision.ELIGIBLE_FOR_REVIEW, action, ("NO_EXTERNAL_EFFECT",), compilation.eir_sha256)
     if action == "VERIFY":
         if compilation.verified_for_declared_scope:
             return AdmissionResult(AdmissionDecision.ELIGIBLE_FOR_REVIEW, action, ("DECLARED_SCOPE_CHECKS_SATISFIED",), compilation.eir_sha256)
