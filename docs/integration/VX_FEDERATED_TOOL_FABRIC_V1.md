@@ -1,0 +1,120 @@
+# VX Federated Tool and Server Fabric v1
+
+**Status:** IMPLEMENTED CANDIDATE — CI and review are the promotion gates  
+**Owner:** VAIXLNS  
+**Execution authority:** VX  
+**Evidence and policy boundary:** ARC-X Ω  
+**Dispatch boundary:** `tools.execution_fabric.ExecutionGateway`
+
+## Purpose
+
+Provide one governed route for a host-registered tool to reach VX without creating a parallel permission system or an unreviewed path around the existing gateway.
+
+This is a connector fabric, not an automatic adapter for every protocol. Each server or tool still needs a host-owned adapter/handler, a declared contract, an explicit admission decision, and tests. Registering a connector does not activate it.
+
+## Components
+
+- `vx/tool_fabric.py`: `ServerContract`, `tool_contract_digest`, `VXToolFabric`, `CompatibilityReport`, and `VXToolResult`.
+- `tools/execution_fabric.py`: retains argument allowlisting, actor scopes, integration allowlists, bounded results, handler dispatch, and the existing hash-chained audit ledger.
+- `vx/runtime_supervisor.py`: retains the state machine, authorizer, executor boundary, base verifier, and replay. Per-request executors do not replace its authorizer or base verifier; an additional verifier must pass too.
+- `arc_x/core.py`: compiles source-bound EIR and requires independent evidence/authority verification for governed actions.
+- `arc_x/vx_bridge.py`: route for EIR-carrying candidates that need simulation and tests before VX authorization/execution.
+
+## Connector contract
+
+A `ServerContract` declares:
+
+- stable server/integration identity;
+- protocol, protocol version, and contract version;
+- the exact tool IDs exposed by that connector;
+- the SHA-256 fingerprint for each registered `ToolSpec`;
+- endpoint reference and maximum acceptable health-probe latency.
+
+Registration fails if a tool does not exist, its external integration ID disagrees, or its contract fingerprint differs. Contract fingerprints include inputs, scopes, scope-groups, risk, output limits, enabled state, and whether the tool is explicitly read-only.
+
+## Admission and invocation path
+
+```text
+Tool request + request ID
+        ↓
+VX operation created (argument digest only)
+        ↓
+Tool identity / schema / scope compatibility
+        ↓
+ARC-X host policy gate + EIR digest
+        ↓
+Integration admission + server health/protocol/version/latency
+        ↓
+VX preflight → contract test → VX authorizer
+        ↓
+Existing ExecutionGateway (second capability/scope/integration check)
+        ↓
+VX base verifier AND per-request result verifier
+        ↓
+Result digest + gateway audit hash + VX replay
+```
+
+The ordering is fail-closed. No registered handler is called when contract, ARC-X, integration, health, argument, scope, or VX authorization fails.
+
+## Host callbacks are security boundaries
+
+The caller must supply:
+
+- `health_probe(contract)`: host-owned, bounded, preferably read-only health check returning `healthy`, `protocol`, `protocol_version`, `contract_version`, and measured `latency_ms`.
+- `integration_admission(integration_id)`: trusted policy/registry check. It must agree with the separate allowlist configured on `ExecutionGateway`; neither one replaces the other.
+- `arc_x_gate(contract, tool_spec, principal, args)`: trusted host integration that compiles or retrieves the relevant EIR, checks `CompilationResult.integrity_valid`, calls the appropriate ARC-X admission operation with trusted evidence and authority verifiers, and returns `allowed`, `decision`, `eir_sha256`, and `reason_codes`.
+
+The fabric accepts `ADMITTED` for normal tool execution. Explicitly declared low-risk read-only tools may also use an allowed `ELIGIBLE_FOR_REVIEW` or `VERIFIED` decision; medium-risk read-only tools require `VERIFIED`. Mutating tools are not allowed to rely on a read-only/review decision. A correct 64-character EIR digest is required for every invocation. The fabric validates format and binds the digest into the VX operation and result, but the trusted ARC-X callback must verify the actual EIR and evidence; a syntactically valid hash is not proof by itself.
+
+## Runtime behavior
+
+- Contract and health are checked before the tool handler is invoked.
+- Tool inputs and full output are not copied into VX event payloads. The VX replay records bounded status/digest metadata; the authorized caller receives the output separately.
+- The execution gateway records its own request/argument/output digest event. Its ledger remains independently verifiable.
+- Request IDs are at-most-once per connector/tool/principal in this process. Replays are blocked; reuse with a different argument payload is rejected.
+- Health responses and verifier errors are normalized to reason codes to avoid exposing raw exception messages.
+- If VX's authorizer denies, the handler never runs. If the gateway rejects the request, VX's additional verifier prevents a success state. If the VX verifier rejects the result, the tool call is reported as failed even if the handler returned.
+- `PREFLIGHT_ONLY` is only a compatibility check, not a claim that workload simulation was performed.
+- The in-memory request deduplication map is process-local. Distributed idempotency requires durable shared storage before multi-worker or production use.
+
+## Example registration
+
+For a single registered tool, derive its connector contract directly from the gateway registry:
+
+```python
+contract = fabric.register_tool(
+    "repo.search",
+    server_id="local-repository-tools",
+    protocol="python-tool-contract",
+    protocol_version="1",
+    contract_version="repo-search.v1",
+)
+```
+
+For several tools hosted by one server, build one `ServerContract` with the exact tool IDs and a `tool_contract_digest(spec)` for each registered `ToolSpec`, then call `register_server`. Use each remote tool's exact registered integration ID and a host-configured health probe. Cheap local checks run before ARC-X and the network health probe; rejected requests do not trigger the health probe. Do not change the integration allowlist merely to make a failing connector pass.
+
+## Validation
+
+```bash
+python -m unittest tests.test_arc_x_core -v
+python -m unittest tests.test_arc_x_vx_bridge -v
+python -m unittest tests.test_vx_tool_fabric -v
+python -m pytest -q
+```
+
+CI success is necessary but does not prove production compatibility with a real server. Real-server claims require environment fingerprints, real health/contract results, authenticated integrations, successful end-to-end calls, replay/audit checks, and failure/recovery evidence.
+
+## Promotion rule
+
+Until the relevant CI runs and host integration are reviewed, this remains an implemented candidate. Do not label every possible tool as connected: only the registered tool IDs with matching contracts, admitted integration, valid ARC-X decision, and verified VX execution have an evidenced connection.
+
+
+## Concrete server adapter: VLNS activation
+
+`vx/server_adapters.py` provides `register_vlns_activation_tool` for the existing `vlns.activation.VLNSActivationBridge`.
+
+The adapter is registered disabled by default and has `risk="CRITICAL"`, `read_only=False`, and a dedicated `request:vlns-activation` scope. To activate it, the host must explicitly enable the ToolSpec, admit the `vlns-control` integration in the ExecutionGateway and the VXToolFabric integration callback, provide the existing VLNS bridge with runtime credentials, and return a successful ARC-X admission tied to a valid EIR digest. VX authorization and result verification remain independent gates.
+
+A call is considered successful only when the remote server confirms `ACTIVATED` with a receipt bound to the exact activation envelope and the local VX evidence recorder acknowledges the corresponding event. Remote rejection, unconfigured server, failed transport, invalid receipt, or missing local evidence must not be exposed as a successful tool result. The output deliberately excludes the signed envelope, context payload and secrets.
+
+Conformance coverage: `tests/test_vx_server_adapters.py`. These tests use test fixtures; a real VLNS server, production credentials, deployment identity and persistent evidence store still require environment-specific validation.
