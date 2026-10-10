@@ -1,0 +1,73 @@
+{
+  "schema_version": "vaixlns-claim-evidence-register-v1",
+  "updated_at": "2026-10-10",
+  "publication_policy": {
+    "default_state": "DRAFT_PENDING_HUMAN_APPROVAL",
+    "human_approval_required": true,
+    "publish_if_any_required_evidence_is_missing": false
+  },
+  "claims": [
+    {
+      "id": "CLAIM-001",
+      "claim": "VAIXLNS-unified contains a sovereign constitution model.",
+      "state": "VERIFIED",
+      "evidence": [
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/blob/main/core/sovereign_constitution.py"
+      ],
+      "limit": "Presence of a model file does not prove every invariant is enforced across the deployed system."
+    },
+    {
+      "id": "CLAIM-002",
+      "claim": "VAIXLNS-unified contains event-ledger primitives.",
+      "state": "VERIFIED",
+      "evidence": [
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/blob/main/core/ledger.py"
+      ],
+      "limit": "A local hash chain does not by itself provide an externally immutable, independently witnessed ledger or prove event truth."
+    },
+    {
+      "id": "CLAIM-003",
+      "claim": "The Ω³ admission kernel is merged into the default branch.",
+      "state": "MISSING",
+      "evidence": [],
+      "limit": "The kernel and reflexive assurance changes are tracked by open draft PR #31; do not state this claim as true."
+    },
+    {
+      "id": "CLAIM-004",
+      "claim": "The latest Ω³ plus reflexive assurance test suite passes.",
+      "state": "PARTIAL",
+      "evidence": [
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/actions"
+      ],
+      "limit": "A prior kernel-only run passed. The latest assurance-enhanced head must have a completed successful dedicated workflow and required repository CI before this claim is promoted."
+    },
+    {
+      "id": "CLAIM-005",
+      "claim": "Ω³ enforces atomic canonical commits in production.",
+      "state": "MISSING",
+      "evidence": [],
+      "limit": "The current kernel evaluates candidates and does not itself perform persistence/CAS or a canonical commit."
+    },
+    {
+      "id": "CLAIM-006",
+      "claim": "Authority and evidence signatures are independently verified in production.",
+      "state": "MISSING",
+      "evidence": [],
+      "limit": "The current reference implementation accepts verifier callbacks. Production-grade trust roots, signature checks, revocation, and independently retrievable receipts remain future integration work."
+    },
+    {
+      "id": "CLAIM-007",
+      "claim": "All protected state-write paths are proven to pass through Ω³.",
+      "state": "MISSING",
+      "evidence": [],
+      "limit": "Requires a system boundary inventory and negative tests against bypass routes, service identities, recovery jobs, and storage permissions."
+    },
+    {
+      "id": "CLAIM-008",
+      "claim": "VAIXLNS has paying customers, revenue, or production design partners.",
+      "state": "MISSING",
+      "evidence": [],
+      "limit": "Do not publish adoption or revenue claims unless authorized records substantiate them."
+    }
+  ]
+}
