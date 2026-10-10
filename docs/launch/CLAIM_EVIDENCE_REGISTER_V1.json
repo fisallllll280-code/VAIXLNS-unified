@@ -48,7 +48,7 @@
       "claim": "Ω³ enforces atomic canonical commits in production.",
       "state": "MISSING",
       "evidence": [],
-      "limit": "The current kernel evaluates candidates and does not itself perform persistence/CAS or a canonical commit."
+      "limit": "A SQLite-backed atomic commit candidate now exists under open draft PR #33 and has a passing focused test run. It is stacked on open draft PR #31 and is not merged into main; production store integration, externally authenticated trust/revocation, and full-system write-path enforcement are not established."
     },
     {
       "id": "CLAIM-006",
@@ -70,6 +70,18 @@
       "state": "MISSING",
       "evidence": [],
       "limit": "Do not publish adoption or revenue claims unless authorized records substantiate them."
+    },
+    {
+      "id": "CLAIM-009",
+      "claim": "The current SQLite atomic-commit candidate passes its focused Ω³, reflexive-assurance, and commit-boundary test suite.",
+      "state": "VERIFIED",
+      "evidence": [
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/actions/runs/38049067564",
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/actions/runs/38049067566",
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/actions/runs/38049067592",
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/pull/33"
+      ],
+      "limit": "The focused workflow reported 54 tests passed at commit a7052357428e30e4632c8d7643597e8be9fd1669. This verifies the tested SQLite reference slice only; PR #33 is draft, not merged, and this does not prove production trust, database operations outside the tested SQLite boundary, external side-effect idempotency, or complete protected-write-path coverage."
     }
   ]
 }
