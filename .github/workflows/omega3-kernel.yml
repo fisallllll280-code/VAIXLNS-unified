@@ -8,6 +8,7 @@ on:
       - "canon/assurance/**"
       - "tests/test_omega3_kernel.py"
       - "tests/test_omega3_assurance.py"
+      - "tests/test_omega3_commit.py"
       - "docs/architecture/OMEGA3_SOVEREIGN_REALITY_KERNEL_V1.md"
       - ".github/workflows/omega3-kernel.yml"
   push:
@@ -32,4 +33,4 @@ jobs:
       - name: Install test runner
         run: python -m pip install --upgrade pytest
       - name: Ω³ kernel and reflexive assurance tests
-        run: python -m pytest -q tests/test_omega3_kernel.py tests/test_omega3_assurance.py
+        run: python -m pytest -q tests/test_omega3_kernel.py tests/test_omega3_assurance.py tests/test_omega3_commit.py
