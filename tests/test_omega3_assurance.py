@@ -71,11 +71,22 @@ def kernel_decision(inputs=None, **overrides):
     }
     options.update(overrides)
     decision = evaluate_transition(current, proposed, candidate, policy, **options)
-    evidence_verdicts = {
-        item.receipt_id: options["evidence_verifier"](item)
-        for item in candidate.evidence
-    } if options["evidence_verifier"] is not None else None
-    authority_verdict = options["authority_verifier"](candidate.grant) if options["authority_verifier"] is not None else None
+    if options["evidence_verifier"] is None:
+        evidence_verdicts = None
+    else:
+        evidence_verdicts = {}
+        for item in candidate.evidence:
+            try:
+                evidence_verdicts[item.receipt_id] = options["evidence_verifier"](item)
+            except Exception:
+                evidence_verdicts[item.receipt_id] = "ERROR"
+    if options["authority_verifier"] is None:
+        authority_verdict = "UNAVAILABLE"
+    else:
+        try:
+            authority_verdict = options["authority_verifier"](candidate.grant)
+        except Exception:
+            authority_verdict = "ERROR"
     return current, proposed, candidate, policy, decision, authority_verdict, evidence_verdicts
 
 
