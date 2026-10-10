@@ -15,8 +15,13 @@ on:
     branches: ["main", "feat/**", "integration/**"]
     paths:
       - "canon/kernel/**"
+      - "canon/assurance/**"
       - "tests/test_omega3_kernel.py"
+      - "tests/test_omega3_assurance.py"
+      - "tests/test_omega3_commit.py"
       - "docs/architecture/OMEGA3_SOVEREIGN_REALITY_KERNEL_V1.md"
+      - "docs/architecture/OMEGA3_REFLEXIVE_ASSURANCE_V1.md"
+      - "docs/architecture/OMEGA3_ATOMIC_REALITY_COMMIT_V1.md"
       - ".github/workflows/omega3-kernel.yml"
 
 permissions:
