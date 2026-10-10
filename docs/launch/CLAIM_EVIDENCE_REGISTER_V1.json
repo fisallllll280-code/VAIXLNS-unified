@@ -35,11 +35,13 @@
     {
       "id": "CLAIM-004",
       "claim": "The latest Ω³ plus reflexive assurance test suite passes.",
-      "state": "PARTIAL",
+      "state": "VERIFIED",
       "evidence": [
-        "https://github.com/fisallllll280-code/VAIXLNS-unified/actions"
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/actions/runs/38048590007",
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/actions/runs/38048587247",
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/actions/runs/38048587212"
       ],
-      "limit": "A prior kernel-only run passed. The latest assurance-enhanced head must have a completed successful dedicated workflow and required repository CI before this claim is promoted."
+      "limit": "The 40 focused Ω³ + reflexive-assurance tests passed at commit eca759f161bb6e62002fa6e8e4d41a5e5fba0848, and repository verification plus VX Invention Engine runs succeeded at that same head. This verifies the checked test scopes only; PR #31 remains unmerged and production enforcement is not established."
     },
     {
       "id": "CLAIM-005",
