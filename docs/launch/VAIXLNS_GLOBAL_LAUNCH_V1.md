@@ -72,11 +72,11 @@ Never claim:
 This is an experiment plan, not a reach or revenue forecast.
 
 ### Days 1–3 — Make the evidence surface launchable
-- [ ] Review and merge the Ω³/assurance PR only after CI and code review pass.
+- [ ] Review and merge the stacked Ω³/assurance and atomic-commit PRs only after CI, dependency order, and code review pass.
 - [ ] Publish a clear English overview with the problem, scope, quickstart, tests, and limitations.
-- [ ] Add a reproducible demo showing an admission candidate, a rejection, and an UNKNOWN or QUARANTINE case.
+- [ ] Add a reproducible demo showing an admission candidate, a rejection, an UNKNOWN/QUARANTINE case, and a SQLite atomic-commit receipt with rollback/retry behavior.
 - [ ] Confirm license, security-reporting route, project contact, and contribution guidance.
-- [ ] Record exact merge SHA and CI run URLs in the claim register.
+- [ ] Record exact merge SHA and CI run URLs in the claim register; keep PR #33 explicitly labelled as a candidate until merged.
 
 **Exit gate:** another engineer can clone, run, and reproduce the documented behavior.
 
