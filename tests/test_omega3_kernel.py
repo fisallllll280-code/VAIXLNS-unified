@@ -359,3 +359,26 @@ def test_audit_replay_refuses_invalid_chain():
     tampered = replace(event, previous_hash="f" * 64)
     with pytest.raises(ValueError, match="AUDIT_CHAIN_INVALID"):
         replay_audit_events((tampered,))
+
+
+def test_non_boolean_authority_verdict_quarantines():
+    result = evaluate(build_case(), authority_verifier=lambda _grant: "verified")
+    assert result.status is AdmissionStatus.QUARANTINE
+    assert "AUTHORITY_VERIFICATION_INDETERMINATE" in result.reasons
+
+
+def test_non_boolean_evidence_verdict_quarantines():
+    result = evaluate(build_case(), evidence_verifier=lambda _receipt: "verified")
+    assert result.status is AdmissionStatus.QUARANTINE
+    assert "EVIDENCE_VERIFICATION_INDETERMINATE:receipt-1" in result.reasons
+
+
+def test_untrusted_verifier_is_rejected_before_admission():
+    current, proposed, candidate, policy = build_case()
+    bad = replace(candidate.evidence[0], verifier_id="unlisted-witness")
+    result = evaluate_transition(
+        current, proposed, replace(candidate, evidence=(bad,)), policy,
+        evaluated_at=NOW, authority_verifier=auth_ok, evidence_verifier=evidence_ok,
+    )
+    assert result.status is AdmissionStatus.REJECT
+    assert "EVIDENCE_VERIFIER_NOT_TRUSTED:receipt-1" in result.reasons
