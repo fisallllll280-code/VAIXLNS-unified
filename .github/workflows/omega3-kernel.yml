@@ -5,7 +5,9 @@ on:
     branches: ["main"]
     paths:
       - "canon/kernel/**"
+      - "canon/assurance/**"
       - "tests/test_omega3_kernel.py"
+      - "tests/test_omega3_assurance.py"
       - "docs/architecture/OMEGA3_SOVEREIGN_REALITY_KERNEL_V1.md"
       - ".github/workflows/omega3-kernel.yml"
   push:
@@ -29,5 +31,5 @@ jobs:
           python-version: "3.11"
       - name: Install test runner
         run: python -m pip install --upgrade pytest
-      - name: Ω³ admission and audit-chain tests
-        run: python -m pytest -q tests/test_omega3_kernel.py
+      - name: Ω³ kernel and reflexive assurance tests
+        run: python -m pytest -q tests/test_omega3_kernel.py tests/test_omega3_assurance.py
