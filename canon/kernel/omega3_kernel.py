@@ -230,6 +230,10 @@ class AdmissionPolicy:
             object.__setattr__(self, name, tuple(getattr(self, name)))
         if not self.version:
             raise ValueError("POLICY_VERSION_REQUIRED")
+        thresholds = (self.required_evidence_count, self.minimum_distinct_source_ids,
+                      self.max_evidence_age_seconds, self.max_grant_age_seconds)
+        if any(isinstance(value, bool) or not isinstance(value, int) for value in thresholds):
+            raise ValueError("POLICY_THRESHOLDS_MUST_BE_INTEGERS")
         if self.required_evidence_count < 1 or self.minimum_distinct_source_ids < 1:
             raise ValueError("EVIDENCE_THRESHOLDS_MUST_BE_POSITIVE")
         if self.max_evidence_age_seconds <= 0 or self.max_grant_age_seconds <= 0:
@@ -427,14 +431,21 @@ def evaluate_transition(
             hard.append(f"EVIDENCE_DIGEST_INVALID:{receipt.receipt_id}")
         if not is_sha256(receipt.claim_digest) or receipt.claim_digest != proposed.digest:
             hard.append(f"EVIDENCE_NOT_BOUND_TO_PROPOSED_STATE:{receipt.receipt_id}")
-        if not receipt.receipt_id or not receipt.source_id or not receipt.verifier_id:
-            hard.append(f"EVIDENCE_IDENTITY_INCOMPLETE:{receipt.receipt_id}")
+        if (
+            not receipt.receipt_id or not receipt.source_id
+            or not receipt.verifier_id or not receipt.verification_ref
+        ):
+            hard.append(f"EVIDENCE_IDENTITY_OR_VERIFICATION_REFERENCE_INCOMPLETE:{receipt.receipt_id}")
 
     checks["action_allowed"] = candidate.action in policy.allowed_actions
     if not checks["action_allowed"]:
         hard.append("ACTION_NOT_ALLOWED_BY_POLICY")
 
     grant = candidate.grant
+    checks["grant_reference_present"] = bool(grant.grant_id and grant.verification_ref)
+    if not checks["grant_reference_present"]:
+        hard.append("GRANT_ID_OR_VERIFICATION_REFERENCE_MISSING")
+
     checks["grant_principal_trusted"] = grant.principal_id in policy.trusted_principals
     if not checks["grant_principal_trusted"]:
         hard.append("GRANT_PRINCIPAL_NOT_TRUSTED")
@@ -562,12 +573,12 @@ def evaluate_transition(
             continue
         try:
             verified = evidence_verifier(receipt)
-            if verified is None:
-                quarantine.append(f"EVIDENCE_VERIFICATION_INDETERMINATE:{receipt.receipt_id}")
+            if verified is True:
+                verified_receipts.append(receipt)
             elif verified is False:
                 hard.append(f"EVIDENCE_VERIFICATION_FAILED:{receipt.receipt_id}")
             else:
-                verified_receipts.append(receipt)
+                quarantine.append(f"EVIDENCE_VERIFICATION_INDETERMINATE:{receipt.receipt_id}")
         except Exception:
             quarantine.append(f"EVIDENCE_VERIFIER_ERROR:{receipt.receipt_id}")
 
@@ -674,10 +685,17 @@ class ProofDebtItem:
     def __post_init__(self) -> None:
         if not self.obligation_id:
             raise ValueError("OBLIGATION_ID_REQUIRED")
-        if not math.isfinite(self.risk_weight) or self.risk_weight < 0:
+        if (
+            isinstance(self.risk_weight, bool)
+            or not isinstance(self.risk_weight, (int, float))
+            or not math.isfinite(self.risk_weight)
+            or self.risk_weight < 0
+        ):
             raise ValueError("RISK_WEIGHT_MUST_BE_FINITE_AND_NONNEGATIVE")
         if (
-            not math.isfinite(self.unresolved_fraction)
+            isinstance(self.unresolved_fraction, bool)
+            or not isinstance(self.unresolved_fraction, (int, float))
+            or not math.isfinite(self.unresolved_fraction)
             or not 0 <= self.unresolved_fraction <= 1
         ):
             raise ValueError("UNRESOLVED_FRACTION_MUST_BE_IN_RANGE_0_1")
