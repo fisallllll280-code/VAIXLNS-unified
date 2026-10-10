@@ -28,10 +28,15 @@ The tested contract is intentionally bounded:
 - ADMIT means the transition is eligible for a separately controlled commit; it does not commit state.
 - The checker shares the same process and data types; it is not an independently deployed trust domain.
 - Verifier callbacks in the reference implementation are not a substitute for production signature verification.
-- Atomic persistence, revocation-aware trust, and complete enforcement of every protected write path remain open integration requirements.
+- A SQLite-backed atomic-commit candidate is available in draft PR #33. Its focused workflow reports 54 tests passed at commit a7052357428e30e4632c8d7643597e8be9fd1669.
+- PR #33 is stacked on PR #31; neither is merged into main. The atomicity claim is limited to the tested SQLite transaction boundary.
+- Production signatures/trust-root pinning, external revocation consistency, signed external checkpoints, and complete enforcement of every protected write path remain open integration requirements.
 
-Review the implementation and its limits:
+Review the kernel and its limits:
 https://github.com/fisallllll280-code/VAIXLNS-unified/pull/31
+
+Review the atomic-commit candidate and its limits:
+https://github.com/fisallllll280-code/VAIXLNS-unified/pull/33
 
 ## What we are looking for
 
@@ -50,7 +55,7 @@ This brief does not claim universal security, formal proof, production readiness
 ## Proposed next milestones
 
 1. Review and merge the bounded kernel only after all required checks and code review pass.
-2. Implement and test atomic compare-and-swap commit with crash recovery.
+2. Review and merge the SQLite compare-and-swap candidate only after all checks and crash-recovery tests pass.
 3. Add real signature verification, pinned trust roots, freshness and revocation checks, and independently retrievable verification receipts.
 4. Integrate the admission boundary with VX and ARC-X and test protected write paths for bypasses.
 5. Publish a pinned reproducible demo with accepted, rejected, and unknown/quarantined outcomes.
