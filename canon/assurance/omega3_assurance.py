@@ -222,6 +222,8 @@ class _ReferenceResult:
     status: AdmissionStatus
     findings: tuple[str, ...]
     warnings: tuple[str, ...]
+    authority_verified: bool | None = None
+    verified_evidence_ids: tuple[str, ...] = ()
 
 
 def _reference_adjudication(
@@ -317,18 +319,41 @@ def _reference_adjudication(
     except (TypeError, ValueError, OverflowError):
         failures.append("GRANT_TIME_INVALID")
 
-    # Reject any modeled contract violation before evaluating opaque verifier results.
+    # Reject modeled contract violations before checking opaque verifier results.
     if failures:
-        return _ReferenceResult(AdmissionStatus.REJECT, tuple(sorted(set(failures))), ())
+        return _ReferenceResult(
+            AdmissionStatus.REJECT, tuple(sorted(set(failures))), ()
+        )
 
     if authority_verdict is False:
-        return _ReferenceResult(AdmissionStatus.REJECT, ("AUTHORITY_VERIFICATION_FAILED",), ())
+        return _ReferenceResult(
+            AdmissionStatus.REJECT, ("AUTHORITY_VERIFICATION_FAILED",), (),
+            authority_verified=False,
+        )
     if authority_verdict is not True:
-        return _ReferenceResult(AdmissionStatus.QUARANTINE, ("AUTHORITY_VERIFICATION_INDETERMINATE",), ())
+        reason = (
+            "AUTHORITY_VERIFICATION_INDETERMINATE"
+            if authority_verdict is None or type(authority_verdict) is not bool
+            else "AUTHORITY_VERIFICATION_FAILED"
+        )
+        if reason == "AUTHORITY_VERIFICATION_FAILED":
+            return _ReferenceResult(
+                AdmissionStatus.REJECT, (reason,), (), authority_verified=False
+            )
+        return _ReferenceResult(
+            AdmissionStatus.QUARANTINE, (reason,), (), authority_verified=None
+        )
+
     if not candidate.evidence:
-        return _ReferenceResult(AdmissionStatus.UNKNOWN, ("VERIFIED_EVIDENCE_INSUFFICIENT",), ())
+        return _ReferenceResult(
+            AdmissionStatus.UNKNOWN, ("VERIFIED_EVIDENCE_INSUFFICIENT",), (),
+            authority_verified=True,
+        )
     if evidence_verdicts is None:
-        return _ReferenceResult(AdmissionStatus.QUARANTINE, ("EVIDENCE_VERIFIER_UNAVAILABLE",), ())
+        return _ReferenceResult(
+            AdmissionStatus.QUARANTINE, ("EVIDENCE_VERIFIER_UNAVAILABLE",), (),
+            authority_verified=True,
+        )
 
     for item in candidate.evidence:
         if item.verifier_id not in policy.trusted_verifiers:
@@ -350,18 +375,37 @@ def _reference_adjudication(
             failures.append(f"EVIDENCE_VERIFICATION_FAILED:{item.receipt_id}")
         elif verdict is True:
             accepted_receipts.append(item)
+        elif type(verdict) is str and verdict == "ERROR":
+            unresolved.append(f"EVIDENCE_VERIFIER_ERROR:{item.receipt_id}")
         else:
             unresolved.append(f"EVIDENCE_VERIFICATION_INDETERMINATE:{item.receipt_id}")
 
+    accepted_ids = tuple(item.receipt_id for item in accepted_receipts)
+    warning_ids = tuple(sorted(set(warnings)))
     if failures:
-        return _ReferenceResult(AdmissionStatus.REJECT, tuple(sorted(set(failures))), tuple(sorted(set(warnings))))
+        return _ReferenceResult(
+            AdmissionStatus.REJECT, tuple(sorted(set(failures))),
+            warning_ids, authority_verified=True, verified_evidence_ids=accepted_ids,
+        )
     if unresolved:
-        return _ReferenceResult(AdmissionStatus.QUARANTINE, tuple(sorted(set(unresolved))), tuple(sorted(set(warnings))))
+        return _ReferenceResult(
+            AdmissionStatus.QUARANTINE, tuple(sorted(set(unresolved))),
+            warning_ids, authority_verified=True, verified_evidence_ids=accepted_ids,
+        )
     if len(accepted_receipts) < policy.required_evidence_count:
-        return _ReferenceResult(AdmissionStatus.UNKNOWN, ("VERIFIED_EVIDENCE_INSUFFICIENT",), tuple(sorted(set(warnings))))
+        return _ReferenceResult(
+            AdmissionStatus.UNKNOWN, ("VERIFIED_EVIDENCE_INSUFFICIENT",),
+            warning_ids, authority_verified=True, verified_evidence_ids=accepted_ids,
+        )
     if len({item.source_id for item in accepted_receipts}) < policy.minimum_distinct_source_ids:
-        return _ReferenceResult(AdmissionStatus.UNKNOWN, ("VERIFIED_EVIDENCE_INSUFFICIENT",), tuple(sorted(set(warnings))))
-    return _ReferenceResult(AdmissionStatus.ADMIT, (), tuple(sorted(set(warnings))))
+        return _ReferenceResult(
+            AdmissionStatus.UNKNOWN, ("VERIFIED_EVIDENCE_INSUFFICIENT",),
+            warning_ids, authority_verified=True, verified_evidence_ids=accepted_ids,
+        )
+    return _ReferenceResult(
+        AdmissionStatus.ADMIT, (), warning_ids,
+        authority_verified=True, verified_evidence_ids=accepted_ids,
+    )
 
 
 _MISSING = object()
@@ -427,6 +471,10 @@ def check_admission_decision(
             ),
             "decision.evaluated_at": (normalized_time, decision.evaluated_at),
             "decision.commit_performed": (False, decision.commit_performed),
+            "decision.authority_verified": (expected.authority_verified, decision.authority_verified),
+            "decision.verified_evidence_ids": (expected.verified_evidence_ids, tuple(decision.verified_evidence_ids)),
+            "decision.reasons": (tuple(sorted(set(expected.findings))), tuple(sorted(set(decision.reasons)))),
+            "decision.warnings": (expected.warnings, tuple(sorted(set(decision.warnings)))),
             "decision.status": (expected_status, observed_status),
         }
         for path, (expected_value, observed_value) in expected_bindings.items():
