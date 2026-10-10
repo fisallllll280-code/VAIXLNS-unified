@@ -118,6 +118,7 @@ class CommitReceipt:
     prepared_assurance_digest: str
     commit_assurance_digest: str
     idempotency_key: str
+    verified_at: str
     committed_at: str
     event_sequence: int
     previous_event_hash: str
@@ -137,6 +138,7 @@ class CommitReceipt:
             "prepared_assurance_digest": self.prepared_assurance_digest,
             "commit_assurance_digest": self.commit_assurance_digest,
             "idempotency_key": self.idempotency_key,
+            "verified_at": self.verified_at,
             "committed_at": self.committed_at,
             "event_sequence": self.event_sequence,
             "previous_event_hash": self.previous_event_hash,
@@ -167,19 +169,22 @@ class CommitReceipt:
 class SQLiteAtomicCommitStore:
     """Durable state store with atomic compare-and-swap and idempotent commits.
 
-    The caller must supply the exact current/proposed state and a prepared
-    admission/assurance pair. Immediately before writing, the store re-evaluates
-    the transition with live verifier callbacks and checks it through the
-    separate assurance code path. The database transaction then compares the
-    stored pre-state digest and revision before updating state, commit receipt,
-    and event chain in one transaction.
+    The store uses a configured clock rather than accepting commit time from a
+    request. It re-evaluates the transition with live verifier callbacks, then
+    checks state revision/digest and commits state, receipt, and event together.
 
     External verifier state cannot be transactionally locked by SQLite. Production
     adapters must use short-lived signed receipts, pinned trust roots, revocation
     epochs, and a trust service whose consistency guarantees are documented.
     """
 
-    def __init__(self, database_path: str, *, timeout_seconds: float = 5.0) -> None:
+    def __init__(
+        self,
+        database_path: str,
+        *,
+        timeout_seconds: float = 5.0,
+        clock: Callable[[], datetime] | None = None,
+    ) -> None:
         if not isinstance(database_path, str) or not database_path:
             raise ValueError("DATABASE_PATH_REQUIRED")
         if (
@@ -190,6 +195,7 @@ class SQLiteAtomicCommitStore:
         ):
             raise ValueError("TIMEOUT_MUST_BE_POSITIVE_AND_FINITE")
         self.database_path = database_path
+        self._clock = clock or (lambda: datetime.now(timezone.utc))
         self._lock = RLock()
         self._connection = sqlite3.connect(
             database_path,
@@ -444,7 +450,6 @@ class SQLiteAtomicCommitStore:
         prepared_assurance: AssuranceReceipt,
         *,
         idempotency_key: str,
-        committed_at: str,
         authority_verifier: AuthorityVerifier | None,
         evidence_verifier: EvidenceVerifier | None,
         fault_hook: Callable[[str], None] | None = None,
@@ -452,7 +457,7 @@ class SQLiteAtomicCommitStore:
         """Revalidate then atomically compare-and-swap state + receipt + event chain."""
         if not isinstance(idempotency_key, str) or not idempotency_key.strip():
             raise ValueError("IDEMPOTENCY_KEY_REQUIRED")
-        normalized_commit_time = _utc_text(committed_at)
+        verification_time = _utc_text(self._clock().isoformat())
         self._validate_prepared(
             current, proposed, candidate, prepared_decision, prepared_assurance
         )
@@ -462,7 +467,7 @@ class SQLiteAtomicCommitStore:
         # is bounded by the verifier's documented receipt/epoch guarantees.
         live_decision, live_assurance = self._run_live_assurance(
             current, proposed, candidate, policy,
-            committed_at=normalized_commit_time,
+            committed_at=verification_time,
             authority_verifier=authority_verifier,
             evidence_verifier=evidence_verifier,
         )
@@ -505,18 +510,42 @@ class SQLiteAtomicCommitStore:
             if row["state_json"] != canonical_json(current.to_payload()):
                 raise StoreIntegrityError("CANONICAL_STATE_PAYLOAD_MISMATCH")
 
-            # Recheck local temporal boundaries immediately before write.
+            # Recheck local temporal boundaries against the store clock immediately before write.
+            normalized_commit_time = _utc_text(self._clock().isoformat())
             now = _utc(normalized_commit_time)
             grant = candidate.grant
-            if not (_utc(grant.issued_at) <= now < _utc(grant.expires_at)):
+            try:
+                issued = _utc(grant.issued_at)
+                expires = _utc(grant.expires_at)
+            except (TypeError, ValueError, OverflowError) as exc:
                 raise CommitRejected(
-                    "AUTHORITY_GRANT_EXPIRED_BEFORE_COMMIT",
+                    "AUTHORITY_GRANT_TIME_INVALID_AT_COMMIT",
+                    decision=live_decision, assurance=live_assurance,
+                ) from exc
+            if (
+                not (issued <= now < expires)
+                or (now - issued).total_seconds() > policy.max_grant_age_seconds
+            ):
+                raise CommitRejected(
+                    "AUTHORITY_GRANT_WINDOW_CLOSED_BEFORE_COMMIT",
                     decision=live_decision, assurance=live_assurance,
                 )
             for item in candidate.evidence:
-                if _utc(item.expires_at) <= now:
+                try:
+                    observed = _utc(item.observed_at)
+                    evidence_expires = _utc(item.expires_at)
+                except (TypeError, ValueError, OverflowError) as exc:
                     raise CommitRejected(
-                        f"EVIDENCE_EXPIRED_BEFORE_COMMIT:{item.receipt_id}",
+                        f"EVIDENCE_TIME_INVALID_AT_COMMIT:{item.receipt_id}",
+                        decision=live_decision, assurance=live_assurance,
+                    ) from exc
+                if (
+                    evidence_expires <= now
+                    or observed > now
+                    or (now - observed).total_seconds() > policy.max_evidence_age_seconds
+                ):
+                    raise CommitRejected(
+                        f"EVIDENCE_NOT_CURRENT_AT_COMMIT:{item.receipt_id}",
                         decision=live_decision, assurance=live_assurance,
                     )
 
@@ -548,6 +577,7 @@ class SQLiteAtomicCommitStore:
                 "prepared_assurance_digest": prepared_assurance.receipt_digest,
                 "commit_assurance_digest": live_assurance.receipt_digest,
                 "idempotency_key": idempotency_key,
+                "verified_at": live_decision.evaluated_at,
                 "committed_at": normalized_commit_time,
                 "previous_event_hash": previous_event_hash,
             }
@@ -564,6 +594,7 @@ class SQLiteAtomicCommitStore:
                 prepared_assurance_digest=prepared_assurance.receipt_digest,
                 commit_assurance_digest=live_assurance.receipt_digest,
                 idempotency_key=idempotency_key,
+                verified_at=live_decision.evaluated_at,
                 committed_at=normalized_commit_time,
                 event_sequence=event_sequence,
                 previous_event_hash=previous_event_hash,
