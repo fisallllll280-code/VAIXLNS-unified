@@ -331,15 +331,12 @@ def _reference_adjudication(
             authority_verified=False,
         )
     if authority_verdict is not True:
-        reason = (
-            "AUTHORITY_VERIFICATION_INDETERMINATE"
-            if authority_verdict is None or type(authority_verdict) is not bool
-            else "AUTHORITY_VERIFICATION_FAILED"
-        )
-        if reason == "AUTHORITY_VERIFICATION_FAILED":
-            return _ReferenceResult(
-                AdmissionStatus.REJECT, (reason,), (), authority_verified=False
-            )
+        if type(authority_verdict) is str and authority_verdict == "UNAVAILABLE":
+            reason = "AUTHORITY_VERIFIER_UNAVAILABLE"
+        elif type(authority_verdict) is str and authority_verdict == "ERROR":
+            reason = "AUTHORITY_VERIFIER_ERROR"
+        else:
+            reason = "AUTHORITY_VERIFICATION_INDETERMINATE"
         return _ReferenceResult(
             AdmissionStatus.QUARANTINE, (reason,), (), authority_verified=None
         )
@@ -427,15 +424,22 @@ def check_admission_decision(
     counterexamples: list[CounterexampleReceipt] = []
     try:
         normalized_time = _utc_text(evaluated_at)
+        def verdict_tag(value: Any) -> Any:
+            if value is True or value is False or value is None:
+                return value
+            if type(value) is str and value in {"UNAVAILABLE", "ERROR"}:
+                return value
+            return {"indeterminate_type": type(value).__name__}
+
         input_digest = _hash({
             "current": _state_body(current),
             "proposed": _state_body(proposed),
             "candidate": _candidate_body(candidate),
             "policy": _policy_body(policy),
             "evaluated_at": normalized_time,
-            "authority_verdict": authority_verdict if authority_verdict in (True, False, None) else repr(type(authority_verdict).__name__),
+            "authority_verdict": verdict_tag(authority_verdict),
             "evidence_verdicts": {
-                key: value if value in (True, False, None) else repr(type(value).__name__)
+                key: verdict_tag(value)
                 for key, value in sorted((evidence_verdicts or {}).items())
             },
         })
