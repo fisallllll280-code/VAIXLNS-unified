@@ -232,3 +232,42 @@ def test_policy_version_mismatch_is_not_admissible():
     )
     assert decision.status is AdmissionStatus.REJECT
     assert receipt.verdict is AssuranceVerdict.CONSISTENT_NON_ADMISSIBLE
+
+
+def test_checker_detects_forged_authority_verdict_field():
+    values = kernel_decision()
+    forged = replace(values[4], authority_verified=False)
+    receipt = check(values, decision=forged)
+    assert receipt.verdict is AssuranceVerdict.DIVERGENT
+    assert "BINDING_MISMATCH:decision.authority_verified" in receipt.findings
+
+
+def test_checker_detects_missing_verified_evidence_ids():
+    values = kernel_decision()
+    forged = replace(values[4], verified_evidence_ids=())
+    receipt = check(values, decision=forged)
+    assert receipt.verdict is AssuranceVerdict.DIVERGENT
+    assert "BINDING_MISMATCH:decision.verified_evidence_ids" in receipt.findings
+
+
+def test_checker_detects_warning_tampering():
+    values = kernel_decision()
+    current, proposed, candidate, policy = case()
+    from dataclasses import replace as dc_replace
+    stale = dc_replace(
+        candidate.evidence[0],
+        observed_at="2026-10-10T08:00:00Z",
+        expires_at="2026-10-10T09:00:00Z",
+    )
+    candidate = dc_replace(candidate, evidence=(stale,))
+    decision = evaluate_transition(
+        current, proposed, candidate, policy, evaluated_at=NOW,
+        authority_verifier=lambda _grant: True, evidence_verifier=lambda _item: True,
+    )
+    forged = replace(decision, warnings=())
+    receipt = check_admission_decision(
+        current, proposed, candidate, policy, forged, evaluated_at=NOW,
+        authority_verdict=True, evidence_verdicts={"receipt-1": True},
+    )
+    assert receipt.verdict is AssuranceVerdict.DIVERGENT
+    assert "BINDING_MISMATCH:decision.warnings" in receipt.findings
