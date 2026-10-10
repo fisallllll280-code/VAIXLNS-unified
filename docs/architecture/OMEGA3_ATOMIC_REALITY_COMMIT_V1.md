@@ -10,14 +10,17 @@ event row in a single SQLite transaction. The commit operation uses BEGIN IMMEDI
 checks the exact expected revision and state digest, performs a conditional
 compare-and-swap update, and writes its event and idempotency record before COMMIT.
 
-The live admission evaluator and reflexive checker run immediately before the
-database transaction. During that transaction, the stored state is compared with
-the exact pre-state supplied by the caller; another writer that wins first causes
-StaleStateError. Verifier callbacks are not run while holding the database write
-lock, to avoid blocking the database on remote verification latency. Consequently,
-external trust revocation cannot be made atomic with SQLite: production adapters
-must define revocation-epoch and short-lived-attestation guarantees and document
-the remaining time-of-check/time-of-use window.
+The store's configured clock supplies verification and commit timestamps;
+the API does not accept a caller-selected commit time. The live admission evaluator
+and reflexive checker run immediately before the database transaction. During that
+transaction, the stored state is compared with the exact pre-state supplied by the
+caller; another writer that wins first causes StaleStateError. The transaction
+reads the store clock again and rejects grants/evidence that have expired or become
+stale before the state update. Verifier callbacks are not run while holding the
+database write lock, to avoid blocking on remote latency. External trust revocation
+still cannot be made atomic with SQLite: production adapters must define
+revocation-epoch and short-lived-attestation guarantees and document the remaining
+time-of-check/time-of-use window.
 
 ## Required preflight
 
