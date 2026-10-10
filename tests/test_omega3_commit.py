@@ -107,7 +107,10 @@ def build_package(result_tag="candidate"):
 
 def commit_package(store, package, *, key="idempotency-1", committed_at=COMMITTED_AT, **kwargs):
     current, proposed, candidate, policy, decision, assurance = package
-    store.initialize_state(current, initialized_at=PREPARED_AT)
+    try:
+        store.read_state(current.object_id)
+    except KeyError:
+        store.initialize_state(current, initialized_at=PREPARED_AT)
     return store.commit(
         current, proposed, candidate, policy, decision, assurance,
         idempotency_key=key,
