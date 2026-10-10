@@ -1,0 +1,33 @@
+name: Omega3 Sovereign Reality Kernel
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "canon/kernel/**"
+      - "tests/test_omega3_kernel.py"
+      - "docs/architecture/OMEGA3_SOVEREIGN_REALITY_KERNEL_V1.md"
+      - ".github/workflows/omega3-kernel.yml"
+  push:
+    branches: ["main", "feat/**", "integration/**"]
+    paths:
+      - "canon/kernel/**"
+      - "tests/test_omega3_kernel.py"
+      - "docs/architecture/OMEGA3_SOVEREIGN_REALITY_KERNEL_V1.md"
+      - ".github/workflows/omega3-kernel.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  omega3-kernel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install test runner
+        run: python -m pip install --upgrade pytest
+      - name: Ω³ admission and audit-chain tests
+        run: python -m pytest -q tests/test_omega3_kernel.py
