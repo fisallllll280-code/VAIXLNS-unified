@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from datetime import datetime, timezone
 import json
 import sqlite3
 import pytest
@@ -27,6 +28,11 @@ from canon.kernel.omega3_kernel import (
 PREPARED_AT = "2026-10-10T12:00:00Z"
 COMMITTED_AT = "2026-10-10T12:05:00Z"
 OBJECT_ID = "VS.81000.SUB.01"
+
+
+def make_store(path):
+    fixed_clock = lambda: datetime.fromisoformat(COMMITTED_AT.replace("Z", "+00:00"))
+    return SQLiteAtomicCommitStore(path, clock=fixed_clock)
 
 
 def build_package(result_tag="candidate"):
@@ -105,7 +111,7 @@ def build_package(result_tag="candidate"):
     return current, proposed, candidate, policy, decision, assurance
 
 
-def commit_package(store, package, *, key="idempotency-1", committed_at=COMMITTED_AT, **kwargs):
+def commit_package(store, package, *, key="idempotency-1", **kwargs):
     current, proposed, candidate, policy, decision, assurance = package
     try:
         store.read_state(current.object_id)
@@ -114,7 +120,6 @@ def commit_package(store, package, *, key="idempotency-1", committed_at=COMMITTE
     return store.commit(
         current, proposed, candidate, policy, decision, assurance,
         idempotency_key=key,
-        committed_at=committed_at,
         authority_verifier=kwargs.get("authority_verifier", lambda _grant: True),
         evidence_verifier=kwargs.get("evidence_verifier", lambda _receipt: True),
         fault_hook=kwargs.get("fault_hook"),
@@ -124,7 +129,7 @@ def commit_package(store, package, *, key="idempotency-1", committed_at=COMMITTE
 def test_commit_atomically_updates_state_receipt_and_event_chain(tmp_path):
     path = str(tmp_path / "state.db")
     package = build_package()
-    with SQLiteAtomicCommitStore(path) as store:
+    with make_store(path) as store:
         receipt, live_decision, live_assurance = commit_package(store, package)
         stored = store.read_state(OBJECT_ID)
         assert stored.digest == package[1].digest
@@ -150,7 +155,7 @@ def verify_receipt_pair(receipt, decision, assurance):
 
 def test_commit_requires_live_verifiers_even_if_preflight_was_admissible(tmp_path):
     package = build_package()
-    with SQLiteAtomicCommitStore(str(tmp_path / "state.db")) as store:
+    with make_store(str(tmp_path / "state.db")) as store:
         current = package[0]
         store.initialize_state(current, initialized_at=PREPARED_AT)
         with pytest.raises(CommitRejected, match="LIVE_ADMISSION_OR_ASSURANCE_GATE_FAILED"):
@@ -159,7 +164,7 @@ def test_commit_requires_live_verifiers_even_if_preflight_was_admissible(tmp_pat
 
 def test_expired_or_failed_live_evidence_cannot_be_committed(tmp_path):
     package = build_package()
-    with SQLiteAtomicCommitStore(str(tmp_path / "state.db")) as store:
+    with make_store(str(tmp_path / "state.db")) as store:
         with pytest.raises(CommitRejected):
             commit_package(store, package, evidence_verifier=lambda _receipt: False)
         # The prepared state is still genesis even though commit was rejected.
@@ -168,7 +173,7 @@ def test_expired_or_failed_live_evidence_cannot_be_committed(tmp_path):
 
 def test_retry_with_same_idempotency_key_returns_original_commit_receipt(tmp_path):
     package = build_package()
-    with SQLiteAtomicCommitStore(str(tmp_path / "state.db")) as store:
+    with make_store(str(tmp_path / "state.db")) as store:
         first, _, _ = commit_package(store, package, key="retry-key")
         second, _, _ = commit_package(store, package, key="retry-key")
         assert second == first
@@ -179,7 +184,7 @@ def test_retry_with_same_idempotency_key_returns_original_commit_receipt(tmp_pat
 def test_same_idempotency_key_cannot_be_reused_for_a_different_transition(tmp_path):
     package = build_package("first")
     alternative = build_package("different")
-    with SQLiteAtomicCommitStore(str(tmp_path / "state.db")) as store:
+    with make_store(str(tmp_path / "state.db")) as store:
         first, _, _ = commit_package(store, package, key="reused-key")
         with pytest.raises(IdempotencyConflictError):
             commit_package(store, alternative, key="reused-key")
@@ -190,7 +195,7 @@ def test_same_idempotency_key_cannot_be_reused_for_a_different_transition(tmp_pa
 def test_concurrent_stale_transition_loses_compare_and_swap(tmp_path):
     first_package = build_package("winner")
     second_package = build_package("loser")
-    with SQLiteAtomicCommitStore(str(tmp_path / "state.db")) as store:
+    with make_store(str(tmp_path / "state.db")) as store:
         commit_package(store, first_package, key="winner-key")
         with pytest.raises(StaleStateError):
             commit_package(store, second_package, key="loser-key")
@@ -201,7 +206,7 @@ def test_concurrent_stale_transition_loses_compare_and_swap(tmp_path):
 @pytest.mark.parametrize("stage", ["after_state_update", "after_event_insert", "after_receipt_insert"])
 def test_injected_crash_rolls_back_state_receipt_and_event_together(tmp_path, stage):
     package = build_package()
-    with SQLiteAtomicCommitStore(str(tmp_path / "state.db")) as store:
+    with make_store(str(tmp_path / "state.db")) as store:
         def crash(current_stage):
             if current_stage == stage:
                 raise RuntimeError(f"injected crash at {stage}")
@@ -217,7 +222,7 @@ def test_injected_crash_rolls_back_state_receipt_and_event_together(tmp_path, st
 
 def test_live_policy_rejection_does_not_mutate_state(tmp_path):
     package = build_package()
-    with SQLiteAtomicCommitStore(str(tmp_path / "state.db")) as store:
+    with make_store(str(tmp_path / "state.db")) as store:
         with pytest.raises(CommitRejected):
             commit_package(store, package, authority_verifier=lambda _grant: False)
         assert store.read_state(OBJECT_ID).digest == package[0].digest
@@ -228,13 +233,12 @@ def test_modified_prepared_assurance_is_rejected(tmp_path):
     from dataclasses import replace as dc_replace
     package = list(build_package())
     package[5] = dc_replace(package[5], expected_status=AdmissionStatus.REJECT.value)
-    with SQLiteAtomicCommitStore(str(tmp_path / "state.db")) as store:
+    with make_store(str(tmp_path / "state.db")) as store:
         store.initialize_state(package[0], initialized_at=PREPARED_AT)
         with pytest.raises(CommitRejected, match="PREPARED_ASSURANCE_INVALID"):
             store.commit(
                 *package[:5], package[5],
                 idempotency_key="bad-assurance",
-                committed_at=COMMITTED_AT,
                 authority_verifier=lambda _grant: True,
                 evidence_verifier=lambda _receipt: True,
             )
@@ -244,7 +248,7 @@ def test_modified_prepared_assurance_is_rejected(tmp_path):
 def test_event_chain_detects_payload_tampering(tmp_path):
     package = build_package()
     path = str(tmp_path / "state.db")
-    with SQLiteAtomicCommitStore(path) as store:
+    with make_store(path) as store:
         commit_package(store, package)
         store._connection.execute(
             "UPDATE commit_events SET event_payload = ? WHERE object_id = ? AND sequence = 1",
@@ -257,7 +261,7 @@ def test_event_chain_detects_payload_tampering(tmp_path):
 
 def test_state_write_cannot_overwrite_genesis(tmp_path):
     package = build_package()
-    with SQLiteAtomicCommitStore(str(tmp_path / "state.db")) as store:
+    with make_store(str(tmp_path / "state.db")) as store:
         store.initialize_state(package[0], initialized_at=PREPARED_AT)
         with pytest.raises(Exception, match="OBJECT_ALREADY_INITIALIZED"):
             store.initialize_state(package[1], initialized_at=COMMITTED_AT)
@@ -267,13 +271,12 @@ def test_store_rejects_unknown_admission_before_db_mutation(tmp_path):
     current, proposed, candidate, policy, decision, assurance = build_package()
     from dataclasses import replace as dc_replace
     unknown = dc_replace(decision, status=AdmissionStatus.UNKNOWN)
-    with SQLiteAtomicCommitStore(str(tmp_path / "state.db")) as store:
+    with make_store(str(tmp_path / "state.db")) as store:
         store.initialize_state(current, initialized_at=PREPARED_AT)
         with pytest.raises(CommitRejected, match="PREPARED_DECISION_NOT_ADMISSIBLE"):
             store.commit(
                 current, proposed, candidate, policy, unknown, assurance,
                 idempotency_key="unknown-key",
-                committed_at=COMMITTED_AT,
                 authority_verifier=lambda _grant: True,
                 evidence_verifier=lambda _receipt: True,
             )
