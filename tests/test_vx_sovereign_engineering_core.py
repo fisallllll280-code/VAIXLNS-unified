@@ -9,7 +9,7 @@ from vx.sovereign_engineering_core import (
 def records():
     return [
         {"system_id": "VX", "revision": "abc123", "capabilities": ["execute", "verify"],
-         "dependencies": ["ARC-X"], "conflicts": ["LEGACY-VX"], "state": "CI_VERIFIED"},
+         "dependencies": ["ARC-X"], "conflicts": ["VX-Legacy"], "state": "CI_VERIFIED"},
         {"system_id": "VX-Legacy", "revision": "def456", "capabilities": ["execute"]},
     ]
 
