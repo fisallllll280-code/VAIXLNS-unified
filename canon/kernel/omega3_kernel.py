@@ -526,13 +526,13 @@ def evaluate_transition(
     checks["authority_verifier_available"] = True
     try:
         result = authority_verifier(grant)
-        if result is None:
+        if result is not True and result is not False:
             quarantine.append("AUTHORITY_VERIFICATION_INDETERMINATE")
             checks["authority_signature_valid"] = False
             return decision(AdmissionStatus.QUARANTINE)
         authority_verified = result is True
         checks["authority_signature_valid"] = authority_verified
-        if not authority_verified:
+        if result is False:
             hard.append("AUTHORITY_VERIFICATION_FAILED")
             return decision(AdmissionStatus.REJECT)
     except Exception:
