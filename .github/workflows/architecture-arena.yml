@@ -1,0 +1,54 @@
+name: Architecture Arena Conformance
+
+on:
+  pull_request:
+    paths:
+      - "evolution/architecture_arena.py"
+      - "evolution/architecture_lab.py"
+      - "evolution/self_discovery.py"
+      - "innovation_control/**"
+      - "tests/test_architecture_arena.py"
+      - "tests/test_innovation_control.py"
+      - "tests/test_self_discovery.py"
+      - "docs/engineering/ARCHITECTURE_ARENA_RUNNER_V1.md"
+      - ".github/workflows/architecture-arena.yml"
+  push:
+    branches: [main]
+    paths:
+      - "evolution/architecture_arena.py"
+      - "evolution/architecture_lab.py"
+      - "evolution/self_discovery.py"
+      - "innovation_control/**"
+      - "tests/test_architecture_arena.py"
+      - "tests/test_innovation_control.py"
+      - "tests/test_self_discovery.py"
+      - ".github/workflows/architecture-arena.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused-conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile the orchestration module
+        run: python -m py_compile evolution/architecture_arena.py
+
+      - name: Test architecture experiment orchestration
+        run: python -m unittest discover -s tests -p "test_architecture_arena.py" -v
+
+      - name: Recheck self-discovery regression surface
+        run: python -m unittest discover -s tests -p "test_self_discovery.py" -v
+
+      - name: Recheck innovation control and promotion gates
+        run: python -m unittest discover -s tests -p "test_innovation_control.py" -v
