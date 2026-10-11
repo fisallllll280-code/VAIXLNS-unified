@@ -36,7 +36,7 @@ A token is optional for public repositories, but authenticated access is recomme
 
 - Retrieved source URLs are pinned to immutable commit SHAs.
 - Stable workspace IDs use the repository/path; a changed file records the previous SHA and marks `changed_since_last_sync`.
-- Previous matches not returned by a successful sync are marked `stale` for the selected repositories instead of being silently deleted.
+- Previous matches not returned by a successful sync are marked `stale` only within the same stable query result set; unrelated query results are not invalidated.
 - A failed provider/API request aborts before the local catalogue transaction.
 - Rebuilding the local filesystem index preserves connector-managed GitHub rows.
 - A stale source remains historical evidence; it must not be treated as current without a successful refresh.
