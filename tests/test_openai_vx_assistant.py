@@ -79,6 +79,7 @@ class OpenAIVXAssistantTests(unittest.TestCase):
         assistant = VXOpenAIAssistant(client=SimpleNamespace(responses=fake), max_tool_calls=1)
         self.assertEqual(assistant.respond("List available capabilities."), "There are three read-only tools.")
         self.assertEqual(fake.calls[1]["previous_response_id"], "resp-1")
+        self.assertIn("VX remains the authority", fake.calls[1]["instructions"])
         self.assertEqual(fake.calls[1]["input"][0]["call_id"], "call-1")
 
     def test_tool_call_budget_is_enforced(self):
