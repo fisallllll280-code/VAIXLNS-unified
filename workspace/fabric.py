@@ -164,14 +164,22 @@ class WorkspaceFabric:
                     skipped += 1
         now = utcnow()
         with self._connect() as db:
-            db.execute("DELETE FROM sources")
             for source_id, rel, kind, title, digest, size, modified, status, duplicate_of, text in scanned:
                 db.execute("""INSERT INTO sources
                   (id,path,kind,title,content_sha256,content,bytes,modified_at,indexed_at,status,duplicate_of,metadata_json)
-                  VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""",
+                  VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+                  ON CONFLICT(id) DO UPDATE SET path=excluded.path,kind=excluded.kind,title=excluded.title,
+                  content_sha256=excluded.content_sha256,content=excluded.content,bytes=excluded.bytes,
+                  modified_at=excluded.modified_at,indexed_at=excluded.indexed_at,status=excluded.status,
+                  duplicate_of=excluded.duplicate_of,metadata_json=excluded.metadata_json""",
                   (source_id, rel, kind, title, digest, text, size, modified, now, status, duplicate_of, "{}"))
-            # Remove dangling links when a source disappeared from the scan.
-            db.execute("""DELETE FROM session_sources WHERE source_id NOT IN (SELECT id FROM sources)""")
+            # Delete only sources that disappeared; stable source IDs preserve session lineage.
+            active_ids = [row[0] for row in scanned]
+            if active_ids:
+                placeholders = ",".join("?" for _ in active_ids)
+                db.execute(f"DELETE FROM sources WHERE id NOT IN ({placeholders})", active_ids)
+            else:
+                db.execute("DELETE FROM sources")
         return {"ok": True, "scanned": seen_files, "indexed": indexed, "skipped": skipped,
                 "duplicates": duplicate_count, "roots": len(roots), "indexed_at": now}
 
@@ -194,7 +202,7 @@ class WorkspaceFabric:
         if not terms:
             return []
         limit = max(1, min(int(limit), 20))
-        clauses = " AND ".join(["lower(content) LIKE ?" for _ in terms])
+        clauses = " OR ".join(["lower(content) LIKE ?" for _ in terms])
         args = ["%" + term + "%" for term in terms]
         with self._connect() as db:
             rows = db.execute(f"""SELECT id,path,title,content_sha256,status,duplicate_of,content
