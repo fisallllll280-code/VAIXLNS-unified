@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-TEXT_SUFFIXES = {".md", ".txt", ".rst", ".py", ".json", ".yaml", ".yml", ".toml"}
+TEXT_SUFFIXES = {".md", ".txt", ".rst", ".py", ".json", ".jsonl", ".yaml", ".yml", ".toml"}
 SKIP_DIRS = {".git", ".venv", "venv", "__pycache__", "node_modules", "dist", "build"}
 SKIP_NAMES = {".env", ".env.local", "id_rsa", "id_ed25519", "credentials.json"}
 SECRET_PATTERNS = [
