@@ -202,12 +202,12 @@ class WorkspaceFabric:
         with self._connect() as db:
             if query and query.strip():
                 needle = "%" + query.strip()[:200] + "%"
-                rows = db.execute("""SELECT id,path,kind,title,content_sha256,bytes,modified_at,indexed_at,status,duplicate_of
+                rows = db.execute("""SELECT id,path,kind,title,content_sha256,bytes,modified_at,indexed_at,status,duplicate_of,metadata_json
                   FROM sources WHERE path LIKE ? ESCAPE '\\' OR title LIKE ? ESCAPE '\\' OR content LIKE ? ESCAPE '\\'
                   ORDER BY CASE status WHEN 'indexed' THEN 0 ELSE 1 END, path LIMIT ?""",
                   (needle, needle, needle, limit)).fetchall()
             else:
-                rows = db.execute("""SELECT id,path,kind,title,content_sha256,bytes,modified_at,indexed_at,status,duplicate_of
+                rows = db.execute("""SELECT id,path,kind,title,content_sha256,bytes,modified_at,indexed_at,status,duplicate_of,metadata_json
                   FROM sources ORDER BY path LIMIT ?""", (limit,)).fetchall()
         return [dict(row) for row in rows]
 
