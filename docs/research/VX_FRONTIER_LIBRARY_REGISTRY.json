@@ -1,0 +1,175 @@
+{
+  "schema_version": "1.0.0",
+  "system": "VAIXLNS/VX",
+  "purpose": "Curated candidates for controlled capability federation; not a declaration that packages are installed or production-approved.",
+  "policy": {
+    "default_state": "DISCOVERED",
+    "allowed_states": [
+      "DISCOVERED",
+      "REVIEW_REQUIRED",
+      "SANDBOXED",
+      "TESTED",
+      "ADMITTED",
+      "REJECTED"
+    ],
+    "rules": [
+      "Do not mass-install candidates.",
+      "Verify exact package/repository, license, maintainer provenance, release health, vulnerabilities, supported runtimes, and transitive dependencies before adoption.",
+      "Pin versions and hashes in a lockfile after acceptance.",
+      "External code runs with least privilege and without production credentials during evaluation.",
+      "Adoption requires tests, failure/recovery evidence, and an explicit authority decision."
+    ]
+  },
+  "candidates": [
+    {
+      "id": "LIB-MCP-PYTHON",
+      "name": "Model Context Protocol Python SDK",
+      "package": "mcp",
+      "url": "https://github.com/modelcontextprotocol/python-sdk",
+      "role": "MCP client/server adapter foundation",
+      "priority": "P0",
+      "status": "DISCOVERED",
+      "adoption": "Build a minimal read-only VX adapter; do not enable arbitrary tools."
+    },
+    {
+      "id": "LIB-OPENAI-AGENTS",
+      "name": "OpenAI Agents SDK",
+      "package": "openai-agents",
+      "url": "https://github.com/openai/openai-agents-python",
+      "role": "Optional agent orchestration, tools, handoffs, guardrails and tracing",
+      "priority": "P1",
+      "status": "REVIEW_REQUIRED",
+      "adoption": "Keep behind provider adapter; do not replace VX governance/runtime."
+    },
+    {
+      "id": "LIB-OPENTELEMETRY",
+      "name": "OpenTelemetry Python",
+      "packages": [
+        "opentelemetry-api",
+        "opentelemetry-sdk"
+      ],
+      "url": "https://github.com/open-telemetry/opentelemetry-python",
+      "role": "Distributed traces and instrumentation",
+      "priority": "P0",
+      "status": "REVIEW_REQUIRED",
+      "adoption": "Add instrumentation at boundaries; avoid leaking prompts, secrets, or payloads."
+    },
+    {
+      "id": "LIB-TEMPORAL",
+      "name": "Temporal Python SDK",
+      "package": "temporalio",
+      "url": "https://github.com/temporalio/sdk-python",
+      "role": "Durable long-running workflow execution and retries",
+      "priority": "P1",
+      "status": "REVIEW_REQUIRED",
+      "adoption": "Evaluate for durable orchestration; keep authority and proof gates in VX."
+    },
+    {
+      "id": "LIB-LANGGRAPH",
+      "name": "LangGraph",
+      "package": "langgraph",
+      "url": "https://github.com/langchain-ai/langgraph",
+      "role": "Stateful graph-based agent workflows",
+      "priority": "P1",
+      "status": "REVIEW_REQUIRED",
+      "adoption": "Compare with existing VX state machine before adding; avoid duplicate orchestration."
+    },
+    {
+      "id": "LIB-PYDANTIC",
+      "name": "Pydantic",
+      "package": "pydantic",
+      "url": "https://github.com/pydantic/pydantic",
+      "role": "Typed contracts and schema validation",
+      "priority": "P0",
+      "status": "REVIEW_REQUIRED",
+      "adoption": "Already declared in requirements; audit pinned range and schemas before upgrades."
+    },
+    {
+      "id": "LIB-FASTAPI",
+      "name": "FastAPI",
+      "package": "fastapi",
+      "url": "https://github.com/fastapi/fastapi",
+      "role": "HTTP API surface for reviewed adapters",
+      "priority": "P0",
+      "status": "REVIEW_REQUIRED",
+      "adoption": "Already declared in requirements; expose only authenticated, scoped endpoints."
+    },
+    {
+      "id": "LIB-NETWORKX",
+      "name": "NetworkX",
+      "package": "networkx",
+      "url": "https://github.com/networkx/networkx",
+      "role": "Dependency and capability graph analysis",
+      "priority": "P1",
+      "status": "REVIEW_REQUIRED",
+      "adoption": "Already declared in requirements; benchmark graph size and determinism requirements."
+    },
+    {
+      "id": "LIB-PYTEST",
+      "name": "pytest",
+      "package": "pytest",
+      "url": "https://github.com/pytest-dev/pytest",
+      "role": "Test runner and plugin ecosystem",
+      "priority": "P0",
+      "status": "REVIEW_REQUIRED",
+      "adoption": "Already declared; retain unittest compatibility until CI migration is deliberate."
+    },
+    {
+      "id": "LIB-RUFF",
+      "name": "Ruff",
+      "package": "ruff",
+      "url": "https://github.com/astral-sh/ruff",
+      "role": "Fast linting and formatting",
+      "priority": "P1",
+      "status": "DISCOVERED",
+      "adoption": "Evaluate in a dedicated quality-tool change; avoid overlapping formatter churn."
+    },
+    {
+      "id": "LIB-HYPOTHESIS",
+      "name": "Hypothesis",
+      "package": "hypothesis",
+      "url": "https://github.com/HypothesisWorks/hypothesis",
+      "role": "Property-based and generative testing",
+      "priority": "P1",
+      "status": "DISCOVERED",
+      "adoption": "Use for canonicalization, state transitions, policy gates, and replay invariants."
+    },
+    {
+      "id": "LIB-OPA",
+      "name": "Open Policy Agent",
+      "package": null,
+      "url": "https://github.com/open-policy-agent/opa",
+      "role": "External policy evaluation",
+      "priority": "P1",
+      "status": "REVIEW_REQUIRED",
+      "adoption": "Existing adapter claims must be validated; policy server availability is not implied."
+    },
+    {
+      "id": "LIB-NATS",
+      "name": "NATS Server / JetStream",
+      "package": null,
+      "url": "https://github.com/nats-io/nats-server",
+      "role": "Messaging and durable streams",
+      "priority": "P1",
+      "status": "REVIEW_REQUIRED",
+      "adoption": "Require a real multi-node test for claims about replication or failover."
+    },
+    {
+      "id": "LIB-SEMgrep",
+      "name": "Semgrep",
+      "package": null,
+      "url": "https://github.com/semgrep/semgrep",
+      "role": "Static security analysis",
+      "priority": "P1",
+      "status": "DISCOVERED",
+      "adoption": "Start with CI scanning and reviewed rules; findings require triage."
+    }
+  ],
+  "claude_code": {
+    "role": "External engineering operator, not canonical authority",
+    "project_instructions": "/CLAUDE.md",
+    "integration_plan": "/docs/integrations/CLAUDE_CODE_VX.md",
+    "active_mcp_server": false,
+    "note": "No live Claude Code connection or MCP server is claimed by this registry."
+  }
+}

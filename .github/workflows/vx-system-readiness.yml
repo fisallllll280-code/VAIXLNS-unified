@@ -1,0 +1,120 @@
+name: VX System Readiness
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 4 * * 1"
+
+concurrency:
+  group: vx-system-readiness-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  system-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Compile Python modules
+        run: python -m compileall -q .
+
+      - name: Validate JSON files
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          files = sorted(
+              p for p in Path(".").rglob("*.json")
+              if not any(part in {".git", ".venv", "venv", "__pycache__"} for part in p.parts)
+          )
+          failures = []
+          for path in files:
+              try:
+                  with path.open(encoding="utf-8") as stream:
+                      json.load(stream)
+              except Exception as exc:
+                  failures.append(f"{path}: {exc}")
+          print(f"Validated {len(files)} JSON files.")
+          if failures:
+              raise SystemExit("\n".join(failures))
+          PY
+
+      - name: Run complete unittest suite and capture evidence
+        shell: bash
+        run: |
+          set +e
+          python -m unittest discover -s tests -p 'test_*.py' -v 2>&1 | tee vx-system-test-results.txt
+          status=${PIPESTATUS[0]}
+          printf '%s\n' "$status" > vx-system-test-exit-code.txt
+          exit "$status"
+
+      - name: Emit readiness evidence manifest
+        if: always()
+        env:
+          VX_REPOSITORY: ${{ github.repository }}
+          VX_COMMIT: ${{ github.sha }}
+          VX_REF: ${{ github.ref }}
+          VX_RUN_ID: ${{ github.run_id }}
+          VX_RUN_ATTEMPT: ${{ github.run_attempt }}
+          VX_EVENT: ${{ github.event_name }}
+          VX_JOB_STATUS: ${{ job.status }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          manifest = {
+              "system": "VAIXLNS/VX",
+              "evidence_type": "CI_SYSTEM_READINESS",
+              "repository": os.environ["VX_REPOSITORY"],
+              "commit": os.environ["VX_COMMIT"],
+              "ref": os.environ["VX_REF"],
+              "run_id": os.environ["VX_RUN_ID"],
+              "run_attempt": os.environ["VX_RUN_ATTEMPT"],
+              "event": os.environ["VX_EVENT"],
+              "job_status_at_manifest_step": os.environ["VX_JOB_STATUS"],
+              "checks": {
+                  "python_compileall": "completed_before_manifest",
+                  "json_syntax_validation": "completed_before_manifest",
+                  "unittest_suite": "see vx-system-test-exit-code.txt and vx-system-test-results.txt"
+              },
+              "scope_note": "CI evidence only; does not assert external services or production readiness."
+          }
+          Path("vx-system-readiness.json").write_text(
+              json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload system readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vx-system-readiness-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            vx-system-test-results.txt
+            vx-system-test-exit-code.txt
+            vx-system-readiness.json
+          if-no-files-found: warn
+          retention-days: 30
