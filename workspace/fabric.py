@@ -182,13 +182,18 @@ class WorkspaceFabric:
                   modified_at=excluded.modified_at,indexed_at=excluded.indexed_at,status=excluded.status,
                   duplicate_of=excluded.duplicate_of,metadata_json=excluded.metadata_json""",
                   (source_id, rel, kind, title, digest, text, size, modified, now, status, duplicate_of, "{}"))
-            # Delete only sources that disappeared; stable source IDs preserve session lineage.
+            # Remove only filesystem-managed rows. Connector-managed remote records
+            # survive local re-indexing and retain their provenance/session links.
             active_ids = [row[0] for row in scanned]
+            managed_kinds = ("repository_file", "external_local_file")
             if active_ids:
                 placeholders = ",".join("?" for _ in active_ids)
-                db.execute(f"DELETE FROM sources WHERE id NOT IN ({placeholders})", active_ids)
+                db.execute(
+                    f"DELETE FROM sources WHERE kind IN (?, ?) AND id NOT IN ({placeholders})",
+                    (*managed_kinds, *active_ids),
+                )
             else:
-                db.execute("DELETE FROM sources")
+                db.execute("DELETE FROM sources WHERE kind IN (?, ?)", managed_kinds)
         return {"ok": True, "scanned": seen_files, "indexed": indexed, "skipped": skipped,
                 "duplicates": duplicate_count, "roots": len(roots), "indexed_at": now}
 
