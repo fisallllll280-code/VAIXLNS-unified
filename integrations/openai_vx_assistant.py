@@ -179,6 +179,7 @@ class VXOpenAIAssistant:
             tool_calls_used += len(calls)
             response = self.client.responses.create(
                 model=self.model,
+                instructions=instructions,
                 previous_response_id=getattr(response, "id", None),
                 input=outputs,
                 tools=TOOLS,
