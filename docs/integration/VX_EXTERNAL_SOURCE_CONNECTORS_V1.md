@@ -28,7 +28,7 @@ A token is optional for public repositories, but authenticated access is recomme
 }
 ```
 
-- `query`: 3–300 characters; searches paths/content in the selected repositories.
+- `query`: 3–300 characters; ranks candidate paths and scores their content in the selected repositories.
 - `repositories`: optional subset of `VAIXLNS_GITHUB_REPOSITORIES`; max 5 per request.
 - Result includes file URLs, commit revisions, SHA-256, count of changed files, and duplicate count.
 
@@ -55,3 +55,8 @@ A token is optional for public repositories, but authenticated access is recomme
 Run `pytest -q tests/test_workspace_connectors.py tests/test_workspace_fabric.py`.
 
 Tests cover allowlist enforcement, commit-pinned provenance metadata, API configuration errors, and preservation of external source rows during local re-indexing. Live GitHub connectivity requires a separate environment-level integration test with network access and configured repositories.
+
+
+## Local archive workflow
+
+The workspace index endpoint also accepts an explicit list of local archive directories in `extra_roots`. Each path must be inside the configured repository root or within a path listed in `VAIXLNS_ALLOWED_SOURCE_ROOTS` (platform path separator-delimited). The dashboard's **فهرسة الأرشيف** control submits those paths to the same guarded indexer. This supports locally available text exports and archives; it does not grant access to ChatGPT's private conversation store or other provider accounts.
