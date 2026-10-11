@@ -80,3 +80,27 @@ def test_connector_api_requires_explicit_allowlist(tmp_path, monkeypatch):
                            json={"query": "architecture provenance"})
     assert response.status_code == 422
     assert response.json()["detail"] == "GITHUB_REPOSITORY_ALLOWLIST_NOT_CONFIGURED"
+
+
+
+def test_freshness_only_marks_the_same_query_result_set_stale(tmp_path, monkeypatch):
+    from workspace.fabric import WorkspaceFabric
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    fabric = WorkspaceFabric(tmp_path / "workspace.db", repo)
+    monkeypatch.setenv("VAIXLNS_GITHUB_REPOSITORIES", "owner/project")
+    monkeypatch.setattr("workspace.connectors.GitHubRepositorySearchProvider", FakeProvider)
+    sync_github_sources(fabric, "architecture provenance")
+    source = fabric.list_sources(query="architecture.md")[0]
+
+    class EmptyProvider:
+        def __init__(self, **kwargs):
+            pass
+
+        def search(self, query, scopes):
+            return ()
+
+    monkeypatch.setattr("workspace.connectors.GitHubRepositorySearchProvider", EmptyProvider)
+    sync_github_sources(fabric, "architecture provenance")
+    stale = next(row for row in fabric.list_sources() if row["id"] == source["id"])
+    assert stale["status"] == "stale"
