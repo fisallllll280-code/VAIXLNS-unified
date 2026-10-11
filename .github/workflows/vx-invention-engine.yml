@@ -77,7 +77,7 @@ jobs:
               "evidence_policy": "test evidence is uploaded even when tests fail"
           }
           Path("vx_lifecycle_manifest.json").write_text(
-              json.dumps(manifest, ensure_ascii=False, indent=2) + "\\n",
+              json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
               encoding="utf-8",
           )
           PY
@@ -102,7 +102,7 @@ jobs:
               artifact_payload=payload,
           )
           Path("vx_provenance.json").write_text(
-              json.dumps(manifest.to_dict(), ensure_ascii=False, indent=2) + "\\n",
+              json.dumps(manifest.to_dict(), ensure_ascii=False, indent=2) + "\n",
               encoding="utf-8",
           )
           PY
