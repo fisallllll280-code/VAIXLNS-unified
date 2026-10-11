@@ -15,7 +15,7 @@ section[hidden]{display:none}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin
 </style>
 </head>
 <body>
-<header><div><h1>VX Workspace Fabric</h1><div class="muted">مصادر مترابطة · جلسات مستمرة · فهرسة محلية · وكلاء متخصصون · شاشة تشغيل موحدة</div></div><div><div id="health" class="status">جارٍ فحص واجهة العمل…</div><div class="code">/dashboard · /workspace/*</div></div></header>
+<header><div><h1>VX Workspace Fabric</h1><div class="muted">مصادر مترابطة · جلسات مستمرة · فهرسة محلية · وكلاء متخصصون · شاشة تشغيل موحدة</div></div><div><div id="health" class="status">جارٍ فحص واجهة العمل…</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><input id="apiToken" type="password" autocomplete="off" placeholder="رمز API عند تفعيل المصادقة" aria-label="رمز API"><button id="applyToken">تطبيق الرمز</button></div><div class="code">/dashboard · /workspace/* · لا يُحفظ الرمز</div></div></header>
 <main>
 <div id="stats" class="stats"></div>
 <div class="note">الفهرسة محلية ولا ترسل الملفات إلى مزوّد خارجي. الوكلاء المسجلون ينفذون حاليًا تحليلاً محليًا محدودًا؛ لا يُدّعى اتصال نموذج حي أو تعديل تلقائي للملفات.</div>
@@ -30,7 +30,7 @@ section[hidden]{display:none}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin
 </main>
 <script>
 const $=id=>document.getElementById(id);let selectedSession=null;let agents=[];let sessions=[];
-async function api(path,opts={}){const r=await fetch(path,{...opts,headers:{'Content-Type':'application/json',...(opts.headers||{})}});let body;try{body=await r.json()}catch{body=await r.text()}if(!r.ok)throw new Error(typeof body==='object'?(body.detail||JSON.stringify(body)):body);return body}
+async function api(path,opts={}){const token=$('apiToken')?.value?.trim();const auth=token?{'Authorization':'Bearer '+token}:{};const r=await fetch(path,{...opts,headers:{'Content-Type':'application/json',...auth,...(opts.headers||{})}});let body;try{body=await r.json()}catch{body=await r.text()}if(!r.ok)throw new Error(typeof body==='object'?(body.detail||JSON.stringify(body)):body);return body}
 function node(tag,text,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e}
 function item(title,desc,meta){const e=node('div',undefined,'item');e.append(node('h3',title));if(desc)e.append(node('div',desc,'muted'));if(meta)e.append(node('div',meta,'code'));return e}
 function showError(err){$('health').textContent='تعذر إكمال الطلب: '+err.message}
@@ -48,5 +48,5 @@ $('rebuild').onclick=async()=>{try{$('rebuild').disabled=true;$('indexStatus').t
 $('newSession').onsubmit=async e=>{e.preventDefault();try{const d=await api('/workspace/sessions',{method:'POST',body:JSON.stringify({title:$('sessionTitle').value})});$('sessionTitle').value='';await loadSessions();await openSession(d.session.id)}catch(err){showError(err)}};
 $('newMessage').onsubmit=async e=>{e.preventDefault();if(!selectedSession)return showError(new Error('اختر جلسة أولًا'));try{await api('/workspace/sessions/'+encodeURIComponent(selectedSession)+'/messages',{method:'POST',body:JSON.stringify({role:'user',content:$('messageText').value})});$('messageText').value='';await openSession(selectedSession);await loadSessions();await loadOverview()}catch(err){showError(err)}};
 $('runAgent').onsubmit=async e=>{e.preventDefault();try{const d=await api('/workspace/agents/run',{method:'POST',body:JSON.stringify({agent_id:$('agentId').value,task:$('agentTask').value,session_id:$('agentSession').value||null})});$('agentResult').textContent=JSON.stringify(d,null,2);await loadSessions();await loadOverview()}catch(err){showError(err)}};
-$('refreshAll').onclick=refreshAll;refreshAll();
+$('refreshAll').onclick=refreshAll;$('applyToken').onclick=()=>refreshAll();refreshAll();
 </script></body></html>
