@@ -1,3 +1,4 @@
+import pytest
 from fastapi.testclient import TestClient
 
 from api.server import create_app
@@ -66,3 +67,21 @@ def test_workspace_api_and_dashboard(tmp_path):
     assert message.status_code == 201
     assert message.json()["source_ids"]
     assert client.get(f"/workspace/sessions/{session_id}").json()["sources"]
+
+
+
+def test_external_roots_require_explicit_allowlist(tmp_path, monkeypatch):
+    repo = tmp_path / "repo"
+    outside = tmp_path / "private"
+    repo.mkdir()
+    outside.mkdir()
+    (outside / "notes.txt").write_text("private external notes", encoding="utf-8")
+    fabric = WorkspaceFabric(tmp_path / "workspace.db", repo)
+
+    with pytest.raises(ValueError, match="EXTRA_SOURCE_ROOT_NOT_ALLOWLISTED"):
+        fabric.rebuild_index([str(outside)])
+
+    monkeypatch.setenv("VAIXLNS_ALLOWED_SOURCE_ROOTS", str(outside))
+    result = fabric.rebuild_index([str(outside)])
+    assert result["roots"] == 2
+    assert any(source["path"].startswith("external-local/1/") for source in fabric.list_sources())
