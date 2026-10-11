@@ -48,7 +48,7 @@ jobs:
 
       - name: Upload test evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vx-test-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
@@ -109,7 +109,7 @@ jobs:
 
       - name: Upload lifecycle manifest
         if: always() && hashFiles('vx_lifecycle_manifest.json') != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vx-lifecycle-manifest-${{ github.run_id }}-${{ github.run_attempt }}
           path: vx_lifecycle_manifest.json
@@ -117,7 +117,7 @@ jobs:
 
       - name: Upload provenance manifest
         if: always() && hashFiles('vx_provenance.json') != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vx-provenance-manifest-${{ github.run_id }}-${{ github.run_attempt }}
           path: vx_provenance.json
