@@ -128,7 +128,9 @@ def sync_github_sources(
                     meta = json.loads(row["metadata_json"] or "{}")
                 except (TypeError, json.JSONDecodeError):
                     meta = {}
-                if meta.get("repository") == repo:
+                # Query-scoped results must not make unrelated repository files stale.
+                # Only refresh the previous result set for this exact stable query ID.
+                if meta.get("repository") == repo and meta.get("query_id") == query.query_id:
                     meta["stale_since_sync"] = now
                     db.execute("UPDATE sources SET status='stale',metadata_json=? WHERE id=?",
                                (_json(meta), row["id"]))
