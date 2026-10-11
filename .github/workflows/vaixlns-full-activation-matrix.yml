@@ -1,0 +1,150 @@
+name: VAIXLNS Full Activation Matrix
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 4 * * 1"
+
+concurrency:
+  group: vaixlns-full-matrix-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  full-activation-matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Compile Python sources
+        run: python -m compileall -q .
+
+      - name: Validate all repository JSON files
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          files = sorted(
+              p for p in Path(".").rglob("*.json")
+              if not any(part in {".git", ".venv", "venv", "__pycache__"} for part in p.parts)
+          )
+          errors = []
+          for path in files:
+              try:
+                  json.loads(path.read_text(encoding="utf-8"))
+              except Exception as exc:
+                  errors.append(f"{path}: {exc}")
+          print(f"Validated {len(files)} JSON files.")
+          if errors:
+              raise SystemExit("\n".join(errors))
+          PY
+
+      - name: Run complete Python test suite and preserve evidence
+        shell: bash
+        run: |
+          set +e
+          python -m unittest discover -s tests -p 'test_*.py' -v 2>&1 | tee vx-full-test-results.txt
+          status=${PIPESTATUS[0]}
+          printf '%s\n' "$status" > vx-full-test-exit-code.txt
+          exit "$status"
+
+      - name: Generate canonical activation and readiness matrix
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          source = Path("config/canonical_decomposition.v1.json")
+          data = json.loads(source.read_text(encoding="utf-8"))
+          planes = data.get("planes", [])
+          matrix = {
+              "system": data.get("canonical_system", "VAIXLNS"),
+              "matrix_version": "1.0",
+              "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+              "repository": os.environ.get("GITHUB_REPOSITORY"),
+              "commit": os.environ.get("GITHUB_SHA"),
+              "workflow_run_id": os.environ.get("GITHUB_RUN_ID"),
+              "workflow_run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+              "trigger": os.environ.get("GITHUB_EVENT_NAME"),
+              "policy": "report canonical declared status; never promote partial/specification to implemented",
+              "plane_count": len(planes),
+              "planes": [
+                  {
+                      "id": p.get("id"),
+                      "name": p.get("name"),
+                      "declared_status": p.get("status", "unknown"),
+                      "owners": p.get("owners", []),
+                      "responsibilities": p.get("responsibility", []),
+                      "activation_claim": "not_claimed_by_ci"
+                  }
+                  for p in planes
+              ],
+              "implementation_delta_count": len(data.get("implementation_delta", [])),
+              "implementation_delta": data.get("implementation_delta", []),
+              "external_runtime_activation": "not_attempted; requires configured endpoints, credentials, and explicit deployment authority"
+          }
+          Path("vx-activation-matrix.json").write_text(
+              json.dumps(matrix, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          lines = [
+              "# VAIXLNS Full Activation Matrix",
+              "",
+              f"- Commit: `{matrix['commit']}`",
+              f"- Workflow run: `{matrix['workflow_run_id']}`",
+              f"- Canonical planes inventoried: **{matrix['plane_count']}**",
+              f"- Implementation-delta entries: **{matrix['implementation_delta_count']}**",
+              "",
+              "> This report records declared implementation states. CI passing does not activate remote services or convert partial/specification states to implemented.",
+              "",
+              "| Plane | Declared state | Activation claim |",
+              "|---|---|---|",
+          ]
+          for p in matrix["planes"]:
+              lines.append(f"| {p['id']} — {p['name']} | {p['declared_status']} | {p['activation_claim']} |")
+          lines += [
+              "",
+              "## External activation boundary",
+              "",
+              matrix["external_runtime_activation"],
+              "",
+          ]
+          Path("vx-activation-matrix.md").write_text("\n".join(lines), encoding="utf-8")
+          print(f"Generated matrix for {len(planes)} canonical planes.")
+          PY
+
+      - name: Upload full activation and test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vaixlns-activation-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            vx-full-test-results.txt
+            vx-full-test-exit-code.txt
+            vx-activation-matrix.json
+            vx-activation-matrix.md
+          if-no-files-found: warn
+          retention-days: 30
