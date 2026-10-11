@@ -12,7 +12,7 @@ networkx>=3.0
 
 # Async & Concurrency
 aiofiles>=23.0
-aioredis>=2.0
+aioredis>=2.0.1
 
 # API & Web
 fastapi>=0.100
