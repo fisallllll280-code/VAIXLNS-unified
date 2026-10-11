@@ -188,7 +188,10 @@ def create_app(db_path: str | Path = DB_PATH, workspace_root: str | Path | None 
         authorization: str | None = Header(default=None),
     ) -> dict[str, Any]:
         require_auth(authorization)
-        return workspace.rebuild_index(extra_roots=request.extra_roots)
+        try:
+            return workspace.rebuild_index(extra_roots=request.extra_roots)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from None
 
     @app.get("/workspace/sessions")
     def workspace_sessions(
