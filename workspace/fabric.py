@@ -187,7 +187,7 @@ class WorkspaceFabric:
         limit = max(1, min(int(limit), MAX_RESULTS))
         with self._connect() as db:
             if query and query.strip():
-                needle = "%" + query.strip()[:200].replace("%", "\\%").replace("_", "\\_") + "%"
+                needle = "%" + query.strip()[:200] + "%"
                 rows = db.execute("""SELECT id,path,kind,title,content_sha256,bytes,modified_at,indexed_at,status,duplicate_of
                   FROM sources WHERE path LIKE ? ESCAPE '\\' OR title LIKE ? ESCAPE '\\' OR content LIKE ? ESCAPE '\\'
                   ORDER BY CASE status WHEN 'indexed' THEN 0 ELSE 1 END, path LIMIT ?""",
