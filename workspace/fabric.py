@@ -110,18 +110,27 @@ class WorkspaceFabric:
 
     def rebuild_index(self, extra_roots: list[str] | None = None) -> dict[str, Any]:
         roots = [self.repo_root]
+        configured = [Path(item).expanduser().resolve() for item in
+                      os.getenv("VAIXLNS_ALLOWED_SOURCE_ROOTS", "").split(os.pathsep) if item.strip()]
         for item in extra_roots or []:
             candidate = Path(item).expanduser().resolve()
-            # Explicit extra roots are accepted only when the operator supplies them;
-            # they are recorded as external-local sources with a stable label.
-            if candidate.is_dir() and candidate not in roots:
+            if not candidate.is_dir():
+                raise ValueError("EXTRA_SOURCE_ROOT_NOT_FOUND")
+            try:
+                candidate.relative_to(self.repo_root)
+                allowed = True
+            except ValueError:
+                allowed = any(candidate == allowed_root or allowed_root in candidate.parents for allowed_root in configured)
+            if not allowed:
+                raise ValueError("EXTRA_SOURCE_ROOT_NOT_ALLOWLISTED")
+            if candidate not in roots:
                 roots.append(candidate)
         seen_files = 0
         indexed = 0
         skipped = 0
         duplicate_count = 0
         seen_hashes: dict[str, str] = {}
-        scanned: list[tuple[str, str, str, str, int, float, str, str | None, str]] = []
+        scanned: list[tuple[str, str, str, str, str, int, float, str, str | None, str]] = []
         for root_no, root in enumerate(roots):
             for path in root.rglob("*"):
                 if not path.is_file():
