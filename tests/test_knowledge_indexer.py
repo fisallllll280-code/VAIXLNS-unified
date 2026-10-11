@@ -8,8 +8,8 @@ def test_index_links_sources_and_explicit_session_exports_and_redacts_secrets(tm
     (tmp_path / "docs").mkdir()
     (tmp_path / "sessions").mkdir()
     (tmp_path / "docs" / "design.md").write_text("# VX design\nUse api_key=sk-abcdefghijklmnopqrstuvwxyz012345\n", encoding="utf-8")
-    (tmp_path / "sessions" / "session-001.json").write_text(
-        json.dumps({"session_id": "session-001", "summary": "Indexing and source links"}),
+    (tmp_path / "sessions" / "session-001.jsonl").write_text(
+        json.dumps({"session_id": "session-001", "summary": "Indexing and source links"}) + "\\n",
         encoding="utf-8",
     )
     (tmp_path / ".env").write_text("API_KEY=do-not-index", encoding="utf-8")
@@ -18,7 +18,7 @@ def test_index_links_sources_and_explicit_session_exports_and_redacts_secrets(tm
     assert index["record_count"] == 2
     assert output.exists()
     paths = {record["path"] for record in index["records"]}
-    assert paths == {"docs/design.md", "sessions/session-001.json"}
+    assert paths == {"docs/design.md", "sessions/session-001.jsonl"}
     doc = next(record for record in index["records"] if record["path"] == "docs/design.md")
     assert "sk-abcdefghijklmnopqrstuvwxyz012345" not in doc["excerpt"]
     assert "[REDACTED]" in doc["excerpt"]
