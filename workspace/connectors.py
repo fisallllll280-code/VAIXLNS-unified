@@ -43,7 +43,7 @@ def sync_github_sources(
     allowed = configured_github_repositories()
     if not allowed:
         raise ValueError("GITHUB_REPOSITORY_ALLOWLIST_NOT_CONFIGURED")
-    selected = tuple(dict.fromkeys(repositories or allowed))
+    selected = tuple(dict.fromkeys(repositories or allowed[:MAX_REPOSITORIES_PER_SYNC]))
     if not selected or len(selected) > MAX_REPOSITORIES_PER_SYNC:
         raise ValueError("GITHUB_REPOSITORY_COUNT_OUT_OF_RANGE")
     if set(selected) - set(allowed):
