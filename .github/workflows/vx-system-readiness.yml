@@ -57,7 +57,7 @@ jobs:
                   failures.append(f"{path}: {exc}")
           print(f"Validated {len(files)} JSON files.")
           if failures:
-              raise SystemExit("\\n".join(failures))
+              raise SystemExit("\n".join(failures))
           PY
 
       - name: Run complete unittest suite and capture evidence
@@ -66,7 +66,7 @@ jobs:
           set +e
           python -m unittest discover -s tests -p 'test_*.py' -v 2>&1 | tee vx-system-test-results.txt
           status=${PIPESTATUS[0]}
-          printf '%s\\n' "$status" > vx-system-test-exit-code.txt
+          printf '%s\n' "$status" > vx-system-test-exit-code.txt
           exit "$status"
 
       - name: Emit readiness evidence manifest
@@ -102,7 +102,7 @@ jobs:
               "scope_note": "CI evidence only; does not assert external services or production readiness."
           }
           Path("vx-system-readiness.json").write_text(
-              json.dumps(manifest, ensure_ascii=False, indent=2) + "\\n",
+              json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
               encoding="utf-8",
           )
           PY
