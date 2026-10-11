@@ -44,7 +44,7 @@ mypy>=1.4
 isort>=5.12
 
 # Documentation
-sphinx>=7.0
+sphinx>=9.1.0
 mkdocs>=1.4
 
 # Optional model and observability bridges
