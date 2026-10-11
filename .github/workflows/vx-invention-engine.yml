@@ -5,10 +5,20 @@ on:
     branches: [main, "feat/**"]
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "23 4 * * 1"
+
+concurrency:
+  group: vx-invention-engine-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   test-vx-invention-engine:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     permissions:
       contents: read
     steps:
@@ -19,6 +29,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
 
       - name: Install runtime test dependencies
         run: |
@@ -26,9 +38,27 @@ jobs:
           python -m pip install -r requirements.txt
 
       - name: Run invention/runtime tests
-        run: python -m unittest discover -s tests -p 'test_*.py' -v
+        shell: bash
+        run: |
+          set +e
+          python -m unittest discover -s tests -p 'test_*.py' -v 2>&1 | tee vx-test-results.txt
+          status=${PIPESTATUS[0]}
+          printf '%s\n' "$status" > vx-test-exit-code.txt
+          exit "$status"
+
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vx-test-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            vx-test-results.txt
+            vx-test-exit-code.txt
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Emit lifecycle manifest
+        if: success()
         run: |
           python - <<'PY'
           import json
@@ -41,15 +71,19 @@ jobs:
                   "verify", "promote", "execute", "record", "reuse", "evolve"
               ],
               "branch": os.environ.get("GITHUB_REF_NAME"),
-              "sha": os.environ.get("GITHUB_SHA")
+              "sha": os.environ.get("GITHUB_SHA"),
+              "workflow_run_id": os.environ.get("GITHUB_RUN_ID"),
+              "workflow_run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+              "evidence_policy": "test evidence is uploaded even when tests fail"
           }
           Path("vx_lifecycle_manifest.json").write_text(
-              json.dumps(manifest, ensure_ascii=False, indent=2) + "\\n",
+              json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
               encoding="utf-8",
           )
           PY
 
       - name: Emit internal provenance manifest
+        if: success()
         env:
           VX_REPOSITORY: ${{ github.repository }}
           VX_COMMIT: ${{ github.sha }}
@@ -68,19 +102,23 @@ jobs:
               artifact_payload=payload,
           )
           Path("vx_provenance.json").write_text(
-              json.dumps(manifest.to_dict(), ensure_ascii=False, indent=2) + "\\n",
+              json.dumps(manifest.to_dict(), ensure_ascii=False, indent=2) + "\n",
               encoding="utf-8",
           )
           PY
 
       - name: Upload lifecycle manifest
+        if: always() && hashFiles('vx_lifecycle_manifest.json') != ''
         uses: actions/upload-artifact@v4
         with:
-          name: vx-lifecycle-manifest
+          name: vx-lifecycle-manifest-${{ github.run_id }}-${{ github.run_attempt }}
           path: vx_lifecycle_manifest.json
+          retention-days: 30
 
       - name: Upload provenance manifest
+        if: always() && hashFiles('vx_provenance.json') != ''
         uses: actions/upload-artifact@v4
         with:
-          name: vx-provenance-manifest
+          name: vx-provenance-manifest-${{ github.run_id }}-${{ github.run_attempt }}
           path: vx_provenance.json
+          retention-days: 30
