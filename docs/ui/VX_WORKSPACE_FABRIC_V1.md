@@ -28,7 +28,7 @@ Stable source IDs are derived from relative paths. Re-indexing upserts existing 
 ## Scope and safety boundaries
 
 - Default scan root is the repository containing `api/server.py`; override with `VAIXLNS_REPO_ROOT`.
-- Optional roots can be submitted to the index rebuild endpoint, but are local filesystem paths supplied by the operator. No automatic network crawling is implemented.
+- Optional roots can be submitted to the index rebuild endpoint only if they are inside the repository root or are explicitly allowlisted in `VAIXLNS_ALLOWED_SOURCE_ROOTS` (absolute paths separated by the platform path separator). No automatic network crawling is implemented.
 - Only allowlisted text suffixes are scanned; common build/vendor directories and obvious secret files are skipped. Files larger than 1 MB and files containing common API-token assignment patterns are skipped.
 - This is a bounded local text index, not a vector database or a semantic embedding engine. Search matches terms and returns evidence excerpts; it does not prove semantic equivalence.
 - Ten specialist roles are registered. Their current `bounded_local_workflow` mode is a deterministic local workflow/search role, not a claim that ten autonomous model agents are running.
