@@ -202,7 +202,7 @@
   },
   "omega_2718": {
     "state": "PARTIAL",
-    "implementation": "Fail-closed evaluator and 16-layer boundary checks? no: eleven closure-layer checks are implemented and adversarial tests are present in PR #59.",
+    "implementation": "The evaluator checks eleven closure layers and has adversarial tests in PR #59; production cryptographic/trust infrastructure is still absent.",
     "requires_before_operational_closure": [
       "Production cryptographic signature verifier",
       "Out-of-band pinned canonical source hash and trust root",
