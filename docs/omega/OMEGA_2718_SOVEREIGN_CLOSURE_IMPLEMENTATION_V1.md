@@ -24,7 +24,7 @@ Turn the eleven HM-1 layers into an executable, reviewable acceptance gate. The 
 
 ## Trust and cryptographic boundary
 
-The caller must provide the trusted-root fingerprint separately from the evidence bundle and inject a real cryptographic verifier. If either is absent, the gate cannot close. The verifier must validate signature algorithms, key identity, revocation/trust chain, key usage, and signature encoding against an approved trust configuration. The repository includes only a synthetic verifier inside unit tests; it is explicitly test-only.
+The caller must provide both the canonical source hash and trusted-root fingerprint separately from the evidence bundle and inject a real cryptographic verifier. The supplied source hash must match the source reference in the constitutional binding. If either pin or the verifier is absent, the gate cannot close. The verifier must validate signature algorithms, key identity, revocation/trust chain, key usage, and signature encoding against an approved trust configuration. The repository includes only a synthetic verifier inside unit tests; it is explicitly test-only.
 
 The ledger verifier validates a signed hash chain supplied in the evidence. Storage-level append-only or WORM enforcement, key custody, trusted time, trusted-root distribution, and independent organizational identity must be supplied by the deployment environment and verified separately.
 
@@ -38,7 +38,7 @@ The phrase “every proof must itself be provable” is implemented as a bounded
 
 Run the new tests with:
 
-    python -m unittest tests.test_omega_2718_sovereign_closure
+    python -m unittest discover -s tests -p 'test_omega_2718_sovereign_closure.py'
 
 The existing repository CI remains the integration verifier. No result is accepted as VERIFIED until the new commit's CI has completed successfully and its test logs are inspected.
 
