@@ -138,23 +138,23 @@ def probe_target(
     environment = os.environ if env is None else env
     system_id = str(target.get("system_id", "UNKNOWN_SYSTEM"))
 
-    enabled_env = target.get("enabled_env")
-    if not _enabled(environment, str(enabled_env) if enabled_env else None):
-        return _result(system_id, "BLOCKED", "PROBE_NOT_ENABLED")
-
-    expected_identity = target.get("expected_identity")
-    expected_identity_env = target.get("expected_identity_env")
-    if expected_identity_env:
-        expected_identity = environment.get(str(expected_identity_env), "").strip()
-    if not isinstance(expected_identity, str) or not expected_identity:
-        return _result(system_id, "BLOCKED", "EXPECTED_SERVICE_IDENTITY_NOT_PINNED")
-
     url, error = _resolve_endpoint(target, environment)
     if error:
         state = "MISSING" if error == "ENDPOINT_NOT_CONFIGURED" else "BLOCKED"
         return _result(system_id, state, error)
     if not url or not _safe_url(url):
         return _result(system_id, "BLOCKED", "ENDPOINT_URL_INVALID", endpoint_configured=bool(url))
+
+    enabled_env = target.get("enabled_env")
+    if not _enabled(environment, str(enabled_env) if enabled_env else None):
+        return _result(system_id, "BLOCKED", "PROBE_NOT_ENABLED", endpoint_configured=True)
+
+    expected_identity = target.get("expected_identity")
+    expected_identity_env = target.get("expected_identity_env")
+    if expected_identity_env:
+        expected_identity = environment.get(str(expected_identity_env), "").strip()
+    if not isinstance(expected_identity, str) or not expected_identity:
+        return _result(system_id, "BLOCKED", "EXPECTED_SERVICE_IDENTITY_NOT_PINNED", endpoint_configured=True)
 
     timeout = min(max(float(timeout_seconds), 0.1), 10.0)
     max_bytes = min(max(int(max_response_bytes), 1), 1_000_000)
