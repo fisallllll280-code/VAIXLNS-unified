@@ -13,7 +13,13 @@ class ReadOnlyMCPBridgeTests(unittest.TestCase):
     def test_lists_only_read_only_tools(self):
         response = handle_message({"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
         names = {tool["name"] for tool in response["result"]["tools"]}
-        self.assertEqual(names, {"vx.health", "vx.status", "vx.capabilities.list"})
+        self.assertEqual(names, {
+            "vx.health",
+            "vx.status",
+            "vx.offices.list",
+            "vx.office.route.preview",
+            "vx.capabilities.list",
+        })
         self.assertFalse(any("write" in name or "shell" in name for name in names))
 
     def test_notifications_have_no_response(self):
@@ -42,6 +48,43 @@ class ReadOnlyMCPBridgeTests(unittest.TestCase):
             from integrations.mcp_server import _base_url
             with self.assertRaises(BridgeError):
                 _base_url()
+
+    def test_office_inventory_uses_fixed_authenticated_api_path(self):
+        from integrations import mcp_server
+
+        with patch.object(
+            mcp_server, "_request_json", return_value={"status": "PROPOSAL_ONLY"}
+        ) as request:
+            result = _tool_result("vx.offices.list", {})
+        self.assertIn("PROPOSAL_ONLY", result["content"][0]["text"])
+        request.assert_called_once_with("/offices", method="GET")
+
+    def test_office_route_preview_posts_only_typed_route_envelope(self):
+        from integrations import mcp_server
+
+        expected = {
+            "status": "HOLD",
+            "dispatch_allowed": False,
+            "external_calls_made": False,
+        }
+        args = {"office_id": "OFF-TEST", "intent": "Review readiness"}
+        with patch.object(mcp_server, "_request_json", return_value=expected) as request:
+            result = _tool_result("vx.office.route.preview", args)
+        self.assertIn('"dispatch_allowed": false', result["content"][0]["text"])
+        request.assert_called_once_with(
+            "/office-routing/preview",
+            method="POST",
+            payload=args,
+        )
+
+    def test_route_preview_rejects_extra_or_malformed_arguments(self):
+        with self.assertRaises(BridgeError):
+            _tool_result(
+                "vx.office.route.preview",
+                {"office_id": "OFF-TEST", "intent": "Review", "url": "https://example.com"},
+            )
+        with self.assertRaises(BridgeError):
+            _tool_result("vx.office.route.preview", {"office_id": "", "intent": "Review"})
 
 
 if __name__ == "__main__":
