@@ -21,9 +21,12 @@ def registry_fixture() -> dict:
         }],
         "systems": [{"system_id": "SYS-VAIXLNS", "status": "CANONICAL"}],
         "tool_integrations": [{
-            "tool_id": "TOOL-READ", "office_id": "OFF-TEST",
-            "owner_system_id": "SYS-VAIXLNS", "status": "SOURCE_IMPLEMENTED",
-            "access_mode": "READ_ONLY", "capabilities": ["read_status"],
+            "tool_id": "TOOL-READ", "name": "Read-only status", "kind": "source_script",
+            "office_id": "OFF-TEST", "owner_system_id": "SYS-VAIXLNS",
+            "status": "SOURCE_IMPLEMENTED", "access_mode": "READ_ONLY",
+            "capabilities": ["read_status"],
+            "contract": {"contract_id": "TEST-READ-V1", "version": "1.0.0"},
+            "source_refs": ["TEST-READ-SOURCE"],
         }],
     }
 
@@ -78,3 +81,15 @@ def test_duplicate_office_identity_rejected(tmp_path):
     data["offices"].append(dict(data["offices"][0]))
     with pytest.raises(OfficeRoutingError, match="OFFICE_REGISTRY_INVALID"):
         OfficeRoutingService(write_registry(tmp_path, data)).list_offices()
+
+
+
+def test_existing_external_integration_gate_quarantines_unpinned_tool(monkeypatch, tmp_path):
+    monkeypatch.setenv("VAIXLNS_OFFICE_ALLOWED_CAPABILITIES", "")
+    result = OfficeRoutingService(write_registry(tmp_path)).preview("OFF-TEST", "Read current status")
+    candidate = result["candidate_tools"][0]
+    assert candidate["integration_gate_state"] == "QUARANTINED"
+    assert "DEPENDENCY_FINGERPRINT_MISSING" in candidate["integration_gate_reasons"]
+    assert "ENVIRONMENT_FINGERPRINT_MISSING" in candidate["integration_gate_reasons"]
+    assert "CAPABILITY_FORBIDDEN:read_status" in candidate["integration_gate_reasons"]
+    assert result["dispatch_allowed"] is False
