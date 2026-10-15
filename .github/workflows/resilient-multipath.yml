@@ -1,0 +1,30 @@
+name: VX Resilient Multipath Tests
+
+on:
+  pull_request:
+    paths:
+      - "operations/resilient_multipath.py"
+      - "tests/test_resilient_multipath.py"
+      - "docs/operations/VX_RESILIENT_MULTIPATH_FABRIC.md"
+      - ".github/workflows/resilient-multipath.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "operations/resilient_multipath.py"
+      - "tests/test_resilient_multipath.py"
+      - ".github/workflows/resilient-multipath.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run isolated unit tests
+        run: python -m unittest tests.test_resilient_multipath
