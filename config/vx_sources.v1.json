@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0.0",
+  "purpose": "Canonical registry of repository knowledge sources. Entries are pointers, not proof of external connectivity.",
+  "sources": [
+    {
+      "id": "src-readme",
+      "kind": "repository_document",
+      "path": "README.md",
+      "title": "Repository overview",
+      "authority": "project",
+      "status": "tracked"
+    },
+    {
+      "id": "src-architecture",
+      "kind": "repository_collection",
+      "path": "docs/architecture/",
+      "title": "Architecture specifications",
+      "authority": "project",
+      "status": "tracked"
+    },
+    {
+      "id": "src-integrations",
+      "kind": "repository_collection",
+      "path": "docs/integration/",
+      "title": "Integration audits and contracts",
+      "authority": "project",
+      "status": "tracked"
+    },
+    {
+      "id": "src-integrations-guides",
+      "kind": "repository_collection",
+      "path": "docs/integrations/",
+      "title": "Provider and MCP integration guides",
+      "authority": "project",
+      "status": "tracked"
+    },
+    {
+      "id": "src-operations",
+      "kind": "repository_collection",
+      "path": "docs/operations/",
+      "title": "Operational runbooks",
+      "authority": "project",
+      "status": "tracked"
+    },
+    {
+      "id": "src-research",
+      "kind": "repository_collection",
+      "path": "docs/research/",
+      "title": "Research and frontier registry",
+      "authority": "research",
+      "status": "tracked"
+    },
+    {
+      "id": "src-config",
+      "kind": "repository_collection",
+      "path": "config/",
+      "title": "Machine-readable policies and schemas",
+      "authority": "policy",
+      "status": "tracked"
+    },
+    {
+      "id": "src-tests",
+      "kind": "repository_collection",
+      "path": "tests/",
+      "title": "Executable verification evidence",
+      "authority": "verification",
+      "status": "tracked"
+    },
+    {
+      "id": "src-sessions",
+      "kind": "session_collection",
+      "path": "sessions/",
+      "title": "Explicitly imported session exports",
+      "authority": "user_imported",
+      "status": "optional_not_assumed"
+    },
+    {
+      "id": "src-generated-index",
+      "kind": "generated_artifact",
+      "path": "var/knowledge/index.json",
+      "title": "Generated repository knowledge index",
+      "authority": "derived",
+      "status": "generated_not_committed"
+    }
+  ]
+}

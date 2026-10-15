@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VAIXLNS · VX Control Console</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#121a2d;--line:#27334b;--text:#e7edf7;--muted:#95a4bd;--accent:#83b7ff;--warn:#ffd28a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#172440 0,#0b1020 55%);color:var(--text);font:15px/1.5 system-ui,-apple-system,sans-serif}main{max-width:1280px;margin:auto;padding:28px 18px 56px}.eyebrow{letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-size:12px;font-weight:700}h1{font-size:clamp(28px,4vw,44px);line-height:1.1;margin:.5rem 0}p{color:var(--muted)}.top{display:flex;justify-content:space-between;gap:20px;align-items:start;flex-wrap:wrap}.status{border:1px solid #725e31;color:var(--warn);border-radius:999px;padding:7px 12px;font-size:12px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:24px 0}.panel{background:linear-gradient(160deg,#172239,#11192a);border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0}.metric{font-size:28px;font-weight:750;margin:4px 0}.label{color:var(--muted);font-size:13px}.section{margin-top:28px}.list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.item-title{font-weight:700}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 8px;color:var(--accent);font-size:11px;margin:5px 5px 0 0}.search{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#0b1221;color:var(--text);font:inherit}.note{border-left:3px solid var(--warn);padding:10px 14px;background:#241f17;border-radius:0 10px 10px 0;color:#f5dfb7}.footer{margin-top:32px;border-top:1px solid var(--line);padding-top:18px;font-size:12px;color:var(--muted)}@media(max-width:800px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.list{grid-template-columns:1fr}}@media(max-width:420px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main>
+<header class="top"><div><div class="eyebrow">VAIXLNS · Governed intelligence fabric</div><h1>VX Control Console</h1><p>Sources · Sessions · Indexes · Specialist roles · Verification</p></div><span class="status">Registry view · live runtime not connected</span></header>
+<div class="note">This screen presents repository configuration only. It does not claim that model agents, remote sources, MCP servers, or production services are running. Live status must come from verified health checks.</div>
+<section class="grid" aria-label="Coverage summary">
+<div class="panel"><div class="label">Specialist roles registered</div><div class="metric">9</div><div class="label">Role contracts, not live workers</div></div>
+<div class="panel"><div class="label">Canonical source groups</div><div class="metric">10</div><div class="label">Registry pointers and local collections</div></div>
+<div class="panel"><div class="label">Session ingestion</div><div class="metric">Opt-in</div><div class="label">Explicit local export only</div></div>
+<div class="panel"><div class="label">Index backend</div><div class="metric">Lexical</div><div class="label">Deterministic, local-first</div></div>
+</section>
+<section class="section"><div class="eyebrow">Knowledge explorer</div><h2>Search and source coverage</h2><input class="search" id="filter" placeholder="Filter source and agent cards…" aria-label="Filter source and agent cards"><p id="empty" hidden>No registry items match the filter.</p><div class="list" id="cards">
+<article class="panel" data-search="repository overview readme"><div class="item-title">Repository overview</div><p>README.md · canonical project orientation</p><span class="pill">document</span><span class="pill">tracked</span></article>
+<article class="panel" data-search="architecture specifications"><div class="item-title">Architecture specifications</div><p>docs/architecture/ · contracts, system models, audits</p><span class="pill">architecture</span><span class="pill">tracked</span></article>
+<article class="panel" data-search="integration audits mcp api"><div class="item-title">Integration sources</div><p>docs/integration/ and docs/integrations/</p><span class="pill">integration</span><span class="pill">tracked</span></article>
+<article class="panel" data-search="operations runbooks production"><div class="item-title">Operational runbooks</div><p>docs/operations/ · server setup and hardening</p><span class="pill">operations</span><span class="pill">tracked</span></article>
+<article class="panel" data-search="research frontier libraries"><div class="item-title">Research and library registry</div><p>docs/research/ · candidate dependencies, not installed-by-default</p><span class="pill">research</span><span class="pill">tracked</span></article>
+<article class="panel" data-search="tests verification ci evidence"><div class="item-title">Verification evidence</div><p>tests/ and CI run records · distinguish automated from live tests</p><span class="pill">verification</span><span class="pill">evidence-based</span></article>
+<article class="panel" data-search="sessions exports imported privacy"><div class="item-title">Imported sessions</div><p>sessions/ · indexed only after explicit local import</p><span class="pill">opt-in</span><span class="pill">local-first</span></article>
+<article class="panel" data-search="configuration policies schemas"><div class="item-title">Policy and schema registry</div><p>config/ · canonical JSON configuration and contracts</p><span class="pill">policy</span><span class="pill">tracked</span></article>
+</div></section>
+<section class="section"><div class="eyebrow">Specialist roles</div><h2>Governed agent registry</h2><div class="list" id="agents">
+<article class="panel" data-search="source cartographer discovery provenance"><div class="item-title">Source Cartographer</div><p>Discovers sources and records provenance references.</p><span class="pill">discovery</span><span class="pill">read-only</span></article>
+<article class="panel" data-search="session curator normalize imports"><div class="item-title">Session Curator</div><p>Normalizes explicitly imported session exports.</p><span class="pill">sessions</span><span class="pill">opt-in</span></article>
+<article class="panel" data-search="index engineer retrieval links"><div class="item-title">Index Engineer</div><p>Builds deterministic indexes and checks references.</p><span class="pill">retrieval</span><span class="pill">local</span></article>
+<article class="panel" data-search="architecture auditor contracts"><div class="item-title">Architecture Auditor</div><p>Finds contract conflicts and unsupported readiness claims.</p><span class="pill">architecture</span><span class="pill">evidence</span></article>
+<article class="panel" data-search="security reviewer auth secrets"><div class="item-title">Security Reviewer</div><p>Reviews auth, tool scope, and dependency provenance.</p><span class="pill">security</span><span class="pill">least privilege</span></article>
+<article class="panel" data-search="verification engineer tests ci"><div class="item-title">Verification Engineer</div><p>Maps requirements to tests and live evidence.</p><span class="pill">verification</span><span class="pill">traceability</span></article>
+<article class="panel" data-search="integration engineer providers mcp"><div class="item-title">Integration Engineer</div><p>Maps API, provider, MCP, and repository boundaries.</p><span class="pill">integration</span><span class="pill">bounded</span></article>
+<article class="panel" data-search="console designer observability screens"><div class="item-title">Operations Console Designer</div><p>Builds evidence-backed screens without fabricated metrics.</p><span class="pill">observability</span><span class="pill">console</span></article>
+<article class="panel" data-search="release coordinator approvals"><div class="item-title">Release Coordinator</div><p>Checks tests, approvals, and release evidence.</p><span class="pill">release</span><span class="pill">no self-approval</span></article>
+</div></section>
+<section class="section"><div class="eyebrow">Operating sequence</div><h2>From sources to verified work</h2><div class="list">
+<div class="panel"><div class="item-title">01 · Discover</div><p>Scan repository documents, code, policies, and tests. Attach stable IDs and content digests.</p></div>
+<div class="panel"><div class="item-title">02 · Import sessions</div><p>Review and place approved exports under sessions/. Keep private exports out of public hosting.</p></div>
+<div class="panel"><div class="item-title">03 · Index and search</div><p>Generate var/knowledge/index.json and search by terms. Add semantic retrieval only after evaluation.</p></div>
+<div class="panel"><div class="item-title">04 · Assign and verify</div><p>Use role contracts to plan work; require evidence, tests, and explicit approval for mutations.</p></div>
+</div></section>
+<div class="footer">VAIXLNS · VX Knowledge/Session/Agent/Console Fabric v1 · UI configuration is not a live service monitor.</div>
+</main>
+<script>
+const filter=document.getElementById('filter');const all=[...document.querySelectorAll('[data-search]')];const empty=document.getElementById('empty');filter.addEventListener('input',()=>{const q=filter.value.trim().toLowerCase();let shown=0;for(const el of all){const visible=el.dataset.search.includes(q);el.hidden=!visible;if(visible)shown++;}empty.hidden=shown!==0;});
+</script>
+</body></html>

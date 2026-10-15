@@ -1,0 +1,220 @@
+{
+  "schema_version": "1.0.0",
+  "governance": "Registry roles are capability contracts; they are not claims that autonomous model workers are currently running.",
+  "default_policy": {
+    "least_privilege": true,
+    "require_source_refs": true,
+    "require_test_evidence": true,
+    "deny_unbounded_shell": true,
+    "deny_secret_access": true,
+    "deny_production_mutations_without_approval": true
+  },
+  "agents": [
+    {
+      "id": "source-cartographer",
+      "name": "Source Cartographer",
+      "domain": "discovery",
+      "mission": "Discover tracked knowledge sources and maintain provenance metadata.",
+      "inputs": [
+        "repository tree",
+        "source registry"
+      ],
+      "outputs": [
+        "source index",
+        "missing-source report"
+      ],
+      "tools": [
+        "repository_read",
+        "index_write"
+      ],
+      "denied": [
+        "network_fetch",
+        "repository_write",
+        "secret_access"
+      ]
+    },
+    {
+      "id": "session-curator",
+      "name": "Session Curator",
+      "domain": "sessions",
+      "mission": "Normalize explicitly imported conversation/session exports and preserve origin, timestamps, and references.",
+      "inputs": [
+        "user-approved session export"
+      ],
+      "outputs": [
+        "normalized session records",
+        "session index"
+      ],
+      "tools": [
+        "session_read",
+        "index_write"
+      ],
+      "denied": [
+        "account_session_scraping",
+        "credential_access",
+        "silent_upload"
+      ]
+    },
+    {
+      "id": "index-engineer",
+      "name": "Index Engineer",
+      "domain": "retrieval",
+      "mission": "Build deterministic lexical indexes and validate links between sources, sessions, and work items.",
+      "inputs": [
+        "source registry",
+        "session records",
+        "repository files"
+      ],
+      "outputs": [
+        "index",
+        "broken-reference report"
+      ],
+      "tools": [
+        "repository_read",
+        "index_write"
+      ],
+      "denied": [
+        "external_network",
+        "production_write"
+      ]
+    },
+    {
+      "id": "architecture-auditor",
+      "name": "Architecture Auditor",
+      "domain": "architecture",
+      "mission": "Detect conflicting contracts, duplicated concepts, missing owners, and unsupported readiness claims.",
+      "inputs": [
+        "architecture documents",
+        "contracts",
+        "tests"
+      ],
+      "outputs": [
+        "findings with evidence references"
+      ],
+      "tools": [
+        "repository_read",
+        "test_read"
+      ],
+      "denied": [
+        "automatic_policy_override",
+        "unreviewed_merge"
+      ]
+    },
+    {
+      "id": "security-reviewer",
+      "name": "Security Reviewer",
+      "domain": "security",
+      "mission": "Review authentication boundaries, tool scopes, secrets handling, and dependency provenance.",
+      "inputs": [
+        "source code",
+        "policies",
+        "dependency manifests"
+      ],
+      "outputs": [
+        "risk findings",
+        "security test proposals"
+      ],
+      "tools": [
+        "repository_read",
+        "test_read"
+      ],
+      "denied": [
+        "secret_value_readout",
+        "deployment",
+        "policy_bypass"
+      ]
+    },
+    {
+      "id": "test-engineer",
+      "name": "Verification Engineer",
+      "domain": "verification",
+      "mission": "Map requirements to tests and distinguish unit, integration, and live-environment evidence.",
+      "inputs": [
+        "requirements",
+        "tests",
+        "CI results"
+      ],
+      "outputs": [
+        "traceability matrix",
+        "verification gaps"
+      ],
+      "tools": [
+        "repository_read",
+        "test_read"
+      ],
+      "denied": [
+        "fabricated_results",
+        "unverified_live_claims"
+      ]
+    },
+    {
+      "id": "integration-engineer",
+      "name": "Integration Engineer",
+      "domain": "integration",
+      "mission": "Map provider, MCP, API, and repository boundaries with explicit connectivity state.",
+      "inputs": [
+        "integration contracts",
+        "endpoint configuration names"
+      ],
+      "outputs": [
+        "integration map",
+        "setup steps"
+      ],
+      "tools": [
+        "repository_read",
+        "test_read"
+      ],
+      "denied": [
+        "reading_secret_values",
+        "opening_public_ports",
+        "unapproved_remote_calls"
+      ]
+    },
+    {
+      "id": "console-designer",
+      "name": "Operations Console Designer",
+      "domain": "observability",
+      "mission": "Present source coverage, index freshness, agent roles, and verified runtime evidence.",
+      "inputs": [
+        "generated index",
+        "agent registry",
+        "health evidence"
+      ],
+      "outputs": [
+        "console views",
+        "status summary"
+      ],
+      "tools": [
+        "repository_read",
+        "ui_build"
+      ],
+      "denied": [
+        "invented_live_status",
+        "unverified_metrics"
+      ]
+    },
+    {
+      "id": "release-coordinator",
+      "name": "Release Coordinator",
+      "domain": "release",
+      "mission": "Check change scope, tests, approvals, and release evidence before proposing a release.",
+      "inputs": [
+        "pull request",
+        "CI evidence",
+        "security findings"
+      ],
+      "outputs": [
+        "release checklist"
+      ],
+      "tools": [
+        "repository_read",
+        "ci_read"
+      ],
+      "denied": [
+        "self_approval",
+        "unreviewed_merge",
+        "production_deploy"
+      ]
+    }
+  ]
+}
