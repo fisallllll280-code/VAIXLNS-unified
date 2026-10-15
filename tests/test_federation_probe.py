@@ -185,8 +185,19 @@ class FederationProbeTests(unittest.TestCase):
         report = build_report(policy, env={})
         self.assertEqual(report["overall"], "BLOCKED")
         self.assertEqual(report["healthy_count"], 0)
-        self.assertEqual([x["state"] for x in report["targets"]], ["BLOCKED", "BLOCKED"])
+        self.assertEqual([x["state"] for x in report["targets"]], ["MISSING", "MISSING"])
         self.assertEqual(len(report["report_sha256"]), 64)
+
+    def test_repository_policy_declares_all_five_targets_without_network_defaults(self):
+        from operations.federation_probe import DEFAULT_POLICY
+        policy = json.loads(DEFAULT_POLICY.read_text(encoding="utf-8"))
+        report = build_report(policy, env={})
+        self.assertEqual(
+            [item["system_id"] for item in report["targets"]],
+            ["VAIXLNS", "VX-runtime", "VLNS", "NEXENT", "NEXNET"],
+        )
+        self.assertEqual([item["state"] for item in report["targets"]], ["MISSING"] * 5)
+        self.assertEqual(report["overall"], "BLOCKED")
 
     def test_url_query_credentials_and_path_traversal_are_rejected(self):
         env = {"FIXTURE_ENABLED": "true"}
