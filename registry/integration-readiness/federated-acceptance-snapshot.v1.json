@@ -1,0 +1,222 @@
+{
+  "schema_version": "1.0.0",
+  "snapshot_date": "2026-10-15",
+  "canonical": false,
+  "overall_state": "PARTIAL",
+  "authority_note": "Non-canonical evidence snapshot. It is a point-in-time report, not an admission decision, production approval, or canonical registry update.",
+  "source_policy": {
+    "repository_ci_is_not_live_service_health": true,
+    "unconfigured_endpoint_is_not_healthy": true,
+    "absent_historical_baseline_does_not_prove_complete_recovery": true,
+    "no_production_or_external_side_effects_authorized": true
+  },
+  "canonical_integrity": {
+    "project_genome_blob_sha": "7b8822cff6321d2b750aec030e29b928ed685940",
+    "omega_000_blob_sha": "cbd3b32f7a9bf74650fdae02a8ebb0831dca84dc",
+    "evidence": "The same blob SHAs were observed on VAIXLNS main and ops/federated-systems-engineering-plan-20261015; PR #121's changed-file set does not include either canonical source.",
+    "state": "VERIFIED_FOR_OBSERVED_REFS_ONLY"
+  },
+  "uploaded_artifact_integrity": {
+    "zip": {
+      "name": "VAIXLNS_Knowledge_Genome_Engineering_Slice_v1.zip",
+      "sha256": "9b9dcb376260027c95ac2fcf95a776f9a261363c1fa53560c9bbbf30d90424aa",
+      "state": "MATCH"
+    },
+    "patch": {
+      "name": "vaixlns-knowledge-genome-v1.patch",
+      "sha256": "9da1df301e17c53951a7430ef576e460d4589fb6edee8b1f87e54f21fdd4972b",
+      "state": "MATCH"
+    },
+    "equality": "All six files represented in the patch were compared byte-for-byte against ZIP entries; the ZIP additionally contains PACKAGE_README.md."
+  },
+  "phases": [
+    {
+      "id": 0,
+      "name": "Baseline and integrity",
+      "state": "PARTIAL",
+      "verified": [
+        "Uploaded ZIP and patch SHA-256 values match the supplied manifest.",
+        "Observed canonical project.genome and Ω.000 blob hashes are unchanged across the checked VAIXLNS refs.",
+        "New Knowledge Genome and Ω.2718 branches have passing repository CI on their latest checked heads."
+      ],
+      "open": [
+        "Complete all-branch and all-open-PR inventory is not yet proven.",
+        "No approved historical genome baseline has been supplied to the Knowledge Genome run."
+      ]
+    },
+    {
+      "id": 1,
+      "name": "System and Ω.000 inventory",
+      "state": "PARTIAL",
+      "verified": [
+        "Knowledge Genome workflow reported 356 file observations, 82 local reference relations, and 0 unresolved local references."
+      ],
+      "open": [
+        "The probe covers one repository revision only; it does not fetch every external repository or historical archive.",
+        "Zero missing baseline rows came from a run without a prior baseline and is not completeness proof."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Contract and authority convergence",
+      "state": "PARTIAL",
+      "verified": [
+        "VAIXLNS, VX-runtime, NEXENT, and VAIXLNS-unified have repository contracts, gateway rules, or CI-enforced integration boundaries."
+      ],
+      "open": [
+        "NEXENT's VLNS operating specification explicitly says the VLNS runtime is not yet implemented.",
+        "NEXNET versus NEXENT identity/ownership mapping remains unresolved and the probe keeps them separate.",
+        "A complete cross-repository capability-owner and duplicate-implementation reconciliation is not yet evidenced."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Supervised VX runtime",
+      "state": "PARTIAL",
+      "verified": [
+        "Draft VAIXLNS PR #117 ran a real local loopback process health/task/recovery/shutdown acceptance scenario.",
+        "The workflow artifact contains 18 evidence events; independent verification using the source-defined GENESIS root matches the head hash.",
+        "Observed result: overall PASS, state STOPPED, recovery true with one restart, task output VX_BOOTSTRAP_TASK_OK, clean exit code 0."
+      ],
+      "open": [
+        "The evidence is from an unmerged review branch and a local subprocess fixture, not a deployed production supervisor.",
+        "OS-enforced isolation, durable signed ledger, persistent worker service, and remote worker/federation replay remain outside this slice."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Global office and external connector probes",
+      "state": "BLOCKED",
+      "verified": [
+        "A read-only federation health probe is implemented in PR #59 with 16 safety-focused unit tests; all tests use fake transports.",
+        "Probe contract requires explicit enablement, an endpoint, pinned service identity, bounded JSON, HTTPS for remote endpoints, no redirects, and exact health signal."
+      ],
+      "open": [
+        "No live endpoint was configured or contacted in this session.",
+        "VLNS configuration remains configuration-only; MCP office/provider connectivity and subscription entitlements are not verified."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Federated end-to-end tests",
+      "state": "PARTIAL",
+      "verified": [
+        "Multiple repository CI suites and the Four-System Federation workflow passed on a reviewed VAIXLNS branch.",
+        "Latest VAIXLNS-unified PR head d390a83e10943e216957986dfb0f2960fab5c8a9 passed four required workflows and the full pytest suite (254 passed)."
+      ],
+      "open": [
+        "Current green CI establishes repository test conformance, not live cross-repository execution or external office connectivity."
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Acceptance, merge, and production",
+      "state": "BLOCKED",
+      "verified": [
+        "PRs remain reviewable and branch-scoped; no canonical source files were modified by these additions."
+      ],
+      "open": [
+        "Human review and approval are still required before merging or production deployment.",
+        "No live external side effect, publication, financial execution, or canonical promotion is authorized."
+      ]
+    }
+  ],
+  "repositories": [
+    {
+      "system_id": "VAIXLNS",
+      "repo": "fisallllll280-code/VAIXLNS",
+      "main_sha": "52d1795e8550cd069ddb03cca45e573028115062",
+      "state": "PARTIAL",
+      "evidence": [
+        "https://github.com/fisallllll280-code/VAIXLNS/actions/runs/38732056793",
+        "https://github.com/fisallllll280-code/VAIXLNS/pull/121",
+        "https://github.com/fisallllll280-code/VAIXLNS/actions/runs/38747509307"
+      ],
+      "notes": "Main pulse and PR #121's workflows passed. Knowledge Genome artifact has digest sha256:6bc7fb00ad16103aaeee9716a606b602c1c9b9778c891aa39eb860900f7bac5d; its report state is PARTIAL."
+    },
+    {
+      "system_id": "VX-runtime",
+      "repo": "fisallllll280-code/VX-runtime",
+      "main_sha": "c58e398b405a3acff5752a70dfd88a4f98c58259",
+      "state": "PARTIAL",
+      "evidence": [
+        "https://github.com/fisallllll280-code/VX-runtime/actions/runs/38014519471",
+        "https://github.com/fisallllll280-code/VX-runtime/pull/2"
+      ],
+      "notes": "VX Runtime Conformance passed on main. The reference core is implemented/tested; production-scale deployment and PR #2 admission remain unverified."
+    },
+    {
+      "system_id": "VLNS",
+      "repo": "specified in fisallllll280-code/NEXENT",
+      "main_sha": null,
+      "state": "MISSING",
+      "evidence": [
+        "https://github.com/fisallllll280-code/NEXENT/blob/main/docs/VLNS_OPERATING_DEVELOPMENT_SPEC.md"
+      ],
+      "notes": "Operating/development specification exists; that document explicitly states a VLNS runtime is not yet implemented."
+    },
+    {
+      "system_id": "NEXENT",
+      "repo": "fisallllll280-code/NEXENT",
+      "main_sha": "f62cf5920174551f9a8f88deb420f9515bedc284",
+      "state": "PARTIAL",
+      "evidence": [
+        "https://github.com/fisallllll280-code/NEXENT/actions/runs/38014523296",
+        "https://github.com/fisallllll280-code/NEXENT/actions/runs/38014523301",
+        "https://github.com/fisallllll280-code/NEXENT/pull/15"
+      ],
+      "notes": "Main CI suites passed and an /api/health handler exists in source; no live deployment endpoint was configured or probed."
+    },
+    {
+      "system_id": "NEXNET",
+      "repo": null,
+      "state": "CONFLICT",
+      "evidence": [
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/pull/59"
+      ],
+      "notes": "Kept separate from NEXENT until repository identity, canonical name, owner and runtime contract are explicitly reconciled. No endpoint configured."
+    },
+    {
+      "system_id": "VAIXLNS-unified",
+      "repo": "fisallllll280-code/VAIXLNS-unified",
+      "main_sha": "d9c345a7e8f3e8b6454a9aea09d3995a93bdf38c",
+      "reviewed_head": "d390a83e10943e216957986dfb0f2960fab5c8a9",
+      "state": "PARTIAL",
+      "evidence": [
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/pull/59",
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/actions/runs/38748750612",
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/actions/runs/38748750623",
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/actions/runs/38748750589",
+        "https://github.com/fisallllll280-code/VAIXLNS-unified/actions/runs/38748750581"
+      ],
+      "notes": "PR head passed required CI; activation artifact states one plane SPECIFIED, twelve PARTIAL, and external_runtime_activation=not_attempted."
+    }
+  ],
+  "implementation_prs": {
+    "omega_2718": "https://github.com/fisallllll280-code/VAIXLNS-unified/pull/59",
+    "knowledge_genome": "https://github.com/fisallllll280-code/VAIXLNS/pull/121",
+    "supervised_vx_bootstrap": "https://github.com/fisallllll280-code/VAIXLNS/pull/117",
+    "federation_snapshot_flow": "https://github.com/fisallllll280-code/VAIXLNS/pull/120",
+    "vx_runtime_contract": "https://github.com/fisallllll280-code/VX-runtime/pull/2",
+    "nexent_engineering_agent": "https://github.com/fisallllll280-code/NEXENT/pull/15"
+  },
+  "omega_2718": {
+    "state": "PARTIAL",
+    "implementation": "Fail-closed evaluator and 16-layer boundary checks? no: eleven closure-layer checks are implemented and adversarial tests are present in PR #59.",
+    "requires_before_operational_closure": [
+      "Production cryptographic signature verifier",
+      "Out-of-band pinned canonical source hash and trust root",
+      "Independently administered trust and key revocation process",
+      "Durable append-only/WORM ledger and trusted timestamp evidence",
+      "Independent organizational auditor identity",
+      "Live evidence for each claimed integrated capability"
+    ]
+  },
+  "gates": {
+    "canonical_writes": false,
+    "merge_authorized": false,
+    "production_deployment_authorized": false,
+    "external_probe_executed": false,
+    "financial_side_effects_authorized": false
+  }
+}
