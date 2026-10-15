@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 from infra.durable_store import DurableEventStore
 from infra.vlns_server_client import ServerConfig, VLNSServerClient
+from integration_control.office_router import OfficeRoutingError, OfficeRoutingService
 from workspace.fabric import WorkspaceFabric
 
 
@@ -51,6 +52,11 @@ class WorkspaceAgentRunRequest(BaseModel):
     agent_id: str = Field(min_length=1, max_length=80)
     task: str = Field(min_length=1, max_length=4000)
     session_id: str | None = None
+
+
+class OfficeRoutePreviewRequest(BaseModel):
+    office_id: str = Field(min_length=1, max_length=120)
+    intent: str = Field(min_length=1, max_length=2000)
 
 
 def _authorized(authorization: str | None) -> bool:
@@ -148,6 +154,48 @@ def create_app(db_path: str | Path = DB_PATH, workspace_root: str | Path | None 
         require_auth(authorization)
         config = ServerConfig.from_env("vlns-control")
         return VLNSServerClient(config).health()
+
+    def office_router() -> OfficeRoutingService:
+        # Registry path is operator-configured; request parameters never select files.
+        return OfficeRoutingService(os.getenv("VAIXLNS_OFFICE_REGISTRY_PATH"))
+
+    def office_error(exc: OfficeRoutingError) -> None:
+        code = str(exc)
+        if code == "OFFICE_NOT_FOUND":
+            status_code = 404
+        elif code in {
+            "OFFICE_REGISTRY_NOT_CONFIGURED",
+            "OFFICE_REGISTRY_PATH_MUST_BE_ABSOLUTE",
+            "OFFICE_REGISTRY_TOO_LARGE",
+            "OFFICE_REGISTRY_UNREADABLE",
+        }:
+            status_code = 503
+        else:
+            status_code = 422
+        raise HTTPException(status_code=status_code, detail=code) from None
+
+    @app.get("/offices")
+    def list_offices(
+        authorization: str | None = Header(default=None),
+    ) -> dict[str, Any]:
+        # Office identities and routing metadata require configured auth even locally.
+        require_auth(authorization)
+        try:
+            return office_router().list_offices()
+        except OfficeRoutingError as exc:
+            office_error(exc)
+
+    @app.post("/office-routing/preview")
+    def preview_office_route(
+        request: OfficeRoutePreviewRequest,
+        authorization: str | None = Header(default=None),
+    ) -> dict[str, Any]:
+        # Preview only: this endpoint cannot dispatch a tool or write canonical state.
+        require_auth(authorization)
+        try:
+            return office_router().preview(request.office_id, request.intent)
+        except OfficeRoutingError as exc:
+            office_error(exc)
 
     # Workspace dashboard and API. Reads remain local-first; all mutation routes
     # share the same configured API-token guard as the existing runtime.
