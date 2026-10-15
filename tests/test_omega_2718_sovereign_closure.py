@@ -155,9 +155,15 @@ def _build_bundle():
     }
 
 
-def _evaluate(bundle, verifier=_test_only_verifier, root_hash=TEST_ROOT_HASH):
+def _evaluate(
+    bundle,
+    verifier=_test_only_verifier,
+    root_hash=TEST_ROOT_HASH,
+    source_hash="c" * 64,
+):
     return evaluate_closure(
         bundle,
+        canonical_source_hash=source_hash,
         trusted_root_hash=root_hash,
         signature_verifier=verifier,
     )
@@ -175,6 +181,18 @@ class Omega2718SovereignClosureTests(unittest.TestCase):
         report = _evaluate(_build_bundle(), verifier=None)
         self.assertEqual(report.status, "BLOCKED")
         self.assertIn("CRYPTOGRAPHIC_VERIFIER_UNAVAILABLE", [c.detail for c in report.checks])
+
+
+    def test_canonical_source_hash_must_be_pinned_out_of_band(self):
+        bundle = _build_bundle()
+        report = _evaluate(bundle, source_hash=None)
+        self.assertEqual(report.status, "BLOCKED")
+        self.assertIn("CANONICAL_SOURCE_HASH_NOT_PINNED", [c.detail for c in report.checks])
+
+    def test_canonical_source_hash_mismatch_is_detected(self):
+        bundle = _build_bundle()
+        report = _evaluate(bundle, source_hash="f" * 64)
+        self.assertIn("CANONICAL_SOURCE_HASH_MISMATCH", [c.detail for c in report.checks])
 
     def test_unpinned_or_mismatched_trust_root_fails(self):
         report = _evaluate(_build_bundle(), root_hash="e" * 64)
