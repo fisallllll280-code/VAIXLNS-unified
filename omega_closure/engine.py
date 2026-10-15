@@ -131,13 +131,15 @@ def _safe_check(check_id: str, fn: Callable[[], tuple[bool, str]]) -> CheckResul
 def evaluate_closure(
     bundle: Mapping[str, Any],
     *,
+    canonical_source_hash: str | None = None,
     trusted_root_hash: str | None = None,
     signature_verifier: SignatureVerifier | None = None,
 ) -> ClosureReport:
     """Evaluate all eleven Ω.2718 layers. Missing evidence always fails closed.
 
-    trusted_root_hash must be supplied independently of the evidence bundle.
-    signature_verifier must perform real cryptographic and identity validation;
+    canonical_source_hash and trusted_root_hash must be supplied independently
+    of the evidence bundle. signature_verifier must perform real cryptographic
+    and identity validation;
     test-only verifiers must never be used for production decisions.
     """
     if not isinstance(bundle, Mapping):
@@ -153,6 +155,10 @@ def evaluate_closure(
         item = bundle.get("constitutional_binding")
         if not isinstance(item, Mapping):
             return False, "CONSTITUTIONAL_BINDING_MISSING"
+        if not _is_hash(canonical_source_hash):
+            return False, "CANONICAL_SOURCE_HASH_NOT_PINNED"
+        if item.get("source_hash") != canonical_source_hash:
+            return False, "CANONICAL_SOURCE_HASH_MISMATCH"
         valid = (
             item.get("source_id") == "CONST-ROOT"
             and item.get("immutable") is True
