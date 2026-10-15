@@ -8,10 +8,27 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 from typing import Any
 
+from integration_control.gateway import (
+    ExternalIntegration,
+    ExternalIntegrationGate,
+    IntegrationClass,
+    IntegrationPolicy,
+)
+
 MAX_REGISTRY_BYTES = 2_000_000
+KIND_MAP = {
+    "registry_artifact": IntegrationClass.DATA_SOURCE,
+    "system_capability": IntegrationClass.CONNECTOR,
+    "source_script": IntegrationClass.TOOL,
+    "external_api_adapter": IntegrationClass.API,
+    "model_provider_adapter": IntegrationClass.MODEL,
+    "server_endpoint": IntegrationClass.SERVER,
+    "repository_adapter": IntegrationClass.REPOSITORY,
+}
 
 
 class OfficeRoutingError(ValueError):
@@ -82,6 +99,82 @@ class OfficeRoutingService:
             result[value] = item
         return result
 
+    @staticmethod
+    def _integration_decision(tool: dict[str, Any]) -> dict[str, Any]:
+        kind = KIND_MAP.get(str(tool.get("kind", "")))
+        if kind is None:
+            return {
+                "state": "QUARANTINED",
+                "reasons": ["TOOL_KIND_UNRECOGNIZED"],
+            }
+        capabilities = tool.get("capabilities", [])
+        if not isinstance(capabilities, list) or any(not isinstance(value, str) for value in capabilities):
+            return {
+                "state": "QUARANTINED",
+                "reasons": ["TOOL_CAPABILITIES_INVALID"],
+            }
+        contract = tool.get("contract")
+        contract = contract if isinstance(contract, dict) else {}
+        contract_id = str(contract.get("contract_id", "")).strip()
+        contract_version = str(contract.get("version", "")).strip()
+        if contract_id and contract_version:
+            contract_version = f"{contract_id}@{contract_version}"
+        else:
+            contract_version = ""
+        endpoint = str(tool.get("endpoint") or tool.get("endpoint_ref") or "").strip()
+        dependency_fingerprint = str(
+            tool.get("dependency_fingerprint") or contract.get("dependency_fingerprint") or ""
+        ).strip()
+        environment_fingerprint = str(
+            tool.get("environment_fingerprint") or contract.get("environment_fingerprint") or ""
+        ).strip()
+        integration = ExternalIntegration(
+            integration_id=str(tool.get("tool_id", "")),
+            name=str(tool.get("name", tool.get("tool_id", ""))),
+            kind=kind,
+            endpoint=endpoint,
+            capabilities=tuple(capabilities),
+            contract_version=contract_version,
+            dependency_fingerprint=dependency_fingerprint,
+            environment_fingerprint=environment_fingerprint,
+            owner=str(tool.get("owner_system_id", "")),
+            lineage=tuple(str(value) for value in tool.get("source_refs", []) if isinstance(value, str)),
+        )
+        allowed_capabilities = frozenset(
+            value.strip()
+            for value in os.getenv("VAIXLNS_OFFICE_ALLOWED_CAPABILITIES", "").split(",")
+            if value.strip()
+        )
+        forbidden_endpoints = frozenset(
+            value.strip()
+            for value in os.getenv("VAIXLNS_OFFICE_FORBIDDEN_ENDPOINTS", "").split(",")
+            if value.strip()
+        )
+        policy = IntegrationPolicy(
+            allowed_kinds=frozenset(IntegrationClass),
+            allowed_capabilities=allowed_capabilities,
+            forbidden_endpoints=forbidden_endpoints,
+            require_owner=True,
+            require_contract=True,
+            require_dependency_fingerprint=True,
+            require_environment_fingerprint=True,
+        )
+        decision = ExternalIntegrationGate().admit(
+            integration,
+            policy,
+            verified=False,
+            explicit_authority=False,
+        )
+        reasons = list(decision.reasons)
+        if decision.state.value != "ADMITTED":
+            reasons.append("EXTERNAL_INTEGRATION_NOT_ADMITTED")
+        if kind in {IntegrationClass.API, IntegrationClass.SERVER, IntegrationClass.MODEL, IntegrationClass.CONNECTOR} and not endpoint:
+            reasons.append("ENDPOINT_MISSING")
+        return {
+            "state": decision.state.value if decision.state.value != "ADMITTED" else "ADMITTED",
+            "reasons": sorted(set(reasons)),
+        }
+
     def list_offices(self) -> dict[str, Any]:
         registry, offices, systems, tools = self._load()
         unresolved = sorted(
@@ -136,11 +229,19 @@ class OfficeRoutingService:
                 blockers.append(f"TOOL_NOT_READY:{tool_id}:{status}")
             if access_mode == "GOVERNED_EXECUTION":
                 blockers.append(f"EXECUTION_REQUIRES_SEPARATE_ADMISSION:{tool_id}")
+            gate = self._integration_decision(tool)
+            if gate["state"] != "ADMITTED":
+                blockers.extend(
+                    f"INTEGRATION_GATE:{tool_id}:{reason}"
+                    for reason in gate["reasons"]
+                )
             candidates.append({
                 "tool_id": tool_id,
                 "status": status,
                 "access_mode": access_mode,
                 "capabilities": list(tool.get("capabilities", [])),
+                "integration_gate_state": gate["state"],
+                "integration_gate_reasons": gate["reasons"],
                 "candidate_only": True,
             })
         if not candidates:
