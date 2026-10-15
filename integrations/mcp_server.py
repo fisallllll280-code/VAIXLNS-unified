@@ -18,17 +18,35 @@ MAX_RESPONSE_BYTES = 1_000_000
 TOOLS = [
     {
         "name": "vx.health",
-        "description": "Read the VAIXLNS runtime health and durable-store integrity status.",
+        "description": "Read VAIXLNS runtime health and durable-store integrity.",
         "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False},
     },
     {
         "name": "vx.status",
-        "description": "Read runtime event count, last event hash, snapshot ID, and remote configuration status.",
+        "description": "Read runtime event count, latest hash, snapshot ID, and remote configuration status.",
         "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False},
     },
     {
+        "name": "vx.offices.list",
+        "description": "Read the explicitly configured VAIXLNS office registry. Does not dispatch work.",
+        "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False},
+    },
+    {
+        "name": "vx.office.route.preview",
+        "description": "Preview a proposal-only route through a registered office. Never executes tools or writes canonical state.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "office_id": {"type": "string", "minLength": 1, "maxLength": 120},
+                "intent": {"type": "string", "minLength": 1, "maxLength": 2000},
+            },
+            "required": ["office_id", "intent"],
+            "additionalProperties": False,
+        },
+    },
+    {
         "name": "vx.capabilities.list",
-        "description": "List the operations exposed by this read-only MCP bridge.",
+        "description": "List the read and preview operations exposed by this MCP bridge.",
         "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False},
     },
 ]
@@ -49,16 +67,32 @@ def _base_url() -> str:
     return raw
 
 
-def _get_json(path: str) -> dict[str, Any]:
-    # Call sites use fixed paths; user input is never used to construct a URL.
-    if path not in {"/health", "/status"}:
+def _request_json(
+    path: str,
+    *,
+    method: str = "GET",
+    payload: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    # Only a finite route/method allowlist is accepted. Caller data never selects
+    # a URL, host, path, or method.
+    allowed = {
+        ("GET", "/health"),
+        ("GET", "/status"),
+        ("GET", "/offices"),
+        ("POST", "/office-routing/preview"),
+    }
+    if (method, path) not in allowed:
         raise BridgeError("ENDPOINT_NOT_ALLOWED")
     url = _base_url() + path
     headers = {"Accept": "application/json"}
     token = os.getenv("VAIXLNS_API_TOKEN")
     if token:
         headers["Authorization"] = "Bearer " + token
-    request = Request(url, headers=headers, method="GET")
+    data = None
+    if payload is not None:
+        data = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        headers["Content-Type"] = "application/json"
+    request = Request(url, data=data, headers=headers, method=method)
     try:
         with urlopen(request, timeout=3.0) as response:
             body = response.read(MAX_RESPONSE_BYTES + 1)
@@ -71,6 +105,24 @@ def _get_json(path: str) -> dict[str, Any]:
     except HTTPError as exc:
         if exc.code == 401:
             raise BridgeError("AUTHORIZATION_REQUIRED") from None
+        if exc.code == 404 and path == "/office-routing/preview":
+            raise BridgeError("OFFICE_NOT_FOUND") from None
+        if exc.code == 503:
+            # Surface only known, non-sensitive policy codes; never echo raw server
+            # bodies, stack traces, tokens, or arbitrary provider errors.
+            try:
+                detail = json.loads(exc.read(4096).decode("utf-8")).get("detail")
+            except Exception:
+                detail = None
+            known = {
+                "AUTHENTICATION_NOT_CONFIGURED",
+                "OFFICE_REGISTRY_NOT_CONFIGURED",
+                "OFFICE_REGISTRY_PATH_MUST_BE_ABSOLUTE",
+                "OFFICE_REGISTRY_TOO_LARGE",
+                "OFFICE_REGISTRY_UNREADABLE",
+            }
+            if detail in known:
+                raise BridgeError(detail) from None
         raise BridgeError(f"API_HTTP_ERROR_{exc.code}") from None
     except (URLError, TimeoutError, OSError):
         raise BridgeError("API_UNAVAILABLE") from None
@@ -78,19 +130,43 @@ def _get_json(path: str) -> dict[str, Any]:
         raise BridgeError("API_INVALID_JSON") from None
 
 
+def _get_json(path: str) -> dict[str, Any]:
+    return _request_json(path, method="GET")
+
+
 def _tool_result(name: str, arguments: Any) -> dict[str, Any]:
-    if not isinstance(arguments, dict) or arguments:
-        raise BridgeError("TOOL_ACCEPTS_NO_ARGUMENTS")
-    if name == "vx.health":
-        value = _get_json("/health")
-    elif name == "vx.status":
-        value = _get_json("/status")
-    elif name == "vx.capabilities.list":
-        value = {
-            "mode": "read-only",
-            "tools": [tool["name"] for tool in TOOLS],
-            "not_exposed": ["shell", "arbitrary_url", "filesystem", "write", "deploy", "delete"],
-        }
+    if name in {"vx.health", "vx.status", "vx.offices.list", "vx.capabilities.list"}:
+        if not isinstance(arguments, dict) or arguments:
+            raise BridgeError("TOOL_ACCEPTS_NO_ARGUMENTS")
+        if name == "vx.health":
+            value = _get_json("/health")
+        elif name == "vx.status":
+            value = _get_json("/status")
+        elif name == "vx.offices.list":
+            value = _get_json("/offices")
+        else:
+            value = {
+                "mode": "read-only-and-route-preview",
+                "tools": [tool["name"] for tool in TOOLS],
+                "not_exposed": [
+                    "shell", "arbitrary_url", "filesystem", "write",
+                    "dispatch", "deploy", "delete", "external_tool_invocation",
+                ],
+            }
+    elif name == "vx.office.route.preview":
+        if not isinstance(arguments, dict) or set(arguments) != {"office_id", "intent"}:
+            raise BridgeError("INVALID_ROUTE_PREVIEW_ARGUMENTS")
+        office_id = arguments.get("office_id")
+        intent = arguments.get("intent")
+        if not isinstance(office_id, str) or not office_id.strip() or len(office_id) > 120:
+            raise BridgeError("OFFICE_ID_INVALID")
+        if not isinstance(intent, str) or not intent.strip() or len(intent) > 2000:
+            raise BridgeError("INTENT_INVALID")
+        value = _request_json(
+            "/office-routing/preview",
+            method="POST",
+            payload={"office_id": office_id, "intent": intent},
+        )
     else:
         raise BridgeError("UNKNOWN_TOOL")
     return {"content": [{"type": "text", "text": json.dumps(value, ensure_ascii=False)}]}
