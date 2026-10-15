@@ -72,7 +72,7 @@ delivery failure. Other returned values are treated as acknowledgement.
 
 Run:
 
-`python -m unittest tests.test_resilient_multipath`
+`python -m unittest discover -s tests -p 'test_resilient_multipath.py'`
 
 Tests cover fan-out success, isolation of a failing destination, circuit-breaker
 suppression, health-probe failure, and mandatory idempotency keys.
