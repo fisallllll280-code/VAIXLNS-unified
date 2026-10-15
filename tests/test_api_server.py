@@ -91,11 +91,15 @@ def _office_registry_fixture(path):
         "systems": [{"system_id": "SYS-VAIXLNS", "status": "CANONICAL"}],
         "tool_integrations": [{
             "tool_id": "TOOL-READ",
+            "name": "Read-only status",
+            "kind": "source_script",
             "office_id": "OFF-TEST",
             "owner_system_id": "SYS-VAIXLNS",
             "status": "SOURCE_IMPLEMENTED",
             "access_mode": "READ_ONLY",
             "capabilities": ["read_status"],
+            "contract": {"contract_id": "TEST-READ-V1", "version": "1.0.0"},
+            "source_refs": ["TEST-READ-SOURCE"],
         }],
     }
     path.write_text(json.dumps(registry), encoding="utf-8")
@@ -133,6 +137,8 @@ def test_office_inventory_and_route_preview_require_auth_and_never_dispatch(monk
     assert body["dispatch_allowed"] is False
     assert body["external_calls_made"] is False
     assert body["canonical_write"] is False
+    assert body["candidate_tools"][0]["integration_gate_state"] == "QUARANTINED"
+    assert "DEPENDENCY_FINGERPRINT_MISSING" in body["candidate_tools"][0]["integration_gate_reasons"]
     assert "OFFICE_REGISTRY_NOT_ADMITTED" in body["blockers"]
 
 
