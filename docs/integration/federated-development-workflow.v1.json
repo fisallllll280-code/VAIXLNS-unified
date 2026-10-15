@@ -1,0 +1,124 @@
+{
+  "schema_version": "1.0.0",
+  "workflow_id": "VAIXLNS-FEDERATED-DEVELOPMENT-WORKFLOW",
+  "state": "PROPOSAL",
+  "canonical": false,
+  "description": "Non-canonical integration map for governed engineering across VAIXLNS, VLNS, VX, NEXENT/NEXNET, VAIXLNS-unified, Claude Code, GitHub Actions, ARC-X, and deterministic simulation.",
+  "canonical_protection": {
+    "sources": [
+      "project.genome",
+      "Ω.000"
+    ],
+    "automated_write": false,
+    "require_explicit_human_approval_for_changes": true,
+    "preserve_prior_versions": true
+  },
+  "participants": [
+    {
+      "id": "VAIXLNS",
+      "role": "canonical_identity_governance",
+      "authority": "canonical_policy_owner",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "VLNS",
+      "role": "operating_contract",
+      "authority": "specification_only_until_conformance_evidence",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "VX",
+      "role": "task_orchestration_and_execution_gates",
+      "authority": "admitted_tasks_only",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "NEXENT_NEXNET",
+      "role": "discovery_and_federation_inputs",
+      "authority": "propose_only",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "VAIXLNS_UNIFIED",
+      "role": "integration_projection_and_tooling",
+      "authority": "noncanonical_projection",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "CLAUDE_CODE",
+      "role": "repository_scoped_development_operator",
+      "authority": "branch_scoped_and_approval_gated",
+      "status": "SPECIFIED"
+    },
+    {
+      "id": "GITHUB_ACTIONS",
+      "role": "repeatable_ci_and_evidence",
+      "authority": "test_and_report_only_by_default",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "ARC_X",
+      "role": "claims_evidence_and_admission_boundary",
+      "authority": "cannot_self-authorize",
+      "status": "SPECIFIED"
+    },
+    {
+      "id": "OMEGA_REALITY_FORGE",
+      "role": "deterministic_adversarial_simulation",
+      "authority": "sandbox_only",
+      "status": "PROPOSAL"
+    },
+    {
+      "id": "VV",
+      "role": "independent_verification_and_replay",
+      "authority": "verify_not_author",
+      "status": "SPECIFIED"
+    }
+  ],
+  "pipeline": [
+    "discover_sources_and_commit_pins",
+    "contract_and_scope_check",
+    "create_isolated_branch",
+    "plan_change_and_invariants",
+    "implement_narrow_patch",
+    "run_targeted_tests",
+    "run_deterministic_simulation",
+    "replay_candidate_and_failures",
+    "independent_verification",
+    "record_immutable_evidence",
+    "human_review",
+    "merge_or_release_only_after_explicit_authorization"
+  ],
+  "prohibited_implicit_transitions": [
+    "model_response_to_verified_claim",
+    "connection_success_to_integration_admitted",
+    "simulation_pass_to_production_ready",
+    "agent_recommendation_to_financial_execution",
+    "ci_green_to_human_approval",
+    "draft_index_to_canonical_omega000_write"
+  ],
+  "evidence_fields": [
+    "task_id",
+    "source_repository",
+    "source_commit",
+    "candidate_commit",
+    "contract_version",
+    "tool_provider_revision",
+    "scenario_digest",
+    "test_command",
+    "exit_code",
+    "workflow_run_url",
+    "artifact_digest",
+    "verifier_identity",
+    "verification_status",
+    "approval_reference"
+  ],
+  "open_gates": [
+    "verify_each_repository_and_branch_live",
+    "verify_actual_claude_code_installation_and_mcp_configuration",
+    "implement_simulation_harness_and_executable_tests",
+    "prove_cross_repository_contract_conformance",
+    "obtain CI results for the associated pull request",
+    "human review before merge or production changes"
+  ]
+}
