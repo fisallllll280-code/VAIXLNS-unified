@@ -49,15 +49,12 @@ class ReadOnlyMCPBridgeTests(unittest.TestCase):
             with self.assertRaises(BridgeError):
                 _base_url()
 
-
-if __name__ == "__main__":
-    unittest.main()
-
-
     def test_office_inventory_uses_fixed_authenticated_api_path(self):
         from integrations import mcp_server
 
-        with patch.object(mcp_server, "_request_json", return_value={"status": "PROPOSAL_ONLY"}) as request:
+        with patch.object(
+            mcp_server, "_request_json", return_value={"status": "PROPOSAL_ONLY"}
+        ) as request:
             result = _tool_result("vx.offices.list", {})
         self.assertIn("PROPOSAL_ONLY", result["content"][0]["text"])
         request.assert_called_once_with("/offices", method="GET")
@@ -82,6 +79,13 @@ if __name__ == "__main__":
 
     def test_route_preview_rejects_extra_or_malformed_arguments(self):
         with self.assertRaises(BridgeError):
-            _tool_result("vx.office.route.preview", {"office_id": "OFF-TEST", "intent": "Review", "url": "https://example.com"})
+            _tool_result(
+                "vx.office.route.preview",
+                {"office_id": "OFF-TEST", "intent": "Review", "url": "https://example.com"},
+            )
         with self.assertRaises(BridgeError):
             _tool_result("vx.office.route.preview", {"office_id": "", "intent": "Review"})
+
+
+if __name__ == "__main__":
+    unittest.main()
