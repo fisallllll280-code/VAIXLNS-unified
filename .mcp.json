@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "vaixlns-vx-readonly": {
+      "command": "python",
+      "args": ["-m", "integrations.mcp_server"],
+      "env": {
+        "PYTHONPATH": "${CLAUDE_PROJECT_DIR}",
+        "VX_MCP_API_BASE_URL": "${VX_MCP_API_BASE_URL:-http://127.0.0.1:8000}"
+      }
+    }
+  }
+}
