@@ -182,13 +182,18 @@ class WorkspaceFabric:
                   modified_at=excluded.modified_at,indexed_at=excluded.indexed_at,status=excluded.status,
                   duplicate_of=excluded.duplicate_of,metadata_json=excluded.metadata_json""",
                   (source_id, rel, kind, title, digest, text, size, modified, now, status, duplicate_of, "{}"))
-            # Delete only sources that disappeared; stable source IDs preserve session lineage.
+            # Remove only filesystem-managed rows. Connector-managed remote records
+            # survive local re-indexing and retain their provenance/session links.
             active_ids = [row[0] for row in scanned]
+            managed_kinds = ("repository_file", "external_local_file")
             if active_ids:
                 placeholders = ",".join("?" for _ in active_ids)
-                db.execute(f"DELETE FROM sources WHERE id NOT IN ({placeholders})", active_ids)
+                db.execute(
+                    f"DELETE FROM sources WHERE kind IN (?, ?) AND id NOT IN ({placeholders})",
+                    (*managed_kinds, *active_ids),
+                )
             else:
-                db.execute("DELETE FROM sources")
+                db.execute("DELETE FROM sources WHERE kind IN (?, ?)", managed_kinds)
         return {"ok": True, "scanned": seen_files, "indexed": indexed, "skipped": skipped,
                 "duplicates": duplicate_count, "roots": len(roots), "indexed_at": now}
 
@@ -197,12 +202,12 @@ class WorkspaceFabric:
         with self._connect() as db:
             if query and query.strip():
                 needle = "%" + query.strip()[:200] + "%"
-                rows = db.execute("""SELECT id,path,kind,title,content_sha256,bytes,modified_at,indexed_at,status,duplicate_of
+                rows = db.execute("""SELECT id,path,kind,title,content_sha256,bytes,modified_at,indexed_at,status,duplicate_of,metadata_json
                   FROM sources WHERE path LIKE ? ESCAPE '\\' OR title LIKE ? ESCAPE '\\' OR content LIKE ? ESCAPE '\\'
                   ORDER BY CASE status WHEN 'indexed' THEN 0 ELSE 1 END, path LIMIT ?""",
                   (needle, needle, needle, limit)).fetchall()
             else:
-                rows = db.execute("""SELECT id,path,kind,title,content_sha256,bytes,modified_at,indexed_at,status,duplicate_of
+                rows = db.execute("""SELECT id,path,kind,title,content_sha256,bytes,modified_at,indexed_at,status,duplicate_of,metadata_json
                   FROM sources ORDER BY path LIMIT ?""", (limit,)).fetchall()
         return [dict(row) for row in rows]
 
