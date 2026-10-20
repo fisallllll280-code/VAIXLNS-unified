@@ -48,5 +48,5 @@ sphinx>=7.0
 mkdocs>=1.4
 
 # Optional model and observability bridges
-openai>=1.0
+openai>=3.26.1
 opentelemetry-api>=1.0
