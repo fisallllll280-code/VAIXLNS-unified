@@ -1,0 +1,9 @@
+{
+  "schema": "VAIXLNS.ArchiveSourceInventorySummary.v1",
+  "source_files_in_workspace": 69,
+  "total_bytes": 786341,
+  "detailed_inventory_file": "archive_source_inventory.json",
+  "detailed_inventory_sha256": "9859981602af15e1e7917e18bf052d4ad1b64d0316aba2d7beedb4d5e282b159",
+  "detailed_inventory_storage": "Included in the downloadable VAIXLNS_Innovation_Index_Consolidation.zip; GitHub index source is expected to be loaded as a source artifact, not copied raw into the public repository.",
+  "policy": "Each source is separately identified by SOURCE-ID and SHA-256 in the full inventory; repeated filenames/content do not justify silently overwriting a source."
+}
