@@ -38,7 +38,7 @@ prometheus-client>=0.17
 python-json-logger>=2.0
 
 # Development
-black>=23.7
+black>=26.10.0
 flake8>=6.0
 mypy>=1.4
 isort>=5.12
