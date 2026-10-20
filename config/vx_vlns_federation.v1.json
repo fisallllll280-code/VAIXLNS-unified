@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "VAIXLNS-VX-VLNS-FEDERATION-V1",
+  "purpose": "Track canonical ownership, implementation evidence, and continuity for VX/VLNS integration without merging away historical lineage.",
+  "authority": {
+    "canonical_architecture": "https://github.com/fisallllll280-code/VAIXLNS",
+    "integration_surface": "https://github.com/fisallllll280-code/VAIXLNS-unified",
+    "rule": "A repository README or architecture document is a claim source, not sufficient runtime proof."
+  },
+  "evidence_states": [
+    "CANONICAL",
+    "PARTIAL",
+    "IMPLEMENTED_TESTED",
+    "SPECIFIED",
+    "CONTRACT",
+    "DISCOVERY",
+    "INCOMPLETE",
+    "QUARANTINED",
+    "OPEN"
+  ],
+  "repositories": [
+    {
+      "id": "REPO-VAIXLNS",
+      "name": "VAIXLNS",
+      "url": "https://github.com/fisallllll280-code/VAIXLNS",
+      "role": "Canonical architecture, governance, registry, recovery, and innovation hub",
+      "evidence_state": "CANONICAL",
+      "promotion_policy": "Preserve historical records and lineage; do not infer that every indexed element is implemented."
+    },
+    {
+      "id": "REPO-VAIXLNS-UNIFIED",
+      "name": "VAIXLNS-unified",
+      "url": "https://github.com/fisallllll280-code/VAIXLNS-unified",
+      "role": "Executable integration surface for VX, VLNS, federation, evidence, and runtime adapters",
+      "evidence_state": "PARTIAL",
+      "promotion_policy": "Promote a capability only with code, focused tests, reproducible CI evidence, and a declared scope."
+    },
+    {
+      "id": "REPO-VLNS-ACTIVATION-BRIDGE",
+      "name": "VLNS activation bridge",
+      "url": "https://github.com/fisallllll280-code/VAIXLNS-unified/blob/main/docs/integration/VLNS_VX_ACTIVATION_BRIDGE_V1.md",
+      "role": "Contract and evidence boundary for controlled VLNS-to-VX activation",
+      "evidence_state": "CONTRACT",
+      "promotion_policy": "External endpoint, credentials, and live activation remain environment-dependent; a prepared envelope is not proof of successful dispatch."
+    },
+    {
+      "id": "REPO-NEXENT",
+      "name": "NEXENT",
+      "url": "https://github.com/fisallllll280-code/NEXENT",
+      "role": "Discovery, research, architecture search, and evolution proposals",
+      "evidence_state": "DISCOVERY",
+      "promotion_policy": "Proposals must pass VX admission, policy/authority, verification, and operational assurance before execution."
+    },
+    {
+      "id": "REPO-VAIXLNS-CORE",
+      "name": "vaixlns-core",
+      "url": "https://github.com/fisallllll280-code/vaixlns-core",
+      "role": "Constitutional/core vertical-slice specification",
+      "evidence_state": "SPECIFIED",
+      "promotion_policy": "Reconcile documentation claims against executable source and tests before claiming runtime integration."
+    },
+    {
+      "id": "REPO-CSD-KERNEL",
+      "name": "vaixlns-csd-kernel",
+      "url": "https://github.com/fisallllll280-code/vaixlns-csd-kernel",
+      "role": "CSD root ontology and DSL",
+      "evidence_state": "SPECIFIED",
+      "promotion_policy": "Treat as a contract/compiler input until parser, validator, tests, and runtime wiring are evidenced."
+    },
+    {
+      "id": "REPO-VX50",
+      "name": "VX50_COMPLETE_BUILD",
+      "url": "https://github.com/fisallllll280-code/VX50_COMPLETE_BUILD",
+      "role": "Historical/incomplete VX build line and recovery source",
+      "evidence_state": "INCOMPLETE",
+      "promotion_policy": "Recover with provenance; do not silently replace or overwrite canonical implementation."
+    },
+    {
+      "id": "REPO-INTENT-REALITY",
+      "name": "VAIXLNS-Intent-to-Reality",
+      "url": "https://github.com/fisallllll280-code/VAIXLNS-Intent-to-Reality",
+      "role": "Intent-to-reality boundary",
+      "evidence_state": "INCOMPLETE",
+      "promotion_policy": "Keep as a future integration boundary until executable contract and tests are verified."
+    }
+  ],
+  "canonical_flow": [
+    "ARCHIVE_AND_SOURCE_DISCOVERY",
+    "IDENTITY_AND_PROVENANCE",
+    "ATOMIC_RECORD_AND_LINEAGE",
+    "CANONICAL_NEXUS",
+    "NEXENT_PROPOSAL",
+    "CONTRACT_AND_POLICY_GATE",
+    "VX_ADMISSION_AND_EXECUTION",
+    "EVENT_STATE_LEDGER",
+    "VV_VERIFICATION",
+    "OIF_OPERATIONAL_ASSURANCE",
+    "EVIDENCE_AND_PROOF",
+    "RECOVERY_AND_REPLAY",
+    "CONTROLLED_EVOLUTION"
+  ],
+  "invariants": [
+    "No historical record is deleted merely because it is duplicate-looking or superseded.",
+    "Every canonicalization or merge records source identity, target identity, rationale, and lineage.",
+    "Unknown or missing evidence blocks promotion; it is not treated as success.",
+    "OIF is operational assurance, not consensus.",
+    "Replay is evidence for reproducibility, not by itself proof of distributed replication.",
+    "A green unit test does not establish production readiness or full federation completeness.",
+    "External tools, MCP servers, models, and repositories remain untrusted until explicitly admitted.",
+    "Never store tokens, credentials, private keys, or secrets in this manifest."
+  ],
+  "known_open_gaps": [
+    "Element-by-element recovery and reconciliation of the historical master index 0001-2750 is not yet proven complete.",
+    "Full GitHub-wide repository indexing and continuous change detection require configured, authenticated execution.",
+    "Live VLNS endpoint connectivity and credential configuration are external deployment responsibilities.",
+    "Distributed consensus, leader election, replication, and multi-node failover require separate implementation and reproducible tests.",
+    "Production deployment, observability collectors, and external service health are not proven by this static manifest."
+  ]
+}
