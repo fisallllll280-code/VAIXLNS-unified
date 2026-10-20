@@ -41,7 +41,7 @@ python-json-logger>=2.0
 black>=23.7
 flake8>=6.0
 mypy>=1.4
-isort>=5.12
+isort>=9.0.2
 
 # Documentation
 sphinx>=7.0
