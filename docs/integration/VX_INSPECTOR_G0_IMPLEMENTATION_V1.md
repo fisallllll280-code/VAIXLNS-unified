@@ -22,13 +22,13 @@
 ## Run in a fully isolated local worktree
 
 ```bash
-git fetch origin main
-git worktree add -b test/vx-inspector-validation ../vx-inspector-validation origin/main
+git fetch origin feat/vx-inspector-g0-20261021
+git worktree add -b test/vx-inspector-validation ../vx-inspector-validation origin/feat/vx-inspector-g0-20261021
 cd ../vx-inspector-validation
 python -m unittest tests.test_vx_inspector -v
 python -m pytest -q tests/test_vx_inspector_api.py
 python -m workspace.vx_inspector --root . > /tmp/vx-inspector-observation.json
-VAIXLNS_API_TOKEN=<operator-secret> python -m uvicorn api.server:app --host 127.0.0.1 --port 8000
+VAIXLNS_API_TOKEN=REPLACE_WITH_LOCAL_SECRET python -m uvicorn api.server:app --host 127.0.0.1 --port 8000
 ```
 
 Navigate to `http://127.0.0.1:8000/inspector`. Enter the API token in the page (not saved in storage).
