@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 from infra.durable_store import DurableEventStore
 from infra.vlns_server_client import ServerConfig, VLNSServerClient
 from workspace.fabric import WorkspaceFabric
+from workspace.vx_inspector import inspect as inspect_vx
 
 
 DB_PATH = Path(os.getenv("VAIXLNS_DB_PATH", "var/vaixlns/events.db"))
@@ -260,6 +261,20 @@ def create_app(db_path: str | Path = DB_PATH, workspace_root: str | Path | None 
             raise HTTPException(status_code=status_code, detail=code) from None
         except ValueError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from None
+
+    @app.get("/workspace/vx-inspector")
+    def vx_inspector(authorization: str | None = Header(default=None)) -> dict[str, Any]:
+        if os.getenv("VAIXLNS_API_TOKEN") is not None:
+            require_auth(authorization)
+        return inspect_vx(root)
+
+    @app.get("/inspector", response_class=HTMLResponse)
+    def inspector_dashboard() -> HTMLResponse:
+        path = Path(__file__).resolve().parents[1] / "workspace" / "inspector.html"
+        try:
+            return HTMLResponse(path.read_text(encoding="utf-8"))
+        except OSError:
+            raise HTTPException(status_code=404, detail="VX_INSPECTOR_NOT_INSTALLED") from None
 
     return app
 
