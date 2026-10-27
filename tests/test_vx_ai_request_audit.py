@@ -89,9 +89,6 @@ class VXAIRequestAuditTests(unittest.TestCase):
 
     def test_success_requires_output_and_status_retry_is_idempotent(self):
         to_running(self.ledger, "vxreq-success")
-        event = self.ledger.transition_status(
-            "vxreq-success", "VALIDATING", changed_by="ignored"
-        ) if False else None
         output = {
             "output_id": "out-001",
             "output_hash": "b" * 64,
