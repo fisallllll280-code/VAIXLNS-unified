@@ -84,7 +84,7 @@ class VXAuditedMindAdapterTests(unittest.TestCase):
         adapter = VXAuditedMindAdapter(inner, BrokenLedger())
         result = adapter.run(FakeMind(), FakeTask())
         self.assertEqual(result["status"], "audit_blocked")
-        self.assertEqual(inner.calls, [])
+        self.assertEqual(inner.calls, 0)
 
     def test_not_configured_adapter_is_recorded_as_failed_without_provider_attempt(self):
         inner = FakeAdapter(result={"status": "not_configured", "reason": "missing settings"})
