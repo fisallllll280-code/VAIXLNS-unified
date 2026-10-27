@@ -450,15 +450,16 @@ class VXAIRequestAuditLedger:
             value = normalized.get(text_field)
             if value is not None and (not isinstance(value, str) or not value.strip()):
                 raise AuditLedgerError(f"{text_field.upper()}_MUST_BE_NONEMPTY_STRING_OR_NULL")
+        event_id = f"vx-ai-attempt:{request_id}:{attempt_id}"
+        payload = {"attempt": normalized}
         with self._lock:
-            self.request(request_id)
-            if self.request(request_id)["execution_status"] != "RUNNING":
+            if event_id not in self._events_by_id and self.request(request_id)["execution_status"] != "RUNNING":
                 raise AuditLedgerError("ATTEMPT_CAN_ONLY_BE_RECORDED_WHILE_RUNNING")
             return self._append(
-                event_id=f"vx-ai-attempt:{request_id}:{attempt_id}",
+                event_id=event_id,
                 event_type="VX_AI_ATTEMPT_RECORDED",
                 request_id=request_id,
-                payload={"attempt": normalized},
+                payload=payload,
                 capability="ai_request_audit:attempt",
             )
 
@@ -479,14 +480,16 @@ class VXAIRequestAuditLedger:
             value = normalized[field]
             if value is not None and (not isinstance(value, str) or not value.strip()):
                 raise AuditLedgerError(f"{field.upper()}_MUST_BE_NONEMPTY_STRING_OR_NULL")
+        event_id = f"vx-ai-output:{request_id}:{normalized['output_id']}"
+        payload = {"output": normalized}
         with self._lock:
-            if self.request(request_id)["execution_status"] != "RUNNING":
+            if event_id not in self._events_by_id and self.request(request_id)["execution_status"] != "RUNNING":
                 raise AuditLedgerError("OUTPUT_CAN_ONLY_BE_RECORDED_WHILE_RUNNING")
             return self._append(
-                event_id=f"vx-ai-output:{request_id}:{normalized['output_id']}",
+                event_id=event_id,
                 event_type="VX_AI_OUTPUT_RECORDED",
                 request_id=request_id,
-                payload={"output": normalized},
+                payload=payload,
                 capability="ai_request_audit:output",
             )
 
