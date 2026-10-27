@@ -89,6 +89,16 @@ class VXAIRequestAuditTests(unittest.TestCase):
 
     def test_success_requires_output_and_status_retry_is_idempotent(self):
         to_running(self.ledger, "vxreq-success")
+        attempt = {
+            "attempt_id": "attempt-success-001",
+            "attempt_number": 1,
+            "provider": "provider-test",
+            "model_id": "model-test",
+            "status": "SUCCEEDED",
+            "started_at": "2026-10-27T21:00:00Z",
+            "completed_at": "2026-10-27T21:00:01Z",
+        }
+        recorded_attempt = self.ledger.record_attempt("vxreq-success", attempt)
         output = {
             "output_id": "out-001",
             "output_hash": "b" * 64,
@@ -109,6 +119,14 @@ class VXAIRequestAuditTests(unittest.TestCase):
                 "vxreq-success", "SUCCEEDED", changed_by="vx-runtime"
             ).event_hash,
             succeeded.event_hash,
+        )
+        self.assertEqual(
+            self.ledger.record_output("vxreq-success", output).event_hash,
+            recorded.event_hash,
+        )
+        self.assertEqual(
+            self.ledger.record_attempt("vxreq-success", attempt).event_hash,
+            recorded_attempt.event_hash,
         )
         self.assertEqual(self.ledger.request("vxreq-success")["execution_status"], "SUCCEEDED")
 
