@@ -134,9 +134,6 @@ class ClaudeAdapter:
         self,
         objective: str,
         context: Mapping[str, Any] | None = None,
-        *,
-        request_id: str | None = None,
-        trace_id: str | None = None,
     ) -> dict[str, Any]:
         """Ask Claude for a proposal; never execute returned text or tool calls."""
         if not isinstance(objective, str) or not objective.strip():
@@ -147,12 +144,7 @@ class ClaudeAdapter:
         audit_request_id: str | None = None
         if self.audit_ledger is not None:
             try:
-                audit_request_id, generated_trace_id = self._begin_audit(prompt)
-                if request_id is not None or trace_id is not None:
-                    # External IDs are accepted only when they match the IDs assigned at
-                    # ledger creation; callers should supply IDs through a future request API.
-                    raise ValueError("EXTERNAL_AUDIT_IDS_NOT_SUPPORTED_BY_THIS_ADAPTER")
-                trace_id = generated_trace_id
+                audit_request_id, trace_id = self._begin_audit(prompt)
             except Exception as exc:
                 return {
                     "status": "audit_blocked",
