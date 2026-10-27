@@ -77,9 +77,7 @@ class ClaudeAdapter:
             prompt += json.dumps(dict(context), ensure_ascii=False, sort_keys=True, default=str)
         return prompt
 
-    def _begin_audit(self, prompt: str) -> tuple[str, str]:
-        request_id = "vxreq-claude-" + uuid4().hex
-        trace_id = "vxtrace-claude-" + uuid4().hex
+    def _begin_audit(self, prompt: str, request_id: str, trace_id: str) -> None:
         self.audit_ledger.create_request({
             "request_id": request_id,
             "trace_id": trace_id,
@@ -97,8 +95,6 @@ class ClaudeAdapter:
         self.audit_ledger.transition_status(
             request_id, "VALIDATING", changed_by=self.audit_actor_id
         )
-        return request_id, trace_id
-
     def _record_audit_failure(
         self,
         request_id: str,
@@ -142,15 +138,20 @@ class ClaudeAdapter:
 
         prompt = self._prompt(objective, context)
         audit_request_id: str | None = None
+        audit_trace_id: str | None = None
         if self.audit_ledger is not None:
+            audit_request_id = "vxreq-claude-" + uuid4().hex
+            audit_trace_id = "vxtrace-claude-" + uuid4().hex
             try:
-                audit_request_id, trace_id = self._begin_audit(prompt)
+                self._begin_audit(prompt, audit_request_id, audit_trace_id)
             except Exception as exc:
                 return {
                     "status": "audit_blocked",
                     "provider": self.provider_id,
                     "model": self.model,
                     "reason": type(exc).__name__,
+                    "audit_request_id": audit_request_id,
+                    "audit_trace_id": audit_trace_id,
                     "authority": "proposal_only",
                 }
 
@@ -170,6 +171,7 @@ class ClaudeAdapter:
                         "model": self.model,
                         "reason": type(exc).__name__,
                         "audit_request_id": audit_request_id,
+                        "audit_trace_id": audit_trace_id,
                         "authority": "proposal_only",
                     }
             result = {"status": "not_configured", "provider": self.provider_id,
@@ -177,6 +179,7 @@ class ClaudeAdapter:
                       "model": self.model}
             if audit_request_id is not None:
                 result["audit_request_id"] = audit_request_id
+                result["audit_trace_id"] = audit_trace_id
             return result
 
         if audit_request_id is not None:
@@ -191,6 +194,7 @@ class ClaudeAdapter:
                     "model": self.model,
                     "reason": type(exc).__name__,
                     "audit_request_id": audit_request_id,
+                    "audit_trace_id": audit_trace_id,
                     "authority": "proposal_only",
                 }
 
@@ -297,4 +301,5 @@ class ClaudeAdapter:
         }
         if audit_request_id is not None:
             result["audit_request_id"] = audit_request_id
+            result["audit_trace_id"] = audit_trace_id
         return result
