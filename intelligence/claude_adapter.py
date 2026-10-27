@@ -95,6 +95,7 @@ class ClaudeAdapter:
         self.audit_ledger.transition_status(
             request_id, "VALIDATING", changed_by=self.audit_actor_id
         )
+
     def _record_audit_failure(
         self,
         request_id: str,
@@ -227,12 +228,14 @@ class ClaudeAdapter:
                         "model": self.model,
                         "reason": "PROVIDER_FAILED_AND_AUDIT_WRITE_FAILED",
                         "audit_request_id": audit_request_id,
+                        "audit_trace_id": audit_trace_id,
                         "authority": "proposal_only",
                     }
             result = {"status": "provider_error", "provider": self.provider_id,
                       "reason": reason, "model": self.model}
             if audit_request_id is not None:
                 result["audit_request_id"] = audit_request_id
+                result["audit_trace_id"] = audit_trace_id
             return result
 
         blocks = getattr(response, "content", ()) or ()
@@ -282,6 +285,7 @@ class ClaudeAdapter:
                     "model": self.model,
                     "reason": type(exc).__name__,
                     "audit_request_id": audit_request_id,
+                    "audit_trace_id": audit_trace_id,
                     "provider_status": "ok",
                     "authority": "proposal_only",
                 }
