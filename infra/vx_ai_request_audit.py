@@ -240,7 +240,7 @@ class VXAIRequestAuditLedger:
             "model_id": _required_text(record.get("model_id"), "model_id"),
             "model_version": record.get("model_version"),
             "policy_version": _required_text(record.get("policy_version"), "policy_version"),
-            "created_at": _timestamp(record.get("created_at"), field="created_at"),
+            "created_at": _timestamp(record.get("created_at"), field="created_at") if record.get("created_at") is not None else None,
             "input_hash": _sha256(record.get("input_hash"), "input_hash"),
             "input_ref": record.get("input_ref"),
             "input_tokens": _nonnegative_int(record.get("input_tokens"), "input_tokens", optional=True),
@@ -653,7 +653,7 @@ class VXAIRequestAuditLedger:
             "checks_passed": checks_passed,
             "evidence_refs": evidence_refs,
             "reason": verification.get("reason", ""),
-            "completed_at": _timestamp(verification.get("completed_at"), field="completed_at"),
+            "completed_at": _timestamp(verification.get("completed_at"), field="completed_at") if verification.get("completed_at") is not None else None,
         }
         if not isinstance(normalized["reason"], str):
             raise AuditLedgerError("VERIFICATION_REASON_MUST_BE_STRING")
