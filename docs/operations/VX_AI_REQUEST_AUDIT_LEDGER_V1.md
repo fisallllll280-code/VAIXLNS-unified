@@ -95,17 +95,36 @@ Example request creation:
 
 The example digest is a placeholder and must be replaced with a real digest. Pass only fields accepted by the request schema.
 
-## 8. Tests and acceptance
+## 8. Multi-mind adapter integration
+
+For existing adapters that implement `run(mind, task)`, `intelligence/audited_mind_adapter.py` provides `VXAuditedMindAdapter`. Inject it as the adapter supplied to `MultiMindOrchestrator` or another compatible coordinator:
+
+    from infra.vx_ai_request_audit import VXAIRequestAuditLedger
+    from intelligence.audited_mind_adapter import VXAuditedMindAdapter
+    from intelligence.multi_mind_orchestrator import MultiMindOrchestrator, load_minds
+
+    with VXAIRequestAuditLedger("var/vx-ai-audit.sqlite3") as ledger:
+        inner = OperatorConfiguredMindAdapter()
+        audited = VXAuditedMindAdapter(inner, ledger)
+        orchestrator = MultiMindOrchestrator(load_minds("minds.json"), audited)
+        proposals = orchestrator.deliberate(task)
+
+Replace the illustrative `OperatorConfiguredMindAdapter`, registry path, and task with the runtime's actual configured objects. Do not wrap a Claude adapter that already records to the same ledger, unless duplicate nested request records are intentionally desired.
+
+The wrapper hashes the task envelope rather than storing the task body; records provider/agent identity, attempt status, elapsed time, available usage fields and output digest; and blocks provider invocation if initial audit admission fails. Provider exceptions are reduced to safe type/status reasons. A provider return does not set verification to VERIFIED and does not create a cost estimate.
+
+## 9. Tests and acceptance
 
 Run the local, deterministic tests with:
 
-    python -m pytest -q tests/test_vx_ai_request_audit.py
+    python -m pytest -q tests/test_vx_ai_request_audit.py tests/test_vx_audited_mind_adapter.py
+    python -m unittest tests.test_claude_adapter -v
 
-The tests cover request creation and replay, rejected raw-prompt fields, timezone and digest validation, legal/illegal status transitions, output-before-success, attempt timings, source lineage, exact decimal cost, reconciliation, verification evidence, and detection of a modified SQLite event.
+The tests cover request creation and replay, rejected raw-prompt fields, timezone and digest validation, legal/illegal status transitions, output-before-success, attempt timings, source lineage, exact decimal cost, reconciliation, verification evidence, detection of a modified SQLite event, generic adapter success/error/timeout paths, and audited Claude adapter paths.
 
 Acceptance for this slice means the audit module and its tests pass in CI and the hash chain validates. It does not establish live provider connectivity, production persistence/backup, distributed multi-writer safety, external tamper-proof storage, API authentication, or deployment readiness.
 
-## 9. Required next integration steps
+## 10. Required next integration steps
 
 1. Connect VX's model router and every provider adapter to this interface; ensure every attempt and retry gets its own attempt_id.
 2. Wire source adapters so only actually retrieved/used/blocked/failed sources are recorded, with digests and authorized references.
