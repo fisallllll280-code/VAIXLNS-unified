@@ -240,6 +240,7 @@ class VXAIRequestAuditLedger:
             "model_id": _required_text(record.get("model_id"), "model_id"),
             "model_version": record.get("model_version"),
             "policy_version": _required_text(record.get("policy_version"), "policy_version"),
+            "created_at": _timestamp(record.get("created_at"), field="created_at"),
             "input_hash": _sha256(record.get("input_hash"), "input_hash"),
             "input_ref": record.get("input_ref"),
             "input_tokens": _nonnegative_int(record.get("input_tokens"), "input_tokens", optional=True),
@@ -263,7 +264,6 @@ class VXAIRequestAuditLedger:
                 request_id=request_id,
                 payload=payload,
                 capability="ai_request_audit:create",
-                created_at=_timestamp(record.get("created_at"), field="created_at"),
             )
 
     def request(self, request_id: str) -> dict[str, Any]:
@@ -460,7 +460,6 @@ class VXAIRequestAuditLedger:
                 request_id=request_id,
                 payload={"attempt": normalized},
                 capability="ai_request_audit:attempt",
-                created_at=normalized["completed_at"],
             )
 
     def record_output(self, request_id: str, output: Mapping[str, Any]) -> StoredEvent:
@@ -533,7 +532,6 @@ class VXAIRequestAuditLedger:
                 request_id=request_id,
                 payload={"source": normalized},
                 capability="ai_request_audit:source",
-                created_at=normalized["retrieved_at"],
             )
 
     def record_cost(self, request_id: str, cost: Mapping[str, Any]) -> StoredEvent:
@@ -576,7 +574,6 @@ class VXAIRequestAuditLedger:
                 request_id=request_id,
                 payload={"cost": normalized},
                 capability="ai_request_audit:cost",
-                created_at=normalized["occurred_at"],
             )
 
     def set_billing_status(
@@ -668,5 +665,4 @@ class VXAIRequestAuditLedger:
                 request_id=request_id,
                 payload={"verification": normalized},
                 capability="ai_request_audit:verification",
-                created_at=normalized["completed_at"],
             )
