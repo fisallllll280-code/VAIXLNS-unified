@@ -64,6 +64,22 @@ class VXSystemLoaderTests(unittest.TestCase):
         with self.assertRaises(LoaderError):
             validate_manifest(data)
 
+    def test_rejects_unhashable_firmware_and_artifact_kind_values(self):
+        data = manifest_for(b"image")
+        data["target"]["firmware"] = [{"unexpected": "object"}]
+        with self.assertRaises(LoaderError):
+            validate_manifest(data)
+        data = manifest_for(b"image")
+        data["artifacts"][0]["kind"] = ["os_image"]
+        with self.assertRaises(LoaderError):
+            validate_manifest(data)
+
+    def test_rejects_query_string_in_artifact_uri(self):
+        data = manifest_for(b"image")
+        data["artifacts"][0]["uri"] += "?token=must-not-be-embedded"
+        with self.assertRaises(LoaderError):
+            validate_manifest(data)
+
     def test_requires_plan_only_and_human_approval(self):
         data = manifest_for(b"image")
         data["install_policy"]["require_human_approval"] = False
