@@ -1,0 +1,69 @@
+{
+  "catalog_id": "VX-ONE-SYSTEM-CATALOG",
+  "catalog_version": "1.0.0",
+  "status": "DISCOVERY_ONLY",
+  "authority": "VAIXLNS",
+  "execution_boundary": "VX",
+  "default_mode": "PLAN_ONLY",
+  "network_enabled": false,
+  "automatic_installation": false,
+  "automatic_reboot": false,
+  "systems": [
+    {
+      "system_id": "windows",
+      "display_name": "Microsoft Windows",
+      "families": ["Windows 11", "Windows Server"],
+      "architectures": ["x86_64", "arm64"],
+      "firmware": ["uefi"],
+      "secure_boot": "supported",
+      "tpm": "TPM 2.0 capability check required",
+      "source_policy": "official_vendor_source_only",
+      "artifact_manifest": null,
+      "evidence_status": "NOT_CONFIGURED"
+    },
+    {
+      "system_id": "ubuntu",
+      "display_name": "Ubuntu",
+      "families": ["Ubuntu LTS"],
+      "architectures": ["x86_64", "arm64"],
+      "firmware": ["uefi", "bios"],
+      "secure_boot": "supported_on_eligible_hardware",
+      "tpm": "optional_measured_boot_profile",
+      "source_policy": "official_vendor_source_only",
+      "artifact_manifest": null,
+      "evidence_status": "NOT_CONFIGURED"
+    },
+    {
+      "system_id": "debian",
+      "display_name": "Debian",
+      "families": ["Debian stable"],
+      "architectures": ["x86_64", "arm64"],
+      "firmware": ["uefi", "bios"],
+      "secure_boot": "platform_dependent",
+      "tpm": "optional_measured_boot_profile",
+      "source_policy": "official_vendor_source_only",
+      "artifact_manifest": null,
+      "evidence_status": "NOT_CONFIGURED"
+    },
+    {
+      "system_id": "fedora",
+      "display_name": "Fedora",
+      "families": ["Fedora Workstation", "Fedora Server"],
+      "architectures": ["x86_64", "arm64"],
+      "firmware": ["uefi"],
+      "secure_boot": "supported_on_eligible_hardware",
+      "tpm": "optional_measured_boot_profile",
+      "source_policy": "official_vendor_source_only",
+      "artifact_manifest": null,
+      "evidence_status": "NOT_CONFIGURED"
+    }
+  ],
+  "safety_invariants": [
+    "Never write EFI variables or boot sectors in catalog/preflight mode.",
+    "Never download or execute an artifact without a pinned digest and verified signature.",
+    "Never disable Secure Boot or alter TPM ownership automatically.",
+    "Never overwrite disks or partitions without a separate, explicit, target-specific approval.",
+    "Never reboot automatically.",
+    "A successful manifest check is not proof that a system booted."
+  ]
+}
