@@ -93,6 +93,8 @@ def validate_manifest(
              "target.architectures contains an invalid value")
     firmware = target.get("firmware")
     _require(isinstance(firmware, list) and firmware, "target.firmware must be a non-empty list")
+    _require(all(isinstance(x, str) for x in firmware),
+             "target.firmware contains an invalid value")
     _require(set(firmware).issubset(_ALLOWED_FIRMWARE), "unsupported firmware target")
 
     policy = data.get("install_policy")
@@ -120,14 +122,18 @@ def validate_manifest(
         seen.add(artifact_id)
 
         kind = entry.get("kind")
-        _require(kind in _ALLOWED_KINDS, "unsupported artifact kind")
+        _require(isinstance(kind, str) and kind in _ALLOWED_KINDS,
+                 "unsupported artifact kind")
         uri = entry.get("uri")
         _require(isinstance(uri, str), "artifact uri is required")
         parsed = urlparse(uri)
         _require(parsed.scheme == "https" and parsed.hostname is not None,
                  "artifact uri must use HTTPS")
-        _require(parsed.username is None and parsed.password is None and not parsed.fragment,
-                 "artifact uri must not contain credentials or fragments")
+        _require(
+            parsed.username is None and parsed.password is None
+            and not parsed.fragment and not parsed.query,
+            "artifact uri must not contain credentials, query strings, or fragments",
+        )
         _require(parsed.hostname.lower() in hosts, "artifact host is not allowlisted")
 
         digest = entry.get("sha256")
