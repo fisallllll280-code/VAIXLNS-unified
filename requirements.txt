@@ -40,7 +40,7 @@ python-json-logger>=2.0
 # Development
 black>=23.7
 flake8>=6.0
-mypy>=1.4
+mypy>=2.4.0
 isort>=5.12
 
 # Documentation
