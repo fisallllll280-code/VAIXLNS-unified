@@ -33,6 +33,10 @@ Without `--execute`, the runtime refuses to start network access. Without `VX_RE
 
 The default allowlist is the three core repositories. Add NEXENT, VX50_COMPLETE_BUILD, datasets, or VAIXLNS-Intent-to-Reality explicitly when the research scope requires them. The candidate-read cap defaults to two files per repository per query to bound API usage; raise it deliberately when broader coverage is needed. A bounded scan is not an exhaustive audit.
 
+## Manual GitHub Actions execution
+
+A manual-only workflow is provided at `.github/workflows/vx-global-research-runtime.yml`. It has no push, pull-request, or scheduled trigger. A human must open **Actions → VX Global Research Runtime → Run workflow** and supply the mission and explicit repository allowlist. The workflow grants only `contents: read`, performs GitHub GET requests, and uploads the JSON report as a 30-day artifact. It does not write the report into a repository or execute candidate code.
+
 ## Decision semantics
 
 - A successful search is not proof that a candidate is novel.
