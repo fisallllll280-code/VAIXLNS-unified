@@ -15,6 +15,7 @@ on:
       - "tests/test_global_research_runtime.py"
       - "docs/GLOBAL_RESEARCH_RUNTIME_V1.md"
       - ".github/workflows/innovation-research-fabric.yml"
+      - ".github/workflows/vx-global-research-runtime.yml"
   pull_request:
     paths:
       - "innovation_control/research_fabric.py"
