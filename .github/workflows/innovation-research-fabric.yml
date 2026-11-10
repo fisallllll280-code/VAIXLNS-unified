@@ -9,6 +9,11 @@ on:
       - "innovation_control/research_fabric.py"
       - "tests/test_research_fabric.py"
       - "config/research-decision-bundle.schema.json"
+      - "tools/global_research_runtime.py"
+      - "tools/research_adapters.py"
+      - "scripts/run_global_research.py"
+      - "tests/test_global_research_runtime.py"
+      - "docs/GLOBAL_RESEARCH_RUNTIME_V1.md"
       - ".github/workflows/innovation-research-fabric.yml"
   pull_request:
     paths:
