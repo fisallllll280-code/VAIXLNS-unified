@@ -213,6 +213,7 @@ class GitHubRepositorySearchProvider:
     max_sources: int = DEFAULT_SOURCE_LIMIT
     max_candidates_per_repo: int = 2
     _snapshots: dict[str, tuple[str, tuple[Mapping[str, Any], ...]]] = field(default_factory=dict, init=False, repr=False)
+    _content_cache: dict[tuple[str, str, str], str] = field(default_factory=dict, init=False, repr=False)
 
     def __post_init__(self) -> None:
         valid = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
@@ -282,6 +283,9 @@ class GitHubRepositorySearchProvider:
         return result
 
     def _read_blob(self, repository: str, path: str, revision: str) -> str:
+        cache_key = (repository, path, revision)
+        if cache_key in self._content_cache:
+            return self._content_cache[cache_key]
         encoded_path = quote(path, safe="/")
         record = self._get(f"/repos/{repository}/contents/{encoded_path}?ref={revision}")
         if record.get("type") != "file" or record.get("encoding") != "base64":
@@ -296,6 +300,7 @@ class GitHubRepositorySearchProvider:
             raise RuntimeError("GITHUB_FILE_CONTENT_INVALID") from exc
         if len(raw) > MAX_REMOTE_FILE_BYTES:
             raise RuntimeError("GITHUB_FILE_SIZE_LIMIT")
+        self._content_cache[cache_key] = content
         return content
 
     def search(self, query: ResearchQuery, scopes: Sequence[str]) -> Sequence[SourceRecord]:
