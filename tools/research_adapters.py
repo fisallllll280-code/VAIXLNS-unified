@@ -211,6 +211,7 @@ class GitHubRepositorySearchProvider:
     transport: JsonTransport = field(default_factory=UrllibJsonTransport)
     timeout_seconds: float = 12.0
     max_sources: int = DEFAULT_SOURCE_LIMIT
+    max_candidates_per_repo: int = 2
     _snapshots: dict[str, tuple[str, tuple[Mapping[str, Any], ...]]] = field(default_factory=dict, init=False, repr=False)
 
     def __post_init__(self) -> None:
@@ -221,6 +222,8 @@ class GitHubRepositorySearchProvider:
             raise ValueError("DUPLICATE_GITHUB_REPOSITORY")
         if not 1 <= self.max_sources <= 12:
             raise ValueError("MAX_SOURCES_OUT_OF_RANGE")
+        if not 1 <= self.max_candidates_per_repo <= MAX_REMOTE_CANDIDATES:
+            raise ValueError("MAX_CANDIDATES_PER_REPO_OUT_OF_RANGE")
         if not 1 <= self.timeout_seconds <= 30:
             raise ValueError("TIMEOUT_OUT_OF_RANGE")
 
@@ -316,7 +319,7 @@ class GitHubRepositorySearchProvider:
                 if score:
                     scored.append((score, path, revision))
             scored.sort(key=lambda item: (-item[0], item[1]))
-            for path_score, path, rev in scored[:MAX_REMOTE_CANDIDATES]:
+            for path_score, path, rev in scored[:self.max_candidates_per_repo]:
                 try:
                     content = self._read_blob(repository, path, rev)
                 except RuntimeError as exc:
