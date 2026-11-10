@@ -1,0 +1,52 @@
+name: VX Global Research Runtime
+
+on:
+  workflow_dispatch:
+    inputs:
+      mission:
+        description: Research mission
+        required: true
+        default: "Discover, challenge, and recover evidence for VAIXLNS engineering innovations."
+        type: string
+      repositories:
+        description: Space-separated explicit GitHub repository allowlist
+        required: true
+        default: "fisallllll280-code/VAIXLNS fisallllll280-code/VAIXLNS-unified fisallllll280-code/VX-runtime"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  read-only-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Run bounded read-only research
+        env:
+          VX_RESEARCH_NETWORK_ENABLED: "1"
+          GITHUB_TOKEN: ${{ github.token }}
+          MISSION: ${{ inputs.mission }}
+          REPOSITORY_ALLOWLIST: ${{ inputs.repositories }}
+        run: |
+          mkdir -p artifacts
+          read -r -a REPOSITORIES <<< "$REPOSITORY_ALLOWLIST"
+          python scripts/run_global_research.py \
+            --execute \
+            --mission "$MISSION" \
+            --repositories "${REPOSITORIES[@]}" \
+            --output artifacts/global-research-report.json
+      - name: Upload research evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vx-global-research-${{ github.run_id }}
+          path: artifacts/global-research-report.json
+          if-no-files-found: warn
+          retention-days: 30
