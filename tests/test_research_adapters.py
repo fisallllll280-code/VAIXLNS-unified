@@ -99,6 +99,15 @@ class ResearchAdapterTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "EXPLICIT_GITHUB_REPOSITORY_ALLOWLIST_REQUIRED"):
             GitHubRepositorySearchProvider(())
 
+    def test_github_provider_caches_commit_pinned_source_reads(self):
+        transport = FakeGitHubTransport()
+        provider = GitHubRepositorySearchProvider(("acme/vaixlns",), transport=transport)
+        query = self.query("innovation execution verification")
+        provider.search(query, ("acme/vaixlns",))
+        provider.search(query, ("acme/vaixlns",))
+        content_reads = [url for url, _, _ in transport.calls if "/contents/" in url]
+        self.assertEqual(len(content_reads), len(set(content_reads)))
+
     def test_github_provider_deduplicates_scopes(self):
         transport = FakeGitHubTransport()
         provider = GitHubRepositorySearchProvider(("acme/vaixlns",), transport=transport)
