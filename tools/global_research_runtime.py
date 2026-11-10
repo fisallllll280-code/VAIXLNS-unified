@@ -137,6 +137,7 @@ def run_research_cycle(
         "raw_source_bodies_included": False,
         "source_hashes_preserved": True,
     }
+    payload["bundle_sha256_scope"] = "full_pre_redaction_internal_bundle"
     payload["canonical_eligible"] = False
     payload["cycle_control"] = {
         "repositories": list(config.repositories),
