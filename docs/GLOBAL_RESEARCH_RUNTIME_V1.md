@@ -12,6 +12,7 @@ This runtime extends the existing REDF research-decision fabric. It does not cre
 - Per-run cache for commit-pinned source reads so repeated query lanes do not refetch identical blobs.
 - Local innovation-index ingestion as an incomplete comparison catalog.
 - Deterministic research bundle and machine-readable metrics.
+- Report artifacts preserve source URI, revision, and SHA-256 while omitting raw source file bodies.
 - Fail-closed network gate and bounded remote file reads.
 
 ## Execution
