@@ -312,9 +312,12 @@ class GitHubRepositorySearchProvider:
             for item in paths:
                 path = str(item["path"])
                 lower_path = path.casefold()
-                score = sum(3 for term in terms if term in lower_path)
-                if score:
-                    scored.append((score, path, revision))
+                path_score = sum(3 for term in terms if term in lower_path)
+                # Content-only matches must remain discoverable: path-only filtering
+                # silently skipped relevant files whose names did not contain query terms.
+                area_score = 2 if lower_path.startswith(("docs/", "tests/", "registry/", "tools/", "schemas/")) else 0
+                name_score = 2 if Path(path).name.casefold() in {"readme.md", "project.genome"} else 0
+                scored.append((path_score + area_score + name_score, path, revision))
             scored.sort(key=lambda item: (-item[0], item[1]))
             for path_score, path, rev in scored[:MAX_REMOTE_CANDIDATES]:
                 try:
