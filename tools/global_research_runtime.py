@@ -127,6 +127,7 @@ def run_research_cycle(
     request = build_research_request(config, catalog)
     bundle = ResearchDecisionOrchestrator().run(request, tuple(providers))
     payload = bundle.to_dict()
+    payload["canonical_eligible"] = False
     payload["cycle_control"] = {
         "repositories": list(config.repositories),
         "provider_ids": sorted(provider.provider_id for provider in providers),
