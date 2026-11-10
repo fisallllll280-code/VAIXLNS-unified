@@ -17,6 +17,7 @@ from innovation_control.research_fabric import (
     CatalogEntry,
     ResearchDecisionOrchestrator,
     ResearchRequest,
+    digest,
 )
 from tools.research_adapters import GitHubRepositorySearchProvider
 
@@ -104,7 +105,9 @@ def run_cycle(
         min_primary_sources=min_primary_sources,
     )
     bundle = ResearchDecisionOrchestrator().run(request, (provider,))
-    return bundle.to_dict()
+    payload = bundle.to_dict()
+    payload["bundle_sha256"] = digest(payload)
+    return payload
 
 
 def build_parser() -> argparse.ArgumentParser:
