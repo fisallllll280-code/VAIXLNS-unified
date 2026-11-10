@@ -13,6 +13,7 @@ This runtime extends the existing REDF research-decision fabric. It does not cre
 - Local innovation-index ingestion as an incomplete comparison catalog.
 - Deterministic research bundle and machine-readable metrics.
 - Report artifacts preserve source URI, revision, and SHA-256 while omitting raw source file bodies.
+- The bundle digest is explicitly labeled as the pre-redaction internal-bundle digest; the artifact also records its redaction policy.
 - Fail-closed network gate and bounded remote file reads.
 
 ## Execution
