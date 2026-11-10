@@ -83,6 +83,7 @@ class GlobalResearchRuntimeTests(unittest.TestCase):
         self.assertEqual(first["cycle_metrics"]["query_lanes"], 7)
         self.assertEqual(first["cycle_metrics"]["unique_sources"], 2)
         self.assertTrue(first["report_content_policy"]["source_hashes_preserved"])
+        self.assertEqual(first["bundle_sha256_scope"], "full_pre_redaction_internal_bundle")
         self.assertFalse(first["report_content_policy"]["raw_source_bodies_included"])
         self.assertTrue(all("content" not in source for source in first["sources"]))
         self.assertTrue(all(source["content_included"] is False for source in first["sources"]))
