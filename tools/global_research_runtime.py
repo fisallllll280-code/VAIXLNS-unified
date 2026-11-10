@@ -127,6 +127,16 @@ def run_research_cycle(
     request = build_research_request(config, catalog)
     bundle = ResearchDecisionOrchestrator().run(request, tuple(providers))
     payload = bundle.to_dict()
+    # Keep source provenance and hashes, but never copy raw repository file bodies
+    # into uploaded artifacts. This limits accidental credential/data disclosure.
+    for source in payload.get("sources", []):
+        raw_content = source.pop("content", "")
+        source["content_length_bytes"] = len(raw_content.encode("utf-8"))
+        source["content_included"] = False
+    payload["report_content_policy"] = {
+        "raw_source_bodies_included": False,
+        "source_hashes_preserved": True,
+    }
     payload["canonical_eligible"] = False
     payload["cycle_control"] = {
         "repositories": list(config.repositories),
