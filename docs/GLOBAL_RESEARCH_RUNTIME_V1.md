@@ -35,7 +35,7 @@ The default allowlist is the three core repositories. Add NEXENT, VX50_COMPLETE_
 
 ## Manual GitHub Actions execution
 
-A manual-only workflow is provided at `.github/workflows/vx-global-research-runtime.yml`. It has no push, pull-request, or scheduled trigger. A human must open **Actions → VX Global Research Runtime → Run workflow** and supply the mission and explicit repository allowlist. The workflow grants only `contents: read`, performs GitHub GET requests, and uploads the JSON report as a 30-day artifact. It does not write the report into a repository or execute candidate code.
+A manual-only workflow is included at `.github/workflows/vx-global-research-runtime.yml`. It has no push, pull-request, or scheduled trigger. It becomes available in the Actions tab only after this PR is approved and merged to the default branch. A human must then open **Actions → VX Global Research Runtime → Run workflow** and supply the mission and explicit repository allowlist. The workflow grants only `contents: read`, performs GitHub GET requests, and uploads the JSON report as a 30-day artifact. It does not write the report into a repository or execute candidate code.
 
 ## Decision semantics
 
