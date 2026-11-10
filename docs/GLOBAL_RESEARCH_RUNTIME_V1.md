@@ -9,6 +9,7 @@ This runtime extends the existing REDF research-decision fabric. It does not cre
 - Read-only GitHub repository discovery against an explicit allowlist.
 - Seven complementary REDF lanes: discovery, novelty, counterevidence, implementation, contradiction, and failure analysis (plus the second discovery lane).
 - Commit-pinned source records and SHA-256 content digests through the existing adapter.
+- Per-run cache for commit-pinned source reads so repeated query lanes do not refetch identical blobs.
 - Local innovation-index ingestion as an incomplete comparison catalog.
 - Deterministic research bundle and machine-readable metrics.
 - Fail-closed network gate and bounded remote file reads.
