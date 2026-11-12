@@ -211,7 +211,9 @@ class GitHubRepositorySearchProvider:
     transport: JsonTransport = field(default_factory=UrllibJsonTransport)
     timeout_seconds: float = 12.0
     max_sources: int = DEFAULT_SOURCE_LIMIT
+    max_candidates_per_repo: int = 2
     _snapshots: dict[str, tuple[str, tuple[Mapping[str, Any], ...]]] = field(default_factory=dict, init=False, repr=False)
+    _content_cache: dict[tuple[str, str, str], str] = field(default_factory=dict, init=False, repr=False)
 
     def __post_init__(self) -> None:
         valid = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
@@ -221,6 +223,8 @@ class GitHubRepositorySearchProvider:
             raise ValueError("DUPLICATE_GITHUB_REPOSITORY")
         if not 1 <= self.max_sources <= 12:
             raise ValueError("MAX_SOURCES_OUT_OF_RANGE")
+        if not 1 <= self.max_candidates_per_repo <= MAX_REMOTE_CANDIDATES:
+            raise ValueError("MAX_CANDIDATES_PER_REPO_OUT_OF_RANGE")
         if not 1 <= self.timeout_seconds <= 30:
             raise ValueError("TIMEOUT_OUT_OF_RANGE")
 
@@ -279,6 +283,9 @@ class GitHubRepositorySearchProvider:
         return result
 
     def _read_blob(self, repository: str, path: str, revision: str) -> str:
+        cache_key = (repository, path, revision)
+        if cache_key in self._content_cache:
+            return self._content_cache[cache_key]
         encoded_path = quote(path, safe="/")
         record = self._get(f"/repos/{repository}/contents/{encoded_path}?ref={revision}")
         if record.get("type") != "file" or record.get("encoding") != "base64":
@@ -293,6 +300,7 @@ class GitHubRepositorySearchProvider:
             raise RuntimeError("GITHUB_FILE_CONTENT_INVALID") from exc
         if len(raw) > MAX_REMOTE_FILE_BYTES:
             raise RuntimeError("GITHUB_FILE_SIZE_LIMIT")
+        self._content_cache[cache_key] = content
         return content
 
     def search(self, query: ResearchQuery, scopes: Sequence[str]) -> Sequence[SourceRecord]:
@@ -316,7 +324,7 @@ class GitHubRepositorySearchProvider:
                 if score:
                     scored.append((score, path, revision))
             scored.sort(key=lambda item: (-item[0], item[1]))
-            for path_score, path, rev in scored[:MAX_REMOTE_CANDIDATES]:
+            for path_score, path, rev in scored[:self.max_candidates_per_repo]:
                 try:
                     content = self._read_blob(repository, path, rev)
                 except RuntimeError as exc:
