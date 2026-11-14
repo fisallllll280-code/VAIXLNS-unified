@@ -35,3 +35,5 @@ jobs:
         run: python -m unittest discover -s tests -p "test_research_adapters.py" -v
       - name: Unit and integration tests
         run: python -m pytest -q
+      - name: Full smoke cycle
+        run: python -m scripts.vaixlns_smoke
