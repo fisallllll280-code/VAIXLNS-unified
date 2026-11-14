@@ -95,20 +95,46 @@ class VXSupervisor:
         op.transition(Phase.AUTHORIZED if allowed else Phase.FAILED, "authorize", {"allowed": allowed})
         return allowed
 
-    def execute(self, op: Operation) -> Mapping[str, Any]:
+    def execute(
+        self,
+        op: Operation,
+        *,
+        executor: Optional[Handler] = None,
+        additional_verifier: Optional[Verifier] = None,
+    ) -> Mapping[str, Any]:
+        """Execute an authorized operation with optional per-request trusted gates.
+
+        Overrides are explicit call-scoped dependencies. The base VX verifier
+        always runs; when supplied, the additional verifier must also pass.
+        This permits governed adapters to supply a request-bound dispatcher
+        without mutating the supervisor's shared executor.
+        """
         if op.phase is not Phase.AUTHORIZED:
             raise RuntimeError("execution requires authorization")
+        if executor is not None and not callable(executor):
+            raise TypeError("EXECUTOR_NOT_CALLABLE")
+        if additional_verifier is not None and not callable(additional_verifier):
+            raise TypeError("ADDITIONAL_VERIFIER_NOT_CALLABLE")
         op.transition(Phase.EXECUTING, "execute_start")
         try:
-            result = dict(self.executor(op))
-            if self.verifier(op, result):
+            result = dict((executor or self.executor)(op))
+            verified = bool(self.verifier(op, result))
+            if additional_verifier is not None:
+                verified = verified and bool(additional_verifier(op, result))
+            if verified:
                 op.transition(Phase.VERIFIED, "verify", result)
             else:
-                op.transition(Phase.FAILED, "verify_failed", result)
+                op.transition(Phase.FAILED, "verify_failed", {
+                    "ok": result.get("ok") is True,
+                    "tool_status": result.get("tool_status", ""),
+                    "reason_code": result.get("reason_code", ""),
+                    "tool_event_hash": result.get("tool_event_hash", ""),
+                    "output_sha256": result.get("output_sha256", ""),
+                })
             return result
         except Exception as exc:
-            op.transition(Phase.FAILED, "execute_error", {"error": str(exc)})
-            return {"ok": False, "error": str(exc)}
+            op.transition(Phase.FAILED, "execute_error", {"error_type": type(exc).__name__})
+            return {"ok": False, "error_type": type(exc).__name__}
 
     def recover(self, op: Operation) -> Mapping[str, Any]:
         if op.phase is not Phase.FAILED:
