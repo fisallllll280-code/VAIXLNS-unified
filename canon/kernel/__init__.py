@@ -1,0 +1,38 @@
+"""Ω³ Sovereign Reality Kernel package."""
+from .omega3_kernel import (
+    AdmissionAuditEvent,
+    AdmissionDecision,
+    AdmissionPolicy,
+    AdmissionStatus,
+    AuthorityGrant,
+    EvidenceReceipt,
+    ProofDebtItem,
+    SovereignState,
+    TransitionCandidate,
+    calculate_proof_debt,
+    canonical_json,
+    create_audit_event,
+    digest_json,
+    evaluate_transition,
+    replay_audit_events,
+    verify_event_chain,
+)
+
+__all__ = [
+    "AdmissionAuditEvent",
+    "AdmissionDecision",
+    "AdmissionPolicy",
+    "AdmissionStatus",
+    "AuthorityGrant",
+    "EvidenceReceipt",
+    "ProofDebtItem",
+    "SovereignState",
+    "TransitionCandidate",
+    "calculate_proof_debt",
+    "canonical_json",
+    "create_audit_event",
+    "digest_json",
+    "evaluate_transition",
+    "replay_audit_events",
+    "verify_event_chain",
+]
