@@ -1,0 +1,168 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "VAIXLNS-FINANCIAL-AGENT-GOVERNANCE",
+  "status": "PROPOSAL",
+  "canonical": false,
+  "purpose": "Govern financial workflow agents across the VAIXLNS/VX system-of-systems without granting autonomous custody or payment authority.",
+  "principles": [
+    "least_privilege",
+    "separation_of_duties",
+    "human_approval_for_movement_of_funds",
+    "immutable_audit_evidence",
+    "idempotent_operations",
+    "fail_closed",
+    "no_secret_material_in_repository",
+    "simulation_before_live_execution",
+    "preserve_project_genome_and_omega_000"
+  ],
+  "agents": [
+    {
+      "id": "FIN-ORCHESTRATOR",
+      "role": "Financial workflow coordinator",
+      "access": [
+        "read_approved_financial_indexes",
+        "create_workflow",
+        "track_approvals"
+      ],
+      "denied": [
+        "move_funds",
+        "change_payee",
+        "approve_own_request"
+      ]
+    },
+    {
+      "id": "FIN-TREASURY-ANALYST",
+      "role": "Cash position, liquidity and forecast analysis",
+      "access": [
+        "read_authorized_balances",
+        "read_ledger",
+        "produce_forecasts"
+      ],
+      "denied": [
+        "initiate_transfer",
+        "alter_ledger_source"
+      ]
+    },
+    {
+      "id": "FIN-CONTROLLER",
+      "role": "Reconciliation, budget variance and close controls",
+      "access": [
+        "read_ledger",
+        "prepare_reconciliation",
+        "flag_variance"
+      ],
+      "denied": [
+        "approve_own_adjustment",
+        "delete_audit_event"
+      ]
+    },
+    {
+      "id": "FIN-PAYMENT-PREPARER",
+      "role": "Prepare payment instructions for review",
+      "access": [
+        "draft_payment_instruction",
+        "validate_payee",
+        "check_idempotency"
+      ],
+      "denied": [
+        "submit_payment",
+        "release_payment",
+        "change_verified_payee_after_approval"
+      ]
+    },
+    {
+      "id": "FIN-RISK-COMPLIANCE",
+      "role": "Fraud, sanctions, policy and anomaly review",
+      "access": [
+        "read_minimized_transaction_metadata",
+        "flag_hold",
+        "produce_risk_report"
+      ],
+      "denied": [
+        "override_hold",
+        "self_clear_alert"
+      ]
+    },
+    {
+      "id": "FIN-INDEPENDENT-AUDITOR",
+      "role": "Independent evidence and ledger integrity review",
+      "access": [
+        "read_audit_events",
+        "verify_hash_chain",
+        "export_approved_evidence"
+      ],
+      "denied": [
+        "mutate_transactions",
+        "approve_payments"
+      ]
+    }
+  ],
+  "money_movement": {
+    "enabled": false,
+    "default_transaction_limit_minor_units": 0,
+    "agent_direct_custody": false,
+    "agent_initiated_live_transfer": false,
+    "require_human_approval": true,
+    "require_two_distinct_approvers": true,
+    "requester_cannot_approve": true,
+    "approver_cannot_be_payment_preparer": true,
+    "payee_change_invalidates_approval": true,
+    "require_idempotency_key": true,
+    "require_fresh_balance_and_policy_check": true,
+    "require_provider_receipt_and_reconciliation": true,
+    "require_licensed_provider_and_jurisdiction_review": true,
+    "require_sandbox_acceptance_before_live_mode": true
+  },
+  "workflow_states": [
+    "DRAFT",
+    "VALIDATED",
+    "RISK_HOLD",
+    "PENDING_APPROVAL",
+    "APPROVED",
+    "SUBMITTED_BY_AUTHORIZED_HUMAN",
+    "PROVIDER_ACCEPTED",
+    "RECONCILED",
+    "REJECTED",
+    "CANCELLED",
+    "FAILED",
+    "MANUAL_REVIEW"
+  ],
+  "evidence_required": [
+    "workflow_id",
+    "request_fingerprint",
+    "source_revision",
+    "actor_identity",
+    "policy_version",
+    "amount_and_currency",
+    "payee_fingerprint",
+    "idempotency_key",
+    "risk_decision",
+    "approval_records",
+    "provider_receipt_if_applicable",
+    "reconciliation_result",
+    "timestamps"
+  ],
+  "secret_handling": {
+    "secrets_in_git": false,
+    "secrets_in_prompts_or_logs": false,
+    "required_storage": "approved secret manager or platform-managed secret store",
+    "rotation_and_revocation": "required before any live connector admission"
+  },
+  "admission_gates": [
+    "identity_and_ownership_verified",
+    "provider_contract_and_jurisdiction_reviewed",
+    "capability_allowlist_approved",
+    "dependency_and_environment_fingerprints_pinned",
+    "sandbox_tests_passed",
+    "replay_and_idempotency_tests_passed",
+    "reconciliation_and_rollback_or_compensation_plan_approved",
+    "security_and_finance_owner_approval",
+    "separate_human_production_approval"
+  ],
+  "index": {
+    "registry_path": "docs/finance/financial-agent-governance.v1.json",
+    "companion_spec_path": "docs/finance/financial-agents-operating-model.md",
+    "inventory_path": "docs/finance/financial-capability-index.v1.json",
+    "canonical_omega_000_mutation": false
+  }
+}

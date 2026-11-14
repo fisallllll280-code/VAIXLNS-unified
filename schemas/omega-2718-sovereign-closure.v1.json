@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vaixlns.example/schemas/omega-2718-sovereign-closure.v1.json",
+  "title": "VAIXLNS Ω.2718 Sovereign Closure Evidence Bundle",
+  "description": "An evidence contract for evaluating the eleven HM-1 closure layers. Schema conformance alone is not cryptographic or operational verification.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "subject",
+    "signers",
+    "constitutional_binding",
+    "meta_proof",
+    "closure_engine",
+    "historical_ratification_ledger",
+    "failure_sovereignty",
+    "conflict_resolution",
+    "proof_obligations",
+    "constitutional_evolution_control",
+    "trust_root",
+    "semantic_drift",
+    "sovereign_audit"
+  ],
+  "properties": {
+    "subject": { "type": "string", "minLength": 1 },
+    "signers": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["signer_id", "role"],
+        "properties": {
+          "signer_id": { "type": "string", "minLength": 1 },
+          "role": { "type": "string", "minLength": 1 },
+          "public_key_fingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    },
+    "constitutional_binding": {
+      "type": "object",
+      "required": ["source_id", "immutable", "authority", "source_ref", "source_hash"],
+      "properties": {
+        "source_id": { "const": "CONST-ROOT" },
+        "immutable": { "const": true },
+        "authority": { "type": "string", "minLength": 1 },
+        "source_ref": { "type": "string", "minLength": 1 },
+        "source_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "meta_proof": {
+      "type": "object",
+      "required": ["proofs"],
+      "properties": {
+        "proofs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["proof_id", "statement", "digest", "parent_proof_ids", "signer_id", "signature", "verified_by", "verification_signature"],
+            "properties": {
+              "proof_id": { "type": "string", "minLength": 1 },
+              "statement": { "type": "object" },
+              "digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "parent_proof_ids": { "type": "array", "items": { "type": "string" } },
+              "signer_id": { "type": "string" },
+              "signature": { "type": "string", "minLength": 1 },
+              "verified_by": { "type": "string" },
+              "verification_signature": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "closure_engine": {
+      "type": "object",
+      "required": ["completed_modes", "deterministic", "fail_closed"],
+      "properties": {
+        "completed_modes": { "type": "array", "uniqueItems": true, "items": { "enum": ["structural", "semantic", "temporal", "constitutional"] } },
+        "deterministic": { "const": true },
+        "fail_closed": { "const": true }
+      }
+    },
+    "historical_ratification_ledger": {
+      "type": "object",
+      "required": ["entries"],
+      "properties": {
+        "entries": { "type": "array", "minItems": 1, "items": { "type": "object" } }
+      }
+    },
+    "failure_sovereignty": {
+      "type": "object",
+      "required": ["failure_classes", "failure_invariant", "preserve_previous_accepted_state"],
+      "properties": {
+        "failure_classes": { "type": "array", "uniqueItems": true, "minItems": 5, "items": { "type": "string" } },
+        "failure_invariant": { "type": "string" },
+        "preserve_previous_accepted_state": { "const": true }
+      }
+    },
+    "conflict_resolution": {
+      "type": "object",
+      "required": ["priority", "authority", "proof", "override_rules", "deterministic", "fail_closed", "unverified_override_denied"],
+      "properties": {
+        "priority": { "type": "string", "minLength": 1 },
+        "authority": { "type": "string", "minLength": 1 },
+        "proof": { "type": "string", "minLength": 1 },
+        "override_rules": { "type": "string", "minLength": 1 },
+        "deterministic": { "const": true },
+        "fail_closed": { "const": true },
+        "unverified_override_denied": { "const": true }
+      }
+    },
+    "proof_obligations": {
+      "type": "object",
+      "required": ["claims"],
+      "properties": {
+        "claims": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["claim_id", "status", "required_proof_ids", "evidence_refs"],
+            "properties": {
+              "claim_id": { "type": "string", "minLength": 1 },
+              "status": { "enum": ["SATISFIED", "OPEN", "REJECTED"] },
+              "required_proof_ids": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+              "evidence_refs": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": ["ref", "sha256"],
+                  "properties": {
+                    "ref": { "type": "string", "minLength": 1 },
+                    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "constitutional_evolution_control": {
+      "type": "object",
+      "required": ["approval_threshold", "required_signatures", "human_approval_required", "requester_cannot_approve", "preparer_cannot_approve", "effective_after_seconds", "active_amendment"],
+      "properties": {
+        "approval_threshold": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "required_signatures": { "type": "array", "uniqueItems": true, "minItems": 2, "items": { "type": "string", "minLength": 1 } },
+        "human_approval_required": { "const": true },
+        "requester_cannot_approve": { "const": true },
+        "preparer_cannot_approve": { "const": true },
+        "effective_after_seconds": { "type": "integer", "minimum": 0 },
+        "active_amendment": { "type": ["object", "null"] }
+      }
+    },
+    "trust_root": {
+      "type": "object",
+      "required": ["root_id", "public_key_fingerprint", "issued_at", "revoked", "signature"],
+      "properties": {
+        "root_id": { "type": "string", "minLength": 1 },
+        "public_key_fingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "issued_at": { "type": "string", "format": "date-time" },
+        "revoked": { "type": "boolean" },
+        "signature": { "type": "string", "minLength": 1 }
+      }
+    },
+    "semantic_drift": {
+      "type": "object",
+      "required": ["semantic_snapshot", "drift_level"],
+      "properties": {
+        "drift_level": { "enum": ["none", "low", "medium", "critical"] },
+        "semantic_snapshot": {
+          "type": "object",
+          "required": ["invariant_id", "ontology_version", "generated_at", "semantic_hash"],
+          "properties": {
+            "invariant_id": { "type": "string", "minLength": 1 },
+            "ontology_version": { "type": "string", "minLength": 1 },
+            "generated_at": { "type": "string", "format": "date-time" },
+            "semantic_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+          }
+        }
+      }
+    },
+    "sovereign_audit": {
+      "type": "object",
+      "required": ["auditor_id", "controlled_engine_owner_ids", "scope", "result", "independent", "timestamp", "audit_hash", "signature"],
+      "properties": {
+        "auditor_id": { "type": "string", "minLength": 1 },
+        "controlled_engine_owner_ids": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "scope": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+        "result": { "enum": ["PASS", "FAIL", "INCONCLUSIVE"] },
+        "independent": { "const": true },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "audit_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "signature": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
