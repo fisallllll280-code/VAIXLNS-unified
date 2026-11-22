@@ -1,0 +1,11 @@
+{
+  "policy_id": "VAIXLNS-WALLET-AUTO-001",
+  "currencies": ["SAR", "USD"],
+  "auto_approval_limit_minor": {},
+  "external_money_movement_enabled": false,
+  "require_settlement_confirmation": true,
+  "require_independent_approval_above_limit": true,
+  "reconciliation_required": true,
+  "reconciliation_schedule": "per_event",
+  "on_discrepancy": "quarantine_and_alert"
+}

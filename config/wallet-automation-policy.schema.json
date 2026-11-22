@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VAIXLNS Innovative Wallet Automation Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "policy_id",
+    "currencies",
+    "auto_approval_limit_minor",
+    "external_money_movement_enabled",
+    "require_settlement_confirmation",
+    "require_independent_approval_above_limit",
+    "reconciliation_required"
+  ],
+  "properties": {
+    "policy_id": {"type": "string", "minLength": 1},
+    "currencies": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[A-Z]{3}$"}
+    },
+    "auto_approval_limit_minor": {
+      "type": "object",
+      "description": "Required operator-configured threshold by currency; no implicit monetary threshold.",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "external_money_movement_enabled": {"const": false},
+    "require_settlement_confirmation": {"const": true},
+    "require_independent_approval_above_limit": {"const": true},
+    "reconciliation_required": {"const": true},
+    "reconciliation_schedule": {
+      "type": "string",
+      "enum": ["per_event", "hourly", "daily"]
+    },
+    "on_discrepancy": {
+      "type": "string",
+      "enum": ["halt_affected_account", "quarantine_and_alert"]
+    }
+  }
+}
