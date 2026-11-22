@@ -82,6 +82,16 @@ class ResearchAdapterTests(unittest.TestCase):
         self.assertTrue(all(url.startswith("https://api.github.com/") for url, _, _ in transport.calls))
         self.assertTrue(all(headers.get("Authorization") == "Bearer test-token" for _, headers, _ in transport.calls))
 
+    def test_github_provider_finds_content_match_when_path_has_no_query_terms(self):
+        transport = FakeGitHubTransport()
+        transport.file_content = "Quantum mechanics discovery evidence and numerical simulation."
+        provider = GitHubRepositorySearchProvider(("acme/vaixlns",), transport=transport)
+        query = ResearchQuery("Q-content-only", "quantum mechanics", QueryPurpose.DISCOVERY, True)
+        records = provider.search(query, ("acme/vaixlns",))
+        self.assertTrue(records)
+        self.assertIn("Quantum mechanics", records[0].content)
+        self.assertTrue(records[0].uri.endswith("/docs/innovation.md"))
+
     def test_github_provider_rejects_repository_not_in_allowlist_before_network(self):
         transport = FakeGitHubTransport()
         provider = GitHubRepositorySearchProvider(("acme/vaixlns",), transport=transport)
