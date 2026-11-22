@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 from infra.durable_store import DurableEventStore
 from infra.vlns_server_client import ServerConfig, VLNSServerClient
 from workspace.fabric import WorkspaceFabric
+from workspace.connectors import sync_github_sources
 
 
 DB_PATH = Path(os.getenv("VAIXLNS_DB_PATH", "var/vaixlns/events.db"))
@@ -51,6 +52,11 @@ class WorkspaceAgentRunRequest(BaseModel):
     agent_id: str = Field(min_length=1, max_length=80)
     task: str = Field(min_length=1, max_length=4000)
     session_id: str | None = None
+
+
+class GitHubSyncRequest(BaseModel):
+    query: str = Field(min_length=3, max_length=300)
+    repositories: list[str] = Field(default_factory=list, max_length=5)
 
 
 def _authorized(authorization: str | None) -> bool:
@@ -239,6 +245,24 @@ def create_app(db_path: str | Path = DB_PATH, workspace_root: str | Path | None 
             raise HTTPException(status_code=404, detail="SESSION_NOT_FOUND") from None
         except ValueError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from None
+
+    @app.post("/workspace/connectors/github/sync")
+    def workspace_github_sync(
+        request: GitHubSyncRequest,
+        authorization: str | None = Header(default=None),
+    ) -> dict[str, Any]:
+        require_auth(authorization)
+        try:
+            return sync_github_sources(
+                workspace, request.query,
+                request.repositories or None,
+            )
+        except PermissionError as exc:
+            raise HTTPException(status_code=403, detail=str(exc)) from None
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from None
+        except RuntimeError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from None
 
     @app.get("/workspace/agents")
     def workspace_agents(authorization: str | None = Header(default=None)) -> dict[str, Any]:
