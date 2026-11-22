@@ -44,29 +44,32 @@ def test_agents_are_bounded_and_report_no_llm_execution(tmp_path):
     assert len(fabric.list_agents()) >= 10
 
 
-def test_workspace_api_and_dashboard(tmp_path):
+def test_workspace_api_and_dashboard(tmp_path, monkeypatch):
+    monkeypatch.setenv("VAIXLNS_API_TOKEN", "workspace-test-secret")
+    auth = {"Authorization": "Bearer workspace-test-secret"}
     repo = tmp_path / "repo"
     repo.mkdir()
     (repo / "readme.md").write_text("session index evidence source", encoding="utf-8")
     client = TestClient(create_app(tmp_path / "events.db", workspace_root=repo))
 
     assert client.get("/dashboard").status_code == 200
-    overview = client.get("/workspace/overview")
+    overview = client.get("/workspace/overview", headers=auth)
     assert overview.status_code == 200
     assert overview.json()["counts"]["agents"] >= 10
 
-    indexed = client.post("/workspace/index/rebuild", json={})
+    indexed = client.post("/workspace/index/rebuild", headers=auth, json={})
     assert indexed.status_code == 200
-    session = client.post("/workspace/sessions", json={"title": "Test session"})
+    session = client.post("/workspace/sessions", headers=auth, json={"title": "Test session"})
     assert session.status_code == 201
     session_id = session.json()["session"]["id"]
     message = client.post(
         f"/workspace/sessions/{session_id}/messages",
+        headers=auth,
         json={"role": "user", "content": "Find the source index evidence."},
     )
     assert message.status_code == 201
     assert message.json()["source_ids"]
-    assert client.get(f"/workspace/sessions/{session_id}").json()["sources"]
+    assert client.get(f"/workspace/sessions/{session_id}", headers=auth).json()["sources"]
 
 
 

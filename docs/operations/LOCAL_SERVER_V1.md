@@ -18,10 +18,16 @@ Available endpoints:
 - POST /federation/probe
 
 Set `VAIXLNS_DB_PATH` to place the SQLite database on a durable volume.
-Set `VAIXLNS_API_TOKEN` to require a bearer token for mutating/probe requests.
+Set `VAIXLNS_API_TOKEN` before using any mutating or federation-probe endpoint.
+When the token is missing or blank, those endpoints fail closed with
+`503 AUTHENTICATION_NOT_CONFIGURED`; when the token is configured, absent or
+invalid bearer credentials are rejected with `401 AUTHORIZATION_REQUIRED`.
+The local health endpoint remains unauthenticated and must not be treated as
+proof of federation connectivity.
 
-The server defaults to loopback and therefore does not expose a new network
-surface unless the operator explicitly binds it to another interface.
+The server defaults to loopback. Keep it on loopback until TLS, gateway,
+network restrictions, and deployment authentication have been independently
+verified. Do not expose this API publicly as a way to test federation links.
 
 Remote VLNS connectivity is configured separately through the server connection
 environment variables documented in `VLNS_SERVER_CONNECTION_V1.md`.

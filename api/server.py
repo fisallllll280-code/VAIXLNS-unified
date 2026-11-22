@@ -55,8 +55,8 @@ class WorkspaceAgentRunRequest(BaseModel):
 
 def _authorized(authorization: str | None) -> bool:
     token = os.getenv("VAIXLNS_API_TOKEN")
-    if token is None:
-        return True
+    if not token or not token.strip():
+        return False
     if not authorization or not authorization.startswith("Bearer "):
         return False
     provided = authorization.removeprefix("Bearer ").strip()
@@ -73,6 +73,9 @@ def create_app(db_path: str | Path = DB_PATH, workspace_root: str | Path | None 
     app.state.workspace_fabric = workspace
 
     def require_auth(authorization: str | None) -> None:
+        token = os.getenv("VAIXLNS_API_TOKEN")
+        if not token or not token.strip():
+            raise HTTPException(status_code=503, detail="AUTHENTICATION_NOT_CONFIGURED")
         if not _authorized(authorization):
             raise HTTPException(status_code=401, detail="AUTHORIZATION_REQUIRED")
 
