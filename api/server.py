@@ -1,6 +1,7 @@
 """Small local-first FastAPI surface for VAIXLNS durable execution state."""
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 import hmac
 import os
 from pathlib import Path
@@ -64,21 +65,25 @@ def _authorized(authorization: str | None) -> bool:
 
 
 def create_app(db_path: str | Path = DB_PATH, workspace_root: str | Path | None = None) -> FastAPI:
-    app = FastAPI(title="VAIXLNS Runtime API", version="1.2.0")
     store = DurableEventStore(db_path)
     root = Path(workspace_root or os.getenv("VAIXLNS_REPO_ROOT", str(Path(__file__).resolve().parents[1]))).resolve()
     default_workspace_db = Path(db_path).with_name(Path(db_path).stem + ".workspace.db")
     workspace_db = Path(os.getenv("VAIXLNS_WORKSPACE_DB_PATH", str(default_workspace_db)))
     workspace = WorkspaceFabric(workspace_db, root)
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI):
+        try:
+            yield
+        finally:
+            store.close()
+
+    app = FastAPI(title="VAIXLNS Runtime API", version="1.2.0", lifespan=lifespan)
     app.state.workspace_fabric = workspace
 
     def require_auth(authorization: str | None) -> None:
         if not _authorized(authorization):
             raise HTTPException(status_code=401, detail="AUTHORIZATION_REQUIRED")
-
-    @app.on_event("shutdown")
-    def _shutdown() -> None:
-        store.close()
 
     @app.get("/health")
     def health() -> dict[str, Any]:

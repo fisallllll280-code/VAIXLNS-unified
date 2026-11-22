@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "VAIXLNS-READ-ONLY-FEDERATION-PROBE",
+  "canonical": false,
+  "mode": "READ_ONLY_GET",
+  "timeout_seconds": 3,
+  "max_response_bytes": 65536,
+  "targets": [
+    {
+      "system_id": "VAIXLNS",
+      "description": "Existing VAIXLNS runtime health API; URL must be explicitly configured.",
+      "url_env": "VAIXLNS_RUNTIME_HEALTH_URL",
+      "enabled_env": "VAIXLNS_RUNTIME_PROBE_ENABLED",
+      "token_env": "VAIXLNS_API_TOKEN",
+      "identity_field": "service",
+      "expected_identity": "VAIXLNS-runtime",
+      "health_field": "ok",
+      "healthy_value": true
+    },
+    {
+      "system_id": "VX-runtime",
+      "description": "Requires a separately deployed health adapter matching this proposed contract; the repository runtime core is not assumed to expose HTTP.",
+      "url_env": "VX_RUNTIME_HEALTH_URL",
+      "enabled_env": "VX_RUNTIME_PROBE_ENABLED",
+      "token_env": "VX_RUNTIME_PROBE_TOKEN",
+      "identity_field": "service",
+      "expected_identity": "VX-runtime",
+      "health_field": "status",
+      "healthy_value": "READY"
+    },
+    {
+      "system_id": "VLNS",
+      "description": "Configuration-only remote server target; expected identity must be pinned by the operator before a request is sent.",
+      "base_url_env": "VLNS_SERVER_URL",
+      "path_env": "VLNS_SERVER_HEALTH_PATH",
+      "default_path": "/health",
+      "enabled_env": "VLNS_SERVER_ENABLED",
+      "token_env": "VLNS_SERVER_TOKEN",
+      "identity_field": "service",
+      "expected_identity_env": "VLNS_SERVER_EXPECTED_SERVICE",
+      "health_field": "ok",
+      "healthy_value": true
+    },
+    {
+      "system_id": "NEXENT",
+      "description": "NEXENT web health endpoint; URL must include /api/health and be explicitly configured.",
+      "url_env": "NEXENT_HEALTH_URL",
+      "enabled_env": "NEXENT_PROBE_ENABLED",
+      "identity_field": "service",
+      "expected_identity": "nexent-web",
+      "health_field": "ok",
+      "healthy_value": true
+    },
+    {
+      "system_id": "NEXNET",
+      "description": "Kept separate from NEXENT until repository identity and service ownership are explicitly reconciled.",
+      "url_env": "NEXNET_HEALTH_URL",
+      "enabled_env": "NEXNET_PROBE_ENABLED",
+      "identity_field": "service",
+      "expected_identity": "NEXNET",
+      "health_field": "ok",
+      "healthy_value": true
+    }
+  ],
+  "invariants": [
+    "No request is made unless endpoint and explicit probe enablement are present.",
+    "Missing expected service identity prevents a request.",
+    "Only GET is used.",
+    "Remote cleartext HTTP, credentials in URLs, query strings, and redirects are rejected.",
+    "Only bounded JSON objects with exact service identity and a typed healthy signal produce HEALTHY.",
+    "Tokens, full endpoints, and raw response bodies are never copied to the report.",
+    "Probe success does not grant capability or production admission."
+  ]
+}
