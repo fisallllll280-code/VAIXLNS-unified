@@ -109,7 +109,7 @@ jobs:
 
       - name: Upload system readiness evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vx-system-readiness-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
